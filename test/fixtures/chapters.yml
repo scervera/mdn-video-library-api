@@ -1,0 +1,15 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  title: MyString
+  description: MyText
+  duration: MyString
+  order_index: 1
+  published: false
+
+two:
+  title: MyString
+  description: MyText
+  duration: MyString
+  order_index: 1
+  published: false
