@@ -2,7 +2,7 @@
 service: mdn_video_library_api
 
 # Name of the container image.
-image: scervera/mdn_video_library_api
+image: mdn_video_library_api
 
 # Deploy to these servers.
 servers:
@@ -13,12 +13,10 @@ servers:
   #     - 192.168.0.1
   #   cmd: bin/jobs
 
-# Enable SSL auto certification via Let's Encrypt and allow for multiple apps on a single web server.
-# Remove this section when using multiple web servers and ensure you terminate SSL at your load balancer.
-#
-# Note: If using Cloudflare, set encryption mode in SSL/TLS setting to "Full" to enable CF-to-app encryption.
+# SSL is handled by the proxy server (curriculum-library-api.cerveras.com)
+# Kamal will run the app without SSL since the proxy handles termination
 proxy:
-  ssl: true
+  ssl: false
   host: curriculum-library-api.cerveras.com
 
 # Credentials for your image host.
