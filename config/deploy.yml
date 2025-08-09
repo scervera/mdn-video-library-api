@@ -2,7 +2,7 @@
 service: mdn_video_library_api
 
 # Name of the container image.
-image: mdn_video_library_api
+image: scervera/mdn_video_library_api
 
 # Deploy to these servers.
 servers:
@@ -26,6 +26,7 @@ registry:
   username: scervera
 
   # Always use an access token rather than real password when possible.
+  # Kamal will read this from the environment variable
   password:
     - KAMAL_REGISTRY_PASSWORD
 
@@ -33,6 +34,7 @@ registry:
 env:
   secret:
     - RAILS_MASTER_KEY
+    - KAMAL_REGISTRY_PASSWORD
   clear:
     # Run the Solid Queue Supervisor inside the web server's Puma process to do jobs.
     # When you start using multiple servers, you should split out job processing to a dedicated machine.
