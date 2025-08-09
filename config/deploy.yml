@@ -2,7 +2,7 @@
 service: mdn_video_library_api
 
 # Name of the container image.
-image: your-username/mdn_video_library_api
+image: scervera/mdn_video_library_api
 
 # Deploy to these servers.
 servers:
@@ -97,7 +97,7 @@ builder:
 accessories:
   db:
     image: postgres:15
-    host: 192.168.0.2
+    host: curriculum-library-api.cerveras.com
     port: "127.0.0.1:5432:5432"
     env:
       clear:
@@ -109,7 +109,7 @@ accessories:
       - data:/var/lib/postgresql/data
   redis:
     image: redis:7.0
-    host: 192.168.0.2
+    host: curriculum-library-api.cerveras.com
     port: 6379
     directories:
       - data:/data
