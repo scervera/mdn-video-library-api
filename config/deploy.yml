@@ -23,7 +23,7 @@ proxy:
 registry:
   # Specify the registry server, if you're not using Docker Hub
   server: registry.digitalocean.com/cervera
-  username: scervera
+  username: cervera1@mac.com
 
   # Always use an access token rather than real password when possible.
   # Kamal will read this from the environment variable
