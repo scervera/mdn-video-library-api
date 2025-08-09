@@ -3,9 +3,11 @@
 one:
   user: one
   chapter: one
+  curriculum: one
   highlighted_text: MyString
 
 two:
   user: two
   chapter: two
+  curriculum: one
   highlighted_text: MyString

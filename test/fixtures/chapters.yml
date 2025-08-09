@@ -1,15 +1,17 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
-  title: MyString
-  description: MyText
-  duration: MyString
+  title: Test Chapter 1
+  description: A test chapter for testing purposes
+  duration: 30:00
   order_index: 1
-  published: false
+  published: true
+  curriculum: one
 
 two:
-  title: MyString
-  description: MyText
-  duration: MyString
-  order_index: 1
-  published: false
+  title: Test Chapter 2
+  description: Another test chapter for testing purposes
+  duration: 45:00
+  order_index: 2
+  published: true
+  curriculum: one

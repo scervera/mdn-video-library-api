@@ -1,11 +1,12 @@
 class Chapter < ApplicationRecord
   # Associations
+  belongs_to :curriculum
   has_many :lessons, dependent: :destroy
   has_many :user_progress, dependent: :destroy
 
   # Validations
   validates :title, presence: true
-  validates :order_index, presence: true, uniqueness: true
+  validates :order_index, presence: true, uniqueness: { scope: :curriculum_id }
 
   # Scopes
   scope :published, -> { where(published: true) }

@@ -1,9 +1,10 @@
 class UserProgress < ApplicationRecord
   belongs_to :user
   belongs_to :chapter
+  belongs_to :curriculum
 
   # Validations
-  validates :user_id, uniqueness: { scope: :chapter_id }
+  validates :user_id, uniqueness: { scope: [:chapter_id, :curriculum_id] }
 
   # Scopes
   scope :completed, -> { where(completed: true) }

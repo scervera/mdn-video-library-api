@@ -17,8 +17,16 @@ class User < ApplicationRecord
   validates :last_name, presence: true
 
   # Instance methods
-  def completed_chapters_count
-    user_progress.where(completed: true).count
+  def completed_chapters_count(curriculum = nil)
+    if curriculum
+      user_progress.where(curriculum: curriculum, completed: true).count
+    else
+      user_progress.where(completed: true).count
+    end
+  end
+
+  def enrolled_in?(curriculum)
+    user_progress.where(curriculum: curriculum).exists?
   end
 
   def full_name

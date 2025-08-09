@@ -1,6 +1,11 @@
 class Api::ChaptersController < Api::BaseController
   def index
-    chapters = Chapter.published.ordered
+    if params[:curriculum_id]
+      curriculum = Curriculum.find(params[:curriculum_id])
+      chapters = curriculum.chapters.published.ordered
+    else
+      chapters = Chapter.published.ordered
+    end
     render json: chapters.map { |chapter| chapter_with_progress(chapter) }
   end
 
@@ -11,7 +16,8 @@ class Api::ChaptersController < Api::BaseController
 
   def complete
     chapter = Chapter.find(params[:id])
-    progress = current_user.user_progress.find_or_create_by(chapter: chapter)
+    curriculum = chapter.curriculum
+    progress = current_user.user_progress.find_or_create_by(chapter: chapter, curriculum: curriculum)
     progress.update(completed: true, completed_at: Time.current)
     render json: { message: 'Chapter completed' }
   end
@@ -19,7 +25,7 @@ class Api::ChaptersController < Api::BaseController
   private
 
   def chapter_with_progress(chapter)
-    progress = current_user.user_progress.find_by(chapter: chapter)
+    progress = current_user.user_progress.find_by(chapter: chapter, curriculum: chapter.curriculum)
     {
       id: chapter.id,
       title: chapter.title,
@@ -28,7 +34,7 @@ class Api::ChaptersController < Api::BaseController
       order_index: chapter.order_index,
       published: chapter.published,
       lessons: chapter.lessons.published.ordered.map { |lesson| lesson_with_progress(lesson) },
-      isLocked: chapter.order_index > current_user.completed_chapters_count + 1,
+      isLocked: chapter.order_index > current_user.completed_chapters_count(chapter.curriculum) + 1,
       completed: progress&.completed || false,
       completed_at: progress&.completed_at,
       total_lessons: chapter.total_lessons,

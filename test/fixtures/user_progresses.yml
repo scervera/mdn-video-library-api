@@ -3,11 +3,13 @@
 one:
   user: one
   chapter: one
+  curriculum: one
   completed: false
   completed_at: 2025-08-07 15:53:44
 
 two:
   user: two
   chapter: two
+  curriculum: one
   completed: false
   completed_at: 2025-08-07 15:53:44
