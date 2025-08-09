@@ -45,8 +45,8 @@ COPY . .
 # Precompile bootsnap code for faster boot times
 RUN bundle exec bootsnap precompile app/ lib/
 
-
-
+# Precompile assets
+RUN bundle exec rails assets:precompile
 
 # Final stage for app image
 FROM base
