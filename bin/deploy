@@ -1,0 +1,156 @@
+#!/usr/bin/env bash
+
+# Deploy script for MDN Video Library API using Kamal
+
+set -e
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# Function to print colored output
+print_status() {
+    echo -e "${GREEN}[INFO]${NC} $1"
+}
+
+print_warning() {
+    echo -e "${YELLOW}[WARNING]${NC} $1"
+}
+
+print_error() {
+    echo -e "${RED}[ERROR]${NC} $1"
+}
+
+print_step() {
+    echo -e "${BLUE}[STEP]${NC} $1"
+}
+
+# Check if we're in the right directory
+if [ ! -f "Gemfile" ]; then
+    print_error "Please run this script from the Rails application root directory"
+    exit 1
+fi
+
+# Check if Kamal is installed
+if ! bundle exec kamal version > /dev/null 2>&1; then
+    print_error "Kamal is not installed. Please run 'bundle install' first."
+    exit 1
+fi
+
+# Parse command line arguments
+ACTION=${1:-deploy}
+ENVIRONMENT=${2:-production}
+
+print_status "MDN Video Library API Deployment Script"
+print_status "Action: $ACTION"
+print_status "Environment: $ENVIRONMENT"
+
+case $ACTION in
+    "build")
+        print_step "Building Docker image..."
+        if bundle exec kamal build; then
+            print_status "Image built successfully!"
+        else
+            print_error "Image build failed!"
+            exit 1
+        fi
+        ;;
+    
+    "deploy")
+        # Check if we have uncommitted changes
+        if [ -n "$(git status --porcelain)" ]; then
+            print_warning "You have uncommitted changes. Please commit or stash them before deploying."
+            read -p "Continue anyway? (y/N): " -n 1 -r
+            echo
+            if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+                exit 1
+            fi
+        fi
+        
+        # Check if we're on the right branch for production
+        if [ "$ENVIRONMENT" = "production" ]; then
+            CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+            if [ "$CURRENT_BRANCH" != "main" ] && [ "$CURRENT_BRANCH" != "master" ]; then
+                print_warning "You're deploying to production from branch '$CURRENT_BRANCH'. Are you sure?"
+                read -p "Continue? (y/N): " -n 1 -r
+                echo
+                if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+                    exit 1
+                fi
+            fi
+        fi
+        
+        print_step "Building Docker image..."
+        if ! bundle exec kamal build; then
+            print_error "Image build failed!"
+            exit 1
+        fi
+        
+        print_step "Deploying to $ENVIRONMENT..."
+        if bundle exec kamal deploy; then
+            print_status "Deployment completed successfully!"
+            
+            print_step "Checking application status..."
+            bundle exec kamal app status
+        else
+            print_error "Deployment failed!"
+            exit 1
+        fi
+        ;;
+    
+    "status")
+        print_step "Checking application status..."
+        bundle exec kamal app status
+        ;;
+    
+    "logs")
+        print_step "Showing application logs..."
+        bundle exec kamal logs
+        ;;
+    
+    "console")
+        print_step "Opening Rails console..."
+        bundle exec kamal console
+        ;;
+    
+    "rollback")
+        print_warning "Rolling back to previous version..."
+        if bundle exec kamal rollback; then
+            print_status "Rollback completed successfully!"
+        else
+            print_error "Rollback failed!"
+            exit 1
+        fi
+        ;;
+    
+    "help"|"-h"|"--help")
+        echo "Usage: $0 [action] [environment]"
+        echo ""
+        echo "Actions:"
+        echo "  build     - Build Docker image only"
+        echo "  deploy    - Build and deploy (default)"
+        echo "  status    - Check application status"
+        echo "  logs      - Show application logs"
+        echo "  console   - Open Rails console"
+        echo "  rollback  - Rollback to previous version"
+        echo "  help      - Show this help message"
+        echo ""
+        echo "Environments:"
+        echo "  production - Production environment (default)"
+        echo ""
+        echo "Examples:"
+        echo "  $0                    # Deploy to production"
+        echo "  $0 build             # Build image only"
+        echo "  $0 status            # Check status"
+        echo "  $0 logs              # Show logs"
+        ;;
+    
+    *)
+        print_error "Unknown action: $ACTION"
+        echo "Run '$0 help' for usage information"
+        exit 1
+        ;;
+esac

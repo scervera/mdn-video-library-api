@@ -83,7 +83,10 @@ production:
     <<: *default
     database: mdn_video_library_api_production
     username: mdn_video_library_api
-    password: <%= ENV["MDN_VIDEO_LIBRARY_API_DATABASE_PASSWORD"] %>
+    password: <%= ENV["DATABASE_PASSWORD"] %>
+    host: <%= ENV["DB_HOST"] || "localhost" %>
+    port: <%= ENV["DB_PORT"] || 5432 %>
+    pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
   cache:
     <<: *primary_production
     database: mdn_video_library_api_production_cache
