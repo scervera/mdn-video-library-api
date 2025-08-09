@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_08_07_195351) do
+ActiveRecord::Schema[7.1].define(version: 2025_08_08_180028) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -20,6 +20,17 @@ ActiveRecord::Schema[7.1].define(version: 2025_08_07_195351) do
     t.string "duration"
     t.integer "order_index"
     t.boolean "published"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "curriculum_id", null: false
+    t.index ["curriculum_id"], name: "index_chapters_on_curriculum_id"
+  end
+
+  create_table "curriculums", force: :cascade do |t|
+    t.string "title"
+    t.text "description"
+    t.boolean "published"
+    t.integer "order_index"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -55,7 +66,9 @@ ActiveRecord::Schema[7.1].define(version: 2025_08_07_195351) do
     t.string "highlighted_text"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "curriculum_id", null: false
     t.index ["chapter_id"], name: "index_user_highlights_on_chapter_id"
+    t.index ["curriculum_id"], name: "index_user_highlights_on_curriculum_id"
     t.index ["user_id"], name: "index_user_highlights_on_user_id"
   end
 
@@ -65,7 +78,9 @@ ActiveRecord::Schema[7.1].define(version: 2025_08_07_195351) do
     t.text "content"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "curriculum_id", null: false
     t.index ["chapter_id"], name: "index_user_notes_on_chapter_id"
+    t.index ["curriculum_id"], name: "index_user_notes_on_curriculum_id"
     t.index ["user_id"], name: "index_user_notes_on_user_id"
   end
 
@@ -76,7 +91,9 @@ ActiveRecord::Schema[7.1].define(version: 2025_08_07_195351) do
     t.datetime "completed_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "curriculum_id", null: false
     t.index ["chapter_id"], name: "index_user_progresses_on_chapter_id"
+    t.index ["curriculum_id"], name: "index_user_progresses_on_curriculum_id"
     t.index ["user_id"], name: "index_user_progresses_on_user_id"
   end
 
@@ -96,13 +113,17 @@ ActiveRecord::Schema[7.1].define(version: 2025_08_07_195351) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  add_foreign_key "chapters", "curriculums"
   add_foreign_key "lesson_progresses", "lessons"
   add_foreign_key "lesson_progresses", "users"
   add_foreign_key "lessons", "chapters"
   add_foreign_key "user_highlights", "chapters"
+  add_foreign_key "user_highlights", "curriculums"
   add_foreign_key "user_highlights", "users"
   add_foreign_key "user_notes", "chapters"
+  add_foreign_key "user_notes", "curriculums"
   add_foreign_key "user_notes", "users"
   add_foreign_key "user_progresses", "chapters"
+  add_foreign_key "user_progresses", "curriculums"
   add_foreign_key "user_progresses", "users"
 end

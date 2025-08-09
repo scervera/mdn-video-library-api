@@ -14,7 +14,24 @@ Rails.application.routes.draw do
     post 'auth/register'
     get 'auth/me'
     
-    # Chapters
+    # Curricula
+    resources :curricula, only: [:index, :show] do
+      member do
+        post :enroll
+        get :enrollment_status
+      end
+      
+      resources :chapters, only: [:index, :show] do
+        member do
+          post :complete
+        end
+        resources :lessons, only: [:index]
+      end
+      
+      get 'user/progress', to: 'curricula/user#progress'
+    end
+    
+    # Chapters (for backward compatibility)
     resources :chapters, only: [:index, :show] do
       member do
         post :complete
@@ -32,6 +49,7 @@ Rails.application.routes.draw do
     # User Progress
     namespace :user do
       get 'progress'
+      get 'progress/:curriculum_id', to: 'progress#curriculum_progress', as: :curriculum_progress
       resources :notes, only: [:index, :show, :create, :update, :destroy]
       resources :highlights, only: [:index, :show, :create, :update, :destroy]
     end

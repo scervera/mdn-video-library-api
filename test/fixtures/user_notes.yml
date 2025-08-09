@@ -3,9 +3,11 @@
 one:
   user: one
   chapter: one
+  curriculum: one
   content: MyText
 
 two:
   user: two
   chapter: two
+  curriculum: one
   content: MyText
