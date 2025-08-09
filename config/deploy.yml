@@ -1,8 +1,8 @@
 # Name of your application. Used to uniquely configure containers.
-service: mdn_video_library_api
+service: curriculum_library_api
 
-# Name of the container image.
-image: scervera/mdn_video_library_api
+  # Name of the container image.
+image: scervera/curriculum_library_api
 
 # Deploy to these servers.
 servers:
@@ -23,7 +23,7 @@ proxy:
 registry:
   # Specify the registry server, if you're not using Docker Hub
   server: registry.digitalocean.com/cervera
-  #username: cervera1@mac.com
+  username: scervera
 
   # Always use an access token rather than real password when possible.
   # Kamal will read this from the environment variable
