@@ -104,9 +104,10 @@ accessories:
         POSTGRES_DB: curriculum_library_api_production
         POSTGRES_USER: curriculum_library_api
       secret:
-        - DATABASE_PASSWORD
+        - POSTGRES_PASSWORD
     directories:
       - data:/var/lib/postgresql/data
+      
   redis:
     image: redis:7.0
     host: curriculum-library-api.cerveras.com
