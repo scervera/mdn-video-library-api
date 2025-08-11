@@ -2,7 +2,8 @@ class Api::AuthController < ApplicationController
   before_action :authenticate_user!, only: [:me, :logout]
 
   def login
-    user = User.find_by(username: params[:username])
+    # Try to find user by username or email
+    user = User.find_by(username: params[:username]) || User.find_by(email: params[:email])
     
     if user&.valid_password?(params[:password])
       token = JWT.encode({ user_id: user.id }, Rails.application.credentials.secret_key_base)
