@@ -7,7 +7,15 @@
 
 Rails.application.config.middleware.insert_before 0, Rack::Cors do
   allow do
-    origins ENV['ALLOWED_ORIGINS']&.split(',') || ['http://localhost:4000', 'http://localhost:3001']
+    # Allow specific origins from environment variable, or use defaults
+    origins ENV['ALLOWED_ORIGINS']&.split(',') || [
+      'http://localhost:3000',
+      'http://localhost:3001', 
+      'http://localhost:4000',
+      'https://curriculum-library.cerveras.com',
+      'https://curriculum-library-api.cerveras.com',
+      'https://cloud.cerveras.com'
+    ]
 
     resource "*",
       headers: :any,
