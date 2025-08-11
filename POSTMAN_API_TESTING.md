@@ -24,6 +24,18 @@ Your API uses JWT (JSON Web Token) authentication. You'll need to:
 2. Copy the `token` from the response
 3. Add the token to the `Authorization` header for protected endpoints
 
+### Demo Users Available
+You can use these demo users for testing:
+
+| Username | Password | Email |
+|----------|----------|-------|
+| `demo` | `password` | `demo@example.com` |
+| `lawrence` | `password123` | `wilbur_kassulke@ondricka-kiehn.example` |
+| `angelica` | `password123` | `garry@wilderman-rice.example` |
+| `brandi.carter` | `password123` | `sibyl.ruecker@dibbert.test` |
+| `jonathon` | `password123` | `dion.kemmer@feil-kuhn.test` |
+| `darrick.champlin` | `password123` | `liliana@marks.example` |
+
 ## 📝 API Endpoints
 
 ### 1. Authentication Endpoints
@@ -34,6 +46,7 @@ POST /api/auth/register
 Content-Type: application/json
 
 {
+  "username": "newuser",
   "email": "test@example.com",
   "password": "password123",
   "password_confirmation": "password123",
@@ -61,8 +74,8 @@ POST /api/auth/login
 Content-Type: application/json
 
 {
-  "email": "test@example.com",
-  "password": "password123"
+  "username": "demo",
+  "password": "password"
 }
 ```
 
