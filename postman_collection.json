@@ -1,0 +1,472 @@
+{
+  "info": {
+    "name": "Rails 8 Curriculum API",
+    "description": "API collection for testing the Rails 8 Curriculum Library API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://cloud.cerveras.com",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Register User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test@example.com\",\n  \"password\": \"password123\",\n  \"password_confirmation\": \"password123\",\n  \"first_name\": \"John\",\n  \"last_name\": \"Doe\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "register"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Register successful\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Token received\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.token).to.not.be.undefined;",
+                  "    ",
+                  "    // Set the token in environment",
+                  "    pm.environment.set(\"token\", jsonData.token);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "login"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Login successful\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Token received\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.token).to.not.be.undefined;",
+                  "    ",
+                  "    // Set the token in environment",
+                  "    pm.environment.set(\"token\", jsonData.token);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Current User",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/auth/me",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "me"]
+            }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/auth/logout",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "logout"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Curricula",
+      "item": [
+        {
+          "name": "Get All Curricula",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/curricula",
+              "host": ["{{base_url}}"],
+              "path": ["api", "curricula"]
+            }
+          }
+        },
+        {
+          "name": "Get Single Curriculum",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/curricula/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "curricula", "1"]
+            }
+          }
+        },
+        {
+          "name": "Enroll in Curriculum",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/curricula/1/enroll",
+              "host": ["{{base_url}}"],
+              "path": ["api", "curricula", "1", "enroll"]
+            }
+          }
+        },
+        {
+          "name": "Check Enrollment Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/curricula/1/enrollment_status",
+              "host": ["{{base_url}}"],
+              "path": ["api", "curricula", "1", "enrollment_status"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Chapters",
+      "item": [
+        {
+          "name": "Get Chapters for Curriculum",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/curricula/1/chapters",
+              "host": ["{{base_url}}"],
+              "path": ["api", "curricula", "1", "chapters"]
+            }
+          }
+        },
+        {
+          "name": "Get Single Chapter",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/chapters/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "chapters", "1"]
+            }
+          }
+        },
+        {
+          "name": "Complete Chapter",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/chapters/1/complete",
+              "host": ["{{base_url}}"],
+              "path": ["api", "chapters", "1", "complete"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Lessons",
+      "item": [
+        {
+          "name": "Get Lessons for Chapter",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/chapters/1/lessons",
+              "host": ["{{base_url}}"],
+              "path": ["api", "chapters", "1", "lessons"]
+            }
+          }
+        },
+        {
+          "name": "Get Single Lesson",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/lessons/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "lessons", "1"]
+            }
+          }
+        },
+        {
+          "name": "Complete Lesson",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/lessons/1/complete",
+              "host": ["{{base_url}}"],
+              "path": ["api", "lessons", "1", "complete"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "User Progress",
+      "item": [
+        {
+          "name": "Get User Progress",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/user/progress",
+              "host": ["{{base_url}}"],
+              "path": ["api", "user", "progress"]
+            }
+          }
+        },
+        {
+          "name": "Get Curriculum Progress",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/user/progress/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "user", "progress", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "User Notes",
+      "item": [
+        {
+          "name": "Get All Notes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/user/notes",
+              "host": ["{{base_url}}"],
+              "path": ["api", "user", "notes"]
+            }
+          }
+        },
+        {
+          "name": "Get Single Note",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/user/notes/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "user", "notes", "1"]
+            }
+          }
+        },
+        {
+          "name": "Create Note",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"lesson_id\": 1,\n  \"content\": \"This is my note about the lesson\",\n  \"position\": 0\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/user/notes",
+              "host": ["{{base_url}}"],
+              "path": ["api", "user", "notes"]
+            }
+          }
+        },
+        {
+          "name": "Update Note",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"Updated note content\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/user/notes/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "user", "notes", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete Note",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/user/notes/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "user", "notes", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "User Highlights",
+      "item": [
+        {
+          "name": "Get All Highlights",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/user/highlights",
+              "host": ["{{base_url}}"],
+              "path": ["api", "user", "highlights"]
+            }
+          }
+        },
+        {
+          "name": "Get Single Highlight",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/user/highlights/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "user", "highlights", "1"]
+            }
+          }
+        },
+        {
+          "name": "Create Highlight",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"lesson_id\": 1,\n  \"content\": \"Highlighted text from lesson\",\n  \"start_position\": 0,\n  \"end_position\": 50\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/user/highlights",
+              "host": ["{{base_url}}"],
+              "path": ["api", "user", "highlights"]
+            }
+          }
+        },
+        {
+          "name": "Update Highlight",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"Updated highlight content\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/user/highlights/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "user", "highlights", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete Highlight",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/user/highlights/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "user", "highlights", "1"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
