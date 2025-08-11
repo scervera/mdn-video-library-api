@@ -58,6 +58,14 @@ env:
     RAILS_SERVE_STATIC_FILES: true
     RAILS_LOG_LEVEL: info
 
+# Health check configuration
+healthcheck:
+  path: /up
+  port: 80
+  max_attempts: 3
+  interval: 10s
+  grace_period: 30s
+
 # Aliases are triggered with "bin/kamal <alias>". You can overwrite arguments on invocation:
 # "bin/kamal logs -r job" will tail logs from the first server in the job section.
 aliases:
