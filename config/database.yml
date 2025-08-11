@@ -81,8 +81,8 @@ test:
 production:
   primary: &primary_production
     <<: *default
-    database: mdn_video_library_api_production
-    username: mdn_video_library_api
+    database: curriculum_library_api_production
+    username: curriculum_library_api
     password: <%= ENV["DATABASE_PASSWORD"] %>
     host: <%= ENV["DB_HOST"] || "curriculum-library-api.cerveras.com" %>
     port: <%= ENV["DB_PORT"] || 5432 %>
