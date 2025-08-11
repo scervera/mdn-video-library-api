@@ -17,7 +17,6 @@ servers:
 # Kamal will run the app without SSL since the proxy handles termination
 proxy:
   ssl: false
-  host: 209.61.38.18
 
 # Credentials for your image host.
 registry:
