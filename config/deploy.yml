@@ -57,6 +57,19 @@ env:
     RAILS_ENV: production
     RAILS_SERVE_STATIC_FILES: true
     RAILS_LOG_LEVEL: info
+    
+    # Additional Rails configuration
+    RAILS_MAX_THREADS: 5
+    WEB_CONCURRENCY: 1
+
+# Health check path (Kamal will use this to verify the app is healthy)
+healthcheck_path: /up
+
+# Restart policy
+restart: unless-stopped
+
+
+
 
 
 
@@ -106,8 +119,7 @@ accessories:
       clear:
         POSTGRES_DB: curriculum_library_api_production
         POSTGRES_USER: curriculum_library_api
-      secret:
-        - POSTGRES_PASSWORD
+        POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
     directories:
       - data:/var/lib/postgresql/data
       
