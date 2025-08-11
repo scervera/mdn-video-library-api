@@ -16,6 +16,7 @@ servers:
 # SSL is handled by the proxy server (curriculum-library-api.cerveras.com)
 # Kamal will run the app without SSL since the proxy handles termination
 proxy:
+  host: curriculum-library-api.cerveras.com
   ssl: false
 
 # Credentials for your image host.
