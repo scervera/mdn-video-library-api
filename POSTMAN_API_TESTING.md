@@ -20,9 +20,11 @@ Your API uses JWT (JSON Web Token) authentication. You'll need to:
 2. **Include the token** in subsequent requests
 
 ### Authentication Flow
-1. Register a new user OR login with existing credentials
+1. Register a new user OR login with existing credentials (using either username or email)
 2. Copy the `token` from the response
 3. Add the token to the `Authorization` header for protected endpoints
+
+**Note**: You can login using either your username or email address - both work!
 
 ### Demo Users Available
 You can use these demo users for testing:
@@ -68,13 +70,20 @@ Content-Type: application/json
 }
 ```
 
-#### Login
+#### Login (with username OR email)
 ```
 POST /api/auth/login
 Content-Type: application/json
 
+# Option 1: Login with username
 {
   "username": "demo",
+  "password": "password"
+}
+
+# Option 2: Login with email
+{
+  "email": "demo@example.com",
   "password": "password"
 }
 ```
