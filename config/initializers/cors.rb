@@ -15,7 +15,7 @@ Rails.application.config.middleware.insert_before 0, Rack::Cors do
       'https://curriculum-library.cerveras.com',
       'https://curriculum-library-api.cerveras.com',
       'https://cloud.cerveras.com',
-      'mdn-video-library-app.vercel.app',
+      'https://mdn-video-library-app.vercel.app',
     ]
 
     resource "*",
