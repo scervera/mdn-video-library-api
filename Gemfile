@@ -27,6 +27,9 @@ gem "redis", ">= 4.0.1"
 # Use Kredis to get excited about Redis again
 gem "kredis"
 
+# Background job processing
+gem "solid_queue"
+
 # Use Active Model has_secure_password
 # gem "bcrypt", "~> 3.1.7"
 
