@@ -8,7 +8,7 @@ class Api::BaseController < ApplicationController
     return render json: { error: 'No token provided' }, status: :unauthorized unless token
 
     begin
-      decoded = JWT.decode(token, Rails.application.secrets.secret_key_base)[0]
+      decoded = JWT.decode(token, Rails.application.credentials.secret_key_base)[0]
       @current_user = User.find(decoded['user_id'])
     rescue JWT::DecodeError, ActiveRecord::RecordNotFound
       render json: { error: 'Invalid token' }, status: :unauthorized

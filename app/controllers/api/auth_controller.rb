@@ -5,7 +5,7 @@ class Api::AuthController < ApplicationController
     user = User.find_by(username: params[:username])
     
     if user&.valid_password?(params[:password])
-      token = JWT.encode({ user_id: user.id }, Rails.application.secrets.secret_key_base)
+      token = JWT.encode({ user_id: user.id }, Rails.application.credentials.secret_key_base)
       render json: { 
         user: {
           id: user.id,
@@ -44,7 +44,7 @@ class Api::AuthController < ApplicationController
     user = User.new(user_params)
     
     if user.save
-      token = JWT.encode({ user_id: user.id }, Rails.application.secrets.secret_key_base)
+      token = JWT.encode({ user_id: user.id }, Rails.application.credentials.secret_key_base)
       render json: { 
         user: {
           id: user.id,
