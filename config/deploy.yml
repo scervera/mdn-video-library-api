@@ -62,7 +62,7 @@ env:
     WEB_CONCURRENCY: 1
     
     # CORS configuration - allow frontend domains
-    ALLOWED_ORIGINS: "http://localhost:3000,http://localhost:3001,http://localhost:4000,https://curriculum-library.cerveras.com,https://curriculum-library-api.cerveras.com,https://cloud.cerveras.com"
+    ALLOWED_ORIGINS: "http://localhost:3000,http://localhost:3001,http://localhost:4000,https://curriculum-library.cerveras.com,https://curriculum-library-api.cerveras.com,https://cloud.cerveras.com,https://mdn-video-library-app.vercel.app"
 
 
 
