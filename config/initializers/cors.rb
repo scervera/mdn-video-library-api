@@ -12,6 +12,7 @@ Rails.application.config.middleware.insert_before 0, Rack::Cors do
       'http://localhost:3000',
       'http://localhost:3001', 
       'http://localhost:4000',
+      'https://curriculum.cerveras.com',
       'https://curriculum-library.cerveras.com',
       'https://curriculum-library-api.cerveras.com',
       'https://cloud.cerveras.com',
