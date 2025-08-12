@@ -51,7 +51,7 @@ env:
     DATABASE_URL: postgresql://curriculum_library_api:${DATABASE_PASSWORD}@curriculum-library-api.cerveras.com:5432/curriculum_library_api_production
     
     # Redis configuration
-    REDIS_URL: redis://curriculum-library-api.cerveras.com:6379/0
+    REDIS_URL: redis://redis:6379/0
     
     # Rails configuration
     RAILS_ENV: production
@@ -125,6 +125,6 @@ accessories:
   redis:
     image: redis:7.0
     host: curriculum-library-api.cerveras.com
-    port: 6379
+    port: "127.0.0.1:6379:6379"
     directories:
       - data:/data
