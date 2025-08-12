@@ -48,10 +48,10 @@ env:
     # WEB_CONCURRENCY: 2
 
     # Database configuration
-    DATABASE_URL: postgresql://curriculum_library_api:${DATABASE_PASSWORD}@curriculum-library-api.cerveras.com:5432/curriculum_library_api_production
+    DATABASE_URL: postgresql://curriculum_library_api:${DATABASE_PASSWORD}@localhost:5432/curriculum_library_api_production
     
     # Redis configuration
-    REDIS_URL: redis://redis:6379/0
+    REDIS_URL: redis://localhost:6379/0
     
     # Rails configuration
     RAILS_ENV: production
@@ -113,7 +113,7 @@ accessories:
   db:
     image: postgres:15
     host: curriculum-library-api.cerveras.com
-    port: "5432:5432"
+    port: "127.0.0.1:5432:5432"
     env:
       clear:
         POSTGRES_DB: curriculum_library_api_production
