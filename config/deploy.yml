@@ -112,7 +112,6 @@ builder:
 accessories:
   db:
     image: postgres:15
-    host: curriculum-library-api.cerveras.com
     env:
       clear:
         POSTGRES_DB: curriculum_library_api_production
@@ -124,6 +123,5 @@ accessories:
       
   redis:
     image: redis:7.0
-    host: curriculum-library-api.cerveras.com
     directories:
       - data:/data
