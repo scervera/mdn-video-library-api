@@ -48,8 +48,8 @@ env:
     # WEB_CONCURRENCY: 2
 
     # Database configuration
-    DATABASE_URL: postgresql://curriculum_library_api:${DATABASE_PASSWORD}@172.18.0.3:5432/curriculum_library_api_production
-    
+    DATABASE_URL: postgresql://curriculum_library_api:${DATABASE_PASSWORD}@db:5432/curriculum_library_api_production
+    DB_HOST: curriculum_library_api-db
     # Redis configuration
     REDIS_URL: redis://redis:6379/0
     
@@ -64,11 +64,6 @@ env:
     
     # CORS configuration - allow frontend domains
     ALLOWED_ORIGINS: "http://localhost:3000,http://localhost:3001,http://localhost:4000,https://curriculum.cerveras.com,https://curriculum-library-api.cerveras.com,https://mdn-video-library-app.vercel.app"
-
-
-
-
-
 
 
 
@@ -113,6 +108,7 @@ accessories:
   db:
     image: postgres:15
     host: cloud.cerveras.com
+    port: "127.0.0.1:5432:5432" # This is the port that the database is listening on and is not exposed to the outside world
     env:
       clear:
         POSTGRES_DB: curriculum_library_api_production
@@ -125,5 +121,6 @@ accessories:
   redis:
     image: redis:7.0
     host: cloud.cerveras.com
+    port: "127.0.0.1:6379:6379"
     directories:
       - data:/data
