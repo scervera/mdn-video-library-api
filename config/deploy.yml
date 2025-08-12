@@ -48,7 +48,6 @@ env:
     # WEB_CONCURRENCY: 2
 
     # Database configuration
-    DATABASE_URL: postgresql://curriculum_library_api:${DATABASE_PASSWORD}@${DB_HOST}:5432/curriculum_library_api_production
     DB_HOST: curriculum_library_api-db
     # Redis configuration
     REDIS_URL: redis://redis:6379/0
