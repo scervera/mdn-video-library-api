@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloudflare Stream Player Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .video-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto 30px;
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .video-container iframe {
+            width: 100%;
+            height: 450px;
+            border: none;
+        }
+        .info-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .info-section h3 {
+            margin-top: 0;
+            color: #495057;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .info-card {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 4px solid #007bff;
+        }
+        .info-card h4 {
+            margin: 0 0 10px 0;
+            color: #007bff;
+        }
+        .info-card p {
+            margin: 5px 0;
+            font-family: monospace;
+            font-size: 14px;
+            word-break: break-all;
+        }
+        .status-ready {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .status-pending {
+            color: #ffc107;
+            font-weight: bold;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 5px;
+            transition: background 0.3s;
+        }
+        .btn:hover {
+            background: #0056b3;
+        }
+        .btn-secondary {
+            background: #6c757d;
+        }
+        .btn-secondary:hover {
+            background: #545b62;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎥 Cloudflare Stream Player Test</h1>
+        
+        <div class="info-section">
+            <h3>Test Video Information</h3>
+            <p><strong>Video ID:</strong> 73cb888469576ace114104f131e8c6c2</p>
+            <p><strong>Status:</strong> <span class="status-ready">Ready for Playback</span></p>
+            <p><strong>Content Type:</strong> Video Lesson</p>
+            <p><strong>Description:</strong> Test lesson using Cloudflare Stream video player</p>
+        </div>
+
+        <div class="video-container">
+            <iframe 
+                src="https://iframe.videodelivery.net/73cb888469576ace114104f131e8c6c2?autoplay=false&controls=true&loop=false&muted=false&preload=metadata&width=100%&height=100%"
+                width="100%" 
+                height="450" 
+                frameborder="0" 
+                allowfullscreen 
+                allow="autoplay; fullscreen">
+            </iframe>
+        </div>
+
+        <div class="info-grid">
+            <div class="info-card">
+                <h4>🎬 Player URL</h4>
+                <p>https://iframe.videodelivery.net/73cb888469576ace114104f131e8c6c2?autoplay=false&controls=true&loop=false&muted=false&preload=metadata&width=100%&height=100%</p>
+            </div>
+            
+            <div class="info-card">
+                <h4>🖼️ Thumbnail URL</h4>
+                <p>https://videodelivery.net/73cb888469576ace114104f131e8c6c2/thumbnails?width=640&height=360&fit=scale-down</p>
+            </div>
+            
+            <div class="info-card">
+                <h4>📺 Preview URL (HLS)</h4>
+                <p>https://videodelivery.net/73cb888469576ace114104f131e8c6c2/manifest/video.m3u8</p>
+            </div>
+            
+            <div class="info-card">
+                <h4>⬇️ Download URL</h4>
+                <p>https://videodelivery.net/73cb888469576ace114104f131e8c6c2/downloads/default.mp4</p>
+            </div>
+        </div>
+
+        <div class="info-section">
+            <h3>🔗 Quick Links</h3>
+            <a href="https://iframe.videodelivery.net/73cb888469576ace114104f131e8c6c2?autoplay=false&controls=true&loop=false&muted=false&preload=metadata&width=100%&height=100%" target="_blank" class="btn">Open Player in New Tab</a>
+            <a href="https://videodelivery.net/73cb888469576ace114104f131e8c6c2/thumbnails?width=640&height=360&fit=scale-down" target="_blank" class="btn btn-secondary">View Thumbnail</a>
+            <a href="https://videodelivery.net/73cb888469576ace114104f131e8c6c2/downloads/default.mp4" target="_blank" class="btn btn-secondary">Download Video</a>
+        </div>
+
+        <div class="info-section">
+            <h3>📋 API Integration Details</h3>
+            <p><strong>Rails Model:</strong> Lesson with Cloudflare Stream fields</p>
+            <p><strong>Service:</strong> CloudflareStreamService for API integration</p>
+            <p><strong>API Endpoint:</strong> /api/v1/lessons/61</p>
+            <p><strong>Database Fields:</strong> cloudflare_stream_id, cloudflare_stream_thumbnail, cloudflare_stream_duration, cloudflare_stream_status</p>
+        </div>
+
+        <div class="info-section">
+            <h3>🚀 Next Steps</h3>
+            <ul>
+                <li>Set CLOUDFLARE_API_TOKEN environment variable to fetch video metadata</li>
+                <li>Integrate Cloudflare Player into your frontend application</li>
+                <li>Add video analytics and progress tracking</li>
+                <li>Implement video upload functionality to Cloudflare Stream</li>
+                <li>Add video quality selection and adaptive streaming</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

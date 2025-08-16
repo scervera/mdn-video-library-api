@@ -69,6 +69,9 @@ gem "faker"
 # Rails 8 health check gem
 gem "thruster"
 
+# HTTP client for API requests
+gem "httparty"
+
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[ mri mingw x64_mingw ]
