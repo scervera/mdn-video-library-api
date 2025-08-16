@@ -12,7 +12,7 @@ module Api
         end
 
         def curriculum_progress
-          curriculum = Curriculum.find(params[:curriculum_id])
+          curriculum = ::Curriculum.find(params[:curriculum_id])
           render json: {
             curriculum_id: curriculum.id,
             curriculum_title: curriculum.title,

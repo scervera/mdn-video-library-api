@@ -1,18 +1,18 @@
 module Api
   module V1
     class CurriculaController < BaseController
-      def index
-        curricula = Curriculum.published.ordered
-        render json: curricula.map { |curriculum| curriculum_with_progress(curriculum) }
-      end
+        def index
+    curricula = ::Curriculum.published.ordered
+    render json: curricula.map { |curriculum| curriculum_with_progress(curriculum) }
+  end
 
-      def show
-        curriculum = Curriculum.find(params[:id])
-        render json: curriculum_with_progress(curriculum)
-      end
+  def show
+    curriculum = ::Curriculum.find(params[:id])
+    render json: curriculum_with_progress(curriculum)
+  end
 
-      def enroll
-        curriculum = Curriculum.find(params[:id])
+  def enroll
+    curriculum = ::Curriculum.find(params[:id])
         
         # Check if user is already enrolled
         if current_user.enrolled_in?(curriculum)
@@ -35,8 +35,8 @@ module Api
         end
       end
 
-      def enrollment_status
-        curriculum = Curriculum.find(params[:id])
+        def enrollment_status
+    curriculum = ::Curriculum.find(params[:id])
         is_enrolled = current_user.enrolled_in?(curriculum)
         
         render json: {

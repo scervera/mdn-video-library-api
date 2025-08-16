@@ -18,7 +18,7 @@ module Api
         private
 
         def set_curriculum
-          @curriculum = Curriculum.find(params[:curricula_id])
+          @curriculum = ::Curriculum.find(params[:curricula_id])
         end
       end
     end

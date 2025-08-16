@@ -1,23 +1,23 @@
 module Api
   module V1
     class ChaptersController < BaseController
-      def index
-        if params[:curriculum_id]
-          curriculum = Curriculum.find(params[:curriculum_id])
-          chapters = curriculum.chapters.published.ordered
-        else
-          chapters = Chapter.published.ordered
-        end
-        render json: chapters.map { |chapter| chapter_with_progress(chapter) }
-      end
+        def index
+    if params[:curriculum_id]
+      curriculum = ::Curriculum.find(params[:curriculum_id])
+      chapters = curriculum.chapters.published.ordered
+    else
+      chapters = ::Chapter.published.ordered
+    end
+    render json: chapters.map { |chapter| chapter_with_progress(chapter) }
+  end
 
-      def show
-        chapter = Chapter.find(params[:id])
-        render json: chapter_with_progress(chapter)
-      end
+  def show
+    chapter = ::Chapter.find(params[:id])
+    render json: chapter_with_progress(chapter)
+  end
 
-      def complete
-        chapter = Chapter.find(params[:id])
+  def complete
+    chapter = ::Chapter.find(params[:id])
         curriculum = chapter.curriculum
         progress = current_user.user_progress.find_or_create_by(chapter: chapter, curriculum: curriculum)
         progress.update(completed: true, completed_at: Time.current)
