@@ -49,7 +49,7 @@ Rails.application.routes.draw do
       
       # User Progress
       namespace :user do
-        get 'progress'
+        get 'progress', to: 'progress#index'
         get 'progress/:curriculum_id', to: 'progress#curriculum_progress', as: :curriculum_progress
         resources :notes, only: [:index, :show, :create, :update, :destroy]
         resources :highlights, only: [:index, :show, :create, :update, :destroy]
@@ -99,7 +99,7 @@ Rails.application.routes.draw do
     
     # User Progress
     namespace :user do
-      get 'progress'
+      get 'progress', to: 'progress#index'
       get 'progress/:curriculum_id', to: 'progress#curriculum_progress', as: :curriculum_progress
       resources :notes, only: [:index, :show, :create, :update, :destroy]
       resources :highlights, only: [:index, :show, :create, :update, :destroy]
