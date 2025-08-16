@@ -1,6 +1,7 @@
 class Lesson < ApplicationRecord
   belongs_to :chapter
   has_many :lesson_progress, dependent: :destroy
+  has_many :bookmarks, dependent: :destroy
 
   # Validations
   validates :title, presence: true

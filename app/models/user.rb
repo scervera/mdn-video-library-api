@@ -9,6 +9,7 @@ class User < ApplicationRecord
   has_many :lesson_progress, dependent: :destroy
   has_many :user_notes, dependent: :destroy
   has_many :user_highlights, dependent: :destroy
+  has_many :bookmarks, dependent: :destroy
 
   # Validations
   validates :username, presence: true, uniqueness: true
