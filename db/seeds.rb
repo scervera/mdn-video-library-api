@@ -61,7 +61,8 @@ curricula_data = [
             content_type: "video", 
             order_index: 1,
             content: "In this lesson, we explore what faith means and how it forms the foundation of our Christian walk.",
-            description: "Learn the basics of faith and its importance in the Christian life."
+            description: "Learn the basics of faith and its importance in the Christian life.",
+            cloudflare_stream_id: "73cb888469576ace114104f131e8c6c2"
           },
           { 
             title: "The Bible as Foundation", 
@@ -90,7 +91,8 @@ curricula_data = [
             content_type: "video", 
             order_index: 1,
             content: "Establishing a daily routine of Bible study and prayer to grow closer to God.",
-            description: "Building a consistent daily devotional practice."
+            description: "Building a consistent daily devotional practice.",
+            cloudflare_stream_id: "73cb888469576ace114104f131e8c6c2"
           },
           { 
             title: "Fellowship and Community", 
@@ -126,7 +128,8 @@ curricula_data = [
             content_type: "video", 
             order_index: 1,
             content: "Understanding that God's love is unconditional and not based on our performance.",
-            description: "Experiencing the depth of God's unconditional love."
+            description: "Experiencing the depth of God's unconditional love.",
+            cloudflare_stream_id: "73cb888469576ace114104f131e8c6c2"
           },
           { 
             title: "Loving Others", 
@@ -155,7 +158,8 @@ curricula_data = [
             content_type: "video", 
             order_index: 1,
             content: "Identifying and developing the spiritual gifts God has given you.",
-            description: "Discovering and developing your spiritual gifts."
+            description: "Discovering and developing your spiritual gifts.",
+            cloudflare_stream_id: "73cb888469576ace114104f131e8c6c2"
           },
           { 
             title: "Serving Others", 
@@ -191,7 +195,8 @@ curricula_data = [
             content_type: "video", 
             order_index: 1,
             content: "The importance of leading by example and living a life worthy of following.",
-            description: "Developing leadership through personal example."
+            description: "Developing leadership through personal example.",
+            cloudflare_stream_id: "73cb888469576ace114104f131e8c6c2"
           },
           { 
             title: "Servant Leadership", 
@@ -220,7 +225,8 @@ curricula_data = [
             content_type: "video", 
             order_index: 1,
             content: "Learn effective methods for teaching and preaching God's Word.",
-            description: "Developing skills in teaching and preaching."
+            description: "Developing skills in teaching and preaching.",
+            cloudflare_stream_id: "73cb888469576ace114104f131e8c6c2"
           },
           { 
             title: "Counseling and Care", 
@@ -273,6 +279,7 @@ curricula_data.each do |curriculum_data|
         order_index: lesson_data[:order_index],
         content: lesson_data[:content],
         description: lesson_data[:description],
+        cloudflare_stream_id: lesson_data[:cloudflare_stream_id],
         published: true
       )
       puts "    - Created lesson: #{lesson.title}"
@@ -298,7 +305,8 @@ additional_curricula_data = [
             content_type: "video", 
             order_index: 1,
             content: "Study of the first five books of the Bible and their significance.",
-            description: "Understanding the foundational books of the Old Testament."
+            description: "Understanding the foundational books of the Old Testament.",
+            cloudflare_stream_id: "73cb888469576ace114104f131e8c6c2"
           },
           { 
             title: "Historical Books", 
@@ -327,7 +335,8 @@ additional_curricula_data = [
             content_type: "video", 
             order_index: 1,
             content: "Study of the four Gospels and the life and teachings of Jesus.",
-            description: "Understanding the life and ministry of Jesus Christ."
+            description: "Understanding the life and ministry of Jesus Christ.",
+            cloudflare_stream_id: "73cb888469576ace114104f131e8c6c2"
           },
           { 
             title: "Acts and the Early Church", 
@@ -363,7 +372,8 @@ additional_curricula_data = [
             content_type: "video", 
             order_index: 1,
             content: "Understanding God's design and purpose for marriage.",
-            description: "Building a marriage based on biblical principles."
+            description: "Building a marriage based on biblical principles.",
+            cloudflare_stream_id: "73cb888469576ace114104f131e8c6c2"
           },
           { 
             title: "Communication in Marriage", 
@@ -392,7 +402,8 @@ additional_curricula_data = [
             content_type: "video", 
             order_index: 1,
             content: "Building meaningful friendships and being part of a supportive community.",
-            description: "Developing deep, meaningful friendships."
+            description: "Developing deep, meaningful friendships.",
+            cloudflare_stream_id: "73cb888469576ace114104f131e8c6c2"
           },
           { 
             title: "Conflict Resolution", 
@@ -443,6 +454,7 @@ additional_curricula_data.each do |curriculum_data|
         order_index: lesson_data[:order_index],
         content: lesson_data[:content],
         description: lesson_data[:description],
+        cloudflare_stream_id: lesson_data[:cloudflare_stream_id],
         published: true
       )
       puts "    - Created lesson: #{lesson.title}"
@@ -556,3 +568,4 @@ puts "Cloudflare Stream test lesson: #{cloudflare_lesson.id} - #{cloudflare_less
 puts "  API endpoint: /api/v1/lessons/#{cloudflare_lesson.id}"
 puts "  Player URL: #{cloudflare_lesson.cloudflare_player_url}"
 puts "  Thumbnail: #{cloudflare_lesson.cloudflare_thumbnail_url}"
+puts "Total video lessons with Cloudflare Stream: #{Lesson.where.not(cloudflare_stream_id: nil).count}"
