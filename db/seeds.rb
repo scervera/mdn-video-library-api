@@ -101,10 +101,10 @@ curricula_data = [
           },
           { 
             title: "Sharing Your Faith", 
-            content_type: "video", 
+            content_type: "text", 
             order_index: 3,
             content: "Learn how to effectively share your faith with others in a loving and respectful way.",
-            description: "Practical approaches to evangelism and witnessing."
+            description: "Developing confidence in sharing your Christian faith."
           }
         ]
       }
@@ -112,12 +112,12 @@ curricula_data = [
   },
   {
     title: "Advanced Discipleship",
-    description: "Deep dive into advanced Christian concepts and spiritual growth for mature believers.",
+    description: "Deepen your relationship with Christ and grow in spiritual maturity.",
     order_index: 2,
     chapters: [
       {
         title: "Understanding God's Love",
-        description: "Deep dive into the nature of God's love and how it transforms our lives.",
+        description: "Explore the depth and breadth of God's love and how it transforms our lives.",
         duration: "2.5 hours",
         order_index: 1,
         lessons: [
@@ -125,51 +125,51 @@ curricula_data = [
             title: "God's Unconditional Love", 
             content_type: "video", 
             order_index: 1,
-            content: "Understanding that God's love is unconditional and not based on our performance or worthiness.",
-            description: "Exploring the unconditional nature of God's love."
+            content: "Understanding that God's love is unconditional and not based on our performance.",
+            description: "Experiencing the depth of God's unconditional love."
           },
           { 
             title: "Loving Others", 
             content_type: "text", 
             order_index: 2,
-            content: "How God's love for us enables us to love others with the same unconditional love.",
-            description: "Learning to love others as God loves us."
+            content: "How to love others as God loves us, including those who are difficult to love.",
+            description: "Learning to love others with God's love."
           },
           { 
             title: "Forgiveness and Grace", 
-            content_type: "video", 
+            content_type: "text", 
             order_index: 3,
-            content: "Understanding forgiveness and grace as expressions of God's love in our lives.",
-            description: "Embracing forgiveness and grace in our relationships."
+            content: "The power of forgiveness and extending grace to others as we have received from God.",
+            description: "Understanding forgiveness and grace in relationships."
           }
         ]
       },
       {
         title: "Living with Purpose",
-        description: "Discovering your God-given purpose and living a life of meaning and impact.",
-        duration: "3.5 hours",
+        description: "Discover your unique purpose and calling in God's kingdom.",
+        duration: "3 hours",
         order_index: 2,
         lessons: [
           { 
             title: "Discovering Your Gifts", 
-            content_type: "text", 
+            content_type: "video", 
             order_index: 1,
-            content: "Identifying and developing the spiritual gifts God has given you for His service.",
-            description: "Finding and using your spiritual gifts."
+            content: "Identifying and developing the spiritual gifts God has given you.",
+            description: "Discovering and developing your spiritual gifts."
           },
           { 
             title: "Serving Others", 
-            content_type: "video", 
+            content_type: "text", 
             order_index: 2,
-            content: "How serving others brings fulfillment and aligns with God's purpose for our lives.",
-            description: "The joy and importance of serving others."
+            content: "How to use your gifts and talents to serve others and build God's kingdom.",
+            description: "Using your gifts to serve others effectively."
           },
           { 
             title: "Stewardship", 
             content_type: "text", 
             order_index: 3,
-            content: "Being good stewards of our time, talents, and resources for God's kingdom.",
-            description: "Managing God's gifts responsibly."
+            content: "Being a good steward of all that God has entrusted to you - time, talents, and resources.",
+            description: "Understanding biblical stewardship principles."
           }
         ]
       }
@@ -177,64 +177,64 @@ curricula_data = [
   },
   {
     title: "Leadership & Ministry",
-    description: "Training for Christian leadership and ministry roles in the church and community.",
+    description: "Develop leadership skills and prepare for ministry opportunities.",
     order_index: 3,
     chapters: [
       {
         title: "Spiritual Leadership",
-        description: "Principles of effective spiritual leadership in the church and community.",
-        duration: "3 hours",
+        description: "Learn what it means to be a spiritual leader and how to lead with integrity.",
+        duration: "2.5 hours",
         order_index: 1,
         lessons: [
           { 
             title: "Leading by Example", 
             content_type: "video", 
             order_index: 1,
-            content: "How to lead others through your own spiritual example and character.",
-            description: "Understanding the importance of leading by example."
+            content: "The importance of leading by example and living a life worthy of following.",
+            description: "Developing leadership through personal example."
           },
           { 
             title: "Servant Leadership", 
             content_type: "text", 
             order_index: 2,
-            content: "Jesus' model of servant leadership and how to apply it in ministry.",
+            content: "Understanding servant leadership as modeled by Jesus Christ.",
             description: "Learning to lead through service to others."
           },
           { 
             title: "Team Building", 
-            content_type: "video", 
+            content_type: "text", 
             order_index: 3,
-            content: "Building and leading effective ministry teams in the church.",
-            description: "Creating and managing ministry teams."
+            content: "How to build and lead effective teams in ministry and other contexts.",
+            description: "Building and leading effective ministry teams."
           }
         ]
       },
       {
         title: "Ministry Skills",
-        description: "Practical skills for effective ministry and outreach.",
-        duration: "2.5 hours",
+        description: "Develop practical skills for effective ministry and service.",
+        duration: "3 hours",
         order_index: 2,
         lessons: [
           { 
             title: "Teaching and Preaching", 
-            content_type: "text", 
+            content_type: "video", 
             order_index: 1,
-            content: "Effective methods for teaching and preaching the Word of God.",
-            description: "Developing teaching and preaching skills."
+            content: "Learn effective methods for teaching and preaching God's Word.",
+            description: "Developing skills in teaching and preaching."
           },
           { 
             title: "Counseling and Care", 
-            content_type: "video", 
+            content_type: "text", 
             order_index: 2,
-            content: "Biblical counseling principles and pastoral care techniques.",
-            description: "Learning to provide spiritual care and counseling."
+            content: "How to provide biblical counseling and pastoral care to those in need.",
+            description: "Providing effective counseling and care."
           },
           { 
             title: "Outreach and Evangelism", 
             content_type: "text", 
             order_index: 3,
-            content: "Strategies for effective outreach and evangelism in the community.",
-            description: "Developing outreach and evangelism strategies."
+            content: "Strategies for reaching out to others and sharing the gospel effectively.",
+            description: "Developing outreach and evangelism skills."
           }
         ]
       }
@@ -242,7 +242,7 @@ curricula_data = [
   }
 ]
 
-# Create the original curricula first
+# Create the original curricula
 original_curricula = []
 curricula_data.each do |curriculum_data|
   curriculum = Curriculum.create!(
@@ -280,16 +280,16 @@ curricula_data.each do |curriculum_data|
   end
 end
 
-# Create additional curricula that won't be assigned to any users
+# Create additional curricula
 additional_curricula_data = [
   {
     title: "Biblical Studies",
-    description: "In-depth study of biblical texts, theology, and historical context for serious students of Scripture.",
+    description: "In-depth study of the Bible and its historical context.",
     order_index: 4,
     chapters: [
       {
         title: "Old Testament Survey",
-        description: "Comprehensive overview of the Old Testament books and their historical context.",
+        description: "Overview of the Old Testament and its key themes.",
         duration: "4 hours",
         order_index: 1,
         lessons: [
@@ -297,51 +297,51 @@ additional_curricula_data = [
             title: "The Pentateuch", 
             content_type: "video", 
             order_index: 1,
-            content: "Study of the first five books of the Bible: Genesis, Exodus, Leviticus, Numbers, and Deuteronomy.",
+            content: "Study of the first five books of the Bible and their significance.",
             description: "Understanding the foundational books of the Old Testament."
           },
           { 
             title: "Historical Books", 
             content_type: "text", 
             order_index: 2,
-            content: "Exploring the historical narrative from Joshua through Esther and the story of God's people.",
-            description: "Journey through Israel's history and God's faithfulness."
+            content: "Exploring the historical narrative of God's people in the Old Testament.",
+            description: "Learning from the historical accounts of God's people."
           },
           { 
             title: "Wisdom Literature", 
-            content_type: "video", 
+            content_type: "text", 
             order_index: 3,
-            content: "Study of Job, Psalms, Proverbs, Ecclesiastes, and Song of Solomon.",
-            description: "Understanding biblical wisdom and poetry."
+            content: "Understanding the wisdom books and their practical application.",
+            description: "Applying biblical wisdom to daily life."
           }
         ]
       },
       {
         title: "New Testament Survey",
-        description: "Comprehensive study of the New Testament and the early church.",
-        duration: "4.5 hours",
+        description: "Overview of the New Testament and the life of Christ.",
+        duration: "4 hours",
         order_index: 2,
         lessons: [
           { 
             title: "The Gospels", 
             content_type: "video", 
             order_index: 1,
-            content: "In-depth study of Matthew, Mark, Luke, and John and their unique perspectives on Jesus.",
-            description: "Understanding the four Gospel accounts of Jesus' life and ministry."
+            content: "Study of the four Gospels and the life and teachings of Jesus.",
+            description: "Understanding the life and ministry of Jesus Christ."
           },
           { 
             title: "Acts and the Early Church", 
             content_type: "text", 
             order_index: 2,
-            content: "The birth and growth of the early Christian church as recorded in Acts.",
-            description: "Following the spread of the Gospel and the early church's development."
+            content: "The growth and development of the early Christian church.",
+            description: "Learning from the early church's growth and challenges."
           },
           { 
             title: "Pauline Epistles", 
-            content_type: "video", 
+            content_type: "text", 
             order_index: 3,
-            content: "Study of Paul's letters and their theological significance for the church.",
-            description: "Understanding Paul's teachings and their application today."
+            content: "Study of Paul's letters and their theological significance.",
+            description: "Understanding Paul's teachings and their application."
           }
         ]
       }
@@ -349,64 +349,64 @@ additional_curricula_data = [
   },
   {
     title: "Family & Relationships",
-    description: "Biblical guidance for building strong families and healthy relationships in today's world.",
+    description: "Biblical principles for building strong families and relationships.",
     order_index: 5,
     chapters: [
       {
         title: "Marriage & Family",
-        description: "Biblical principles for building strong marriages and families.",
-        duration: "3.5 hours",
+        description: "God's design for marriage and family life.",
+        duration: "3 hours",
         order_index: 1,
         lessons: [
           { 
             title: "Biblical Marriage", 
             content_type: "video", 
             order_index: 1,
-            content: "Understanding God's design for marriage and the biblical foundation for strong relationships.",
-            description: "Exploring God's plan for marriage and family life."
+            content: "Understanding God's design and purpose for marriage.",
+            description: "Building a marriage based on biblical principles."
           },
           { 
             title: "Communication in Marriage", 
             content_type: "text", 
             order_index: 2,
-            content: "Practical strategies for effective communication and conflict resolution in marriage.",
-            description: "Building healthy communication patterns in marriage."
+            content: "Effective communication strategies for married couples.",
+            description: "Developing healthy communication in marriage."
           },
           { 
             title: "Parenting with Purpose", 
-            content_type: "video", 
+            content_type: "text", 
             order_index: 3,
-            content: "Biblical principles for raising children in the faith and preparing them for life.",
-            description: "Understanding your role as a parent and spiritual leader."
+            content: "Raising children according to biblical principles and values.",
+            description: "Parenting with purpose and biblical wisdom."
           }
         ]
       },
       {
         title: "Building Healthy Relationships",
-        description: "Developing strong, Christ-centered relationships in all areas of life.",
-        duration: "3 hours",
+        description: "Developing strong, healthy relationships in all areas of life.",
+        duration: "2.5 hours",
         order_index: 2,
         lessons: [
           { 
             title: "Friendship and Community", 
-            content_type: "text", 
+            content_type: "video", 
             order_index: 1,
-            content: "Building meaningful friendships and being part of a supportive Christian community.",
-            description: "The importance of friendship and community in the Christian life."
+            content: "Building meaningful friendships and being part of a supportive community.",
+            description: "Developing deep, meaningful friendships."
           },
           { 
             title: "Conflict Resolution", 
-            content_type: "video", 
+            content_type: "text", 
             order_index: 2,
-            content: "Biblical approaches to resolving conflicts and maintaining healthy relationships.",
-            description: "Learning to handle conflicts in a Christ-like manner."
+            content: "Biblical approaches to resolving conflicts and maintaining peace.",
+            description: "Resolving conflicts in a biblical and healthy way."
           },
           { 
             title: "Boundaries and Self-Care", 
             content_type: "text", 
             order_index: 3,
-            content: "Setting healthy boundaries and practicing self-care while serving others.",
-            description: "Balancing service to others with personal well-being."
+            content: "Setting healthy boundaries and practicing self-care as a Christian.",
+            description: "Maintaining healthy boundaries and self-care practices."
           }
         ]
       }
@@ -414,7 +414,7 @@ additional_curricula_data = [
   }
 ]
 
-# Create the additional curricula (these won't be assigned to any users)
+# Create the additional curricula
 additional_curricula_data.each do |curriculum_data|
   curriculum = Curriculum.create!(
     title: curriculum_data[:title],
@@ -448,6 +448,40 @@ additional_curricula_data.each do |curriculum_data|
       puts "    - Created lesson: #{lesson.title}"
     end
   end
+end
+
+# Create Cloudflare Stream test lesson
+puts "Creating Cloudflare Stream test lesson..."
+test_curriculum = Curriculum.find_by(title: "Christian Foundation")
+test_chapter = test_curriculum.chapters.find_by(title: "Foundation of Faith")
+
+cloudflare_lesson = test_chapter.lessons.create!(
+  title: "Cloudflare Stream Test Video",
+  description: "Test lesson using Cloudflare Stream video player",
+  content_type: "video",
+  content: "This is a test lesson using Cloudflare Stream for video playback.",
+  cloudflare_stream_id: "73cb888469576ace114104f131e8c6c2",
+  published: true,
+  order_index: 4
+)
+
+puts "  - Created Cloudflare Stream test lesson: #{cloudflare_lesson.title}"
+puts "    Video ID: #{cloudflare_lesson.cloudflare_stream_id}"
+
+# Try to fetch metadata from Cloudflare Stream API
+if ENV['CLOUDFLARE_API_TOKEN'].present?
+  puts "Fetching Cloudflare Stream metadata..."
+  if cloudflare_lesson.update_cloudflare_metadata
+    puts "✅ Successfully updated lesson with Cloudflare Stream metadata"
+    puts "   Duration: #{cloudflare_lesson.formatted_duration}"
+    puts "   Status: #{cloudflare_lesson.cloudflare_stream_status}"
+    puts "   Ready for playback: #{cloudflare_lesson.video_ready_for_playback?}"
+  else
+    puts "⚠️  Failed to fetch Cloudflare Stream metadata (check API token)"
+  end
+else
+  puts "⚠️  CLOUDFLARE_API_TOKEN not set - skipping metadata fetch"
+  puts "   Set CLOUDFLARE_API_TOKEN environment variable to fetch video metadata"
 end
 
 # Create sample user progress ONLY for the original curricula
@@ -518,3 +552,7 @@ puts "Total user progress records: #{UserProgress.count}"
 puts "Total lesson progress records: #{LessonProgress.count}"
 puts "Total user notes: #{UserNote.count}"
 puts "Total user highlights: #{UserHighlight.count}"
+puts "Cloudflare Stream test lesson: #{cloudflare_lesson.id} - #{cloudflare_lesson.title}"
+puts "  API endpoint: /api/v1/lessons/#{cloudflare_lesson.id}"
+puts "  Player URL: #{cloudflare_lesson.cloudflare_player_url}"
+puts "  Thumbnail: #{cloudflare_lesson.cloudflare_thumbnail_url}"

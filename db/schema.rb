@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_11_080529) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_16_162043) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -57,7 +57,13 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_11_080529) do
     t.boolean "published"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "cloudflare_stream_id"
+    t.string "cloudflare_stream_thumbnail"
+    t.integer "cloudflare_stream_duration"
+    t.string "cloudflare_stream_status", default: "ready"
     t.index ["chapter_id"], name: "index_lessons_on_chapter_id"
+    t.index ["cloudflare_stream_id"], name: "index_lessons_on_cloudflare_stream_id"
+    t.index ["content_type"], name: "index_lessons_on_content_type"
   end
 
   create_table "user_highlights", force: :cascade do |t|
