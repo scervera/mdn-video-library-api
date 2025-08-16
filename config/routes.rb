@@ -45,6 +45,7 @@ Rails.application.routes.draw do
         member do
           post :complete
         end
+        resources :bookmarks, only: [:index, :show, :create, :update, :destroy]
       end
       
       # User Progress
@@ -95,6 +96,7 @@ Rails.application.routes.draw do
       member do
         post :complete
       end
+      resources :bookmarks, only: [:index, :show, :create, :update, :destroy]
     end
     
     # User Progress

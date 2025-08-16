@@ -10,9 +10,24 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_16_162043) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_16_180121) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "bookmarks", force: :cascade do |t|
+    t.string "title", null: false
+    t.text "notes"
+    t.decimal "timestamp", precision: 10, scale: 2, null: false
+    t.bigint "lesson_id", null: false
+    t.bigint "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["lesson_id", "timestamp"], name: "index_bookmarks_on_lesson_id_and_timestamp"
+    t.index ["lesson_id"], name: "index_bookmarks_on_lesson_id"
+    t.index ["user_id", "lesson_id", "timestamp"], name: "index_bookmarks_on_user_lesson_timestamp_unique", unique: true
+    t.index ["user_id", "lesson_id"], name: "index_bookmarks_on_user_id_and_lesson_id"
+    t.index ["user_id"], name: "index_bookmarks_on_user_id"
+  end
 
   create_table "chapters", force: :cascade do |t|
     t.string "title"
@@ -119,6 +134,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_16_162043) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  add_foreign_key "bookmarks", "lessons"
+  add_foreign_key "bookmarks", "users"
   add_foreign_key "chapters", "curriculums"
   add_foreign_key "lesson_progresses", "lessons"
   add_foreign_key "lesson_progresses", "users"
