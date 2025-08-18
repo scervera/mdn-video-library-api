@@ -1,5 +1,4 @@
 class TenantRegistrationController < ApplicationController
-  skip_before_action :set_tenant_from_subdomain
 
   def new
     @tenant = Tenant.new
