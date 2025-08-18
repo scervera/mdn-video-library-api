@@ -21,7 +21,7 @@ class TenantMiddleware
       request_path = request.path
       if request_path.start_with?('/api/')
         # API calls require a subdomain for tenant isolation
-        [400, {'Content-Type' => 'application/json'}, ['{"error": "API calls require a tenant subdomain"}]']
+        [400, {'Content-Type' => 'application/json'}, ['{"error": "API calls require a tenant subdomain"}']]
       else
         # Non-API calls can proceed (e.g., main app pages)
         @app.call(env)
