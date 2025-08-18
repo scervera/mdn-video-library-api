@@ -1,5 +1,6 @@
 class Lesson < ApplicationRecord
   belongs_to :chapter
+  belongs_to :tenant
   has_many :lesson_progress, dependent: :destroy
   has_many :bookmarks, dependent: :destroy
 
