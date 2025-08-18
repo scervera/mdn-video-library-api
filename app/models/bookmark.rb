@@ -1,6 +1,7 @@
 class Bookmark < ApplicationRecord
   belongs_to :lesson
   belongs_to :user
+  belongs_to :tenant
 
   # Validations
   validates :title, presence: true, length: { maximum: 255 }
@@ -25,7 +26,7 @@ class Bookmark < ApplicationRecord
     hours = (timestamp / 3600).floor
     minutes = ((timestamp % 3600) / 60).floor
     seconds = (timestamp % 60).floor
-    
+
     if hours > 0
       sprintf("%02d:%02d:%02d", hours, minutes, seconds)
     else

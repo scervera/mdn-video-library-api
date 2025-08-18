@@ -5,6 +5,7 @@ class User < ApplicationRecord
          :recoverable, :rememberable, :validatable
 
   # Associations
+  belongs_to :tenant
   has_many :user_progress, dependent: :destroy
   has_many :lesson_progress, dependent: :destroy
   has_many :user_notes, dependent: :destroy
@@ -12,8 +13,8 @@ class User < ApplicationRecord
   has_many :bookmarks, dependent: :destroy
 
   # Validations
-  validates :username, presence: true, uniqueness: true
-  validates :email, presence: true, uniqueness: true
+  validates :username, presence: true, uniqueness: { scope: :tenant_id }
+  validates :email, presence: true, uniqueness: { scope: :tenant_id }
   validates :first_name, presence: true
   validates :last_name, presence: true
 
@@ -32,5 +33,9 @@ class User < ApplicationRecord
 
   def full_name
     "#{first_name} #{last_name}"
+  end
+
+  def admin?
+    role == 'admin'
   end
 end

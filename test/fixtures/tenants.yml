@@ -1,0 +1,19 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  name: MyString
+  subdomain: MyString
+  domain: MyString
+  branding_settings: 
+  subscription_settings: 
+  stripe_customer_id: MyString
+  subscription_status: MyString
+
+two:
+  name: MyString
+  subdomain: MyString
+  domain: MyString
+  branding_settings: 
+  subscription_settings: 
+  stripe_customer_id: MyString
+  subscription_status: MyString

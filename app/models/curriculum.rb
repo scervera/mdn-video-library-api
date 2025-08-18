@@ -1,5 +1,5 @@
 class Curriculum < ApplicationRecord
-  # Associations
+  belongs_to :tenant
   has_many :chapters, dependent: :destroy
   has_many :user_progress, dependent: :destroy
   has_many :user_notes, dependent: :destroy
@@ -7,7 +7,7 @@ class Curriculum < ApplicationRecord
 
   # Validations
   validates :title, presence: true
-  validates :order_index, presence: true, uniqueness: true
+  validates :order_index, presence: true, uniqueness: { scope: :tenant_id }
 
   # Scopes
   scope :published, -> { where(published: true) }
@@ -28,5 +28,14 @@ class Curriculum < ApplicationRecord
 
   def completed_lessons_count(user)
     user.lesson_progress.joins(lesson: :chapter).where(chapters: { curriculum: self }, completed: true).count
+  end
+
+  def total_chapters_count
+    chapters.published.count
+  end
+
+  def progress_percentage(user)
+    return 0 if total_chapters_count.zero?
+    (completed_chapters_count(user).to_f / total_chapters_count * 100).round(2)
   end
 end
