@@ -5,27 +5,21 @@ class TenantMiddleware
 
   def call(env)
     request = Rack::Request.new(env)
-    subdomain = extract_subdomain(request.host)
+    tenant_slug = extract_tenant_slug(request)
 
-    if subdomain.present? && subdomain != 'www'
-      tenant = Tenant.find_by(subdomain: subdomain)
+    if tenant_slug.present?
+      tenant = Tenant.find_by(slug: tenant_slug)
       if tenant
         Current.tenant = tenant
         @app.call(env)
       else
-        # Tenant not found - could redirect to signup or show error
-        [404, {'Content-Type' => 'text/html'}, ['Tenant not found']]
+        # Tenant not found
+        [404, {'Content-Type' => 'application/json'}, ['{"error": "Tenant not found"}']]
       end
     else
-      # No subdomain - check if this is an API call
-      request_path = request.path
-      if request_path.start_with?('/api/')
-        # API calls require a subdomain for tenant isolation
-        [400, {'Content-Type' => 'application/json'}, ['{"error": "API calls require a tenant subdomain"}']]
-      else
-        # Non-API calls can proceed (e.g., main app pages)
-        @app.call(env)
-      end
+      # No tenant specified - allow the request to proceed
+      # (for non-tenant-specific endpoints like health checks)
+      @app.call(env)
     end
   ensure
     Current.tenant = nil
@@ -33,17 +27,25 @@ class TenantMiddleware
 
   private
 
-  def extract_subdomain(host)
-    # Normalize host (strip port if present)
-    hostname = host.to_s.split(':').first
-    parts = hostname.split('.')
+  def extract_tenant_slug(request)
+    # First try to get tenant from X-Tenant header (for API calls)
+    tenant_slug = request.get_header('HTTP_X_TENANT')
+    return tenant_slug if tenant_slug.present?
 
-    # Handle acmeX.localhost (two parts) during development
-    return parts.first if hostname.end_with?('.localhost') && parts.length == 2
-
-    # Standard multi-level domain e.g. tenant.example.com
-    return parts.first if parts.length > 2
-
+    # Then try to extract from URL path (for frontend routes)
+    path = request.path
+    path_parts = path.split('/').reject(&:blank?)
+    
+    # Look for tenant slug in the first part of the path
+    # e.g., /acme1/api/v1/curricula -> acme1
+    # e.g., /acme1/dashboard -> acme1
+    return path_parts.first if path_parts.any? && valid_tenant_slug?(path_parts.first)
+    
     nil
+  end
+
+  def valid_tenant_slug?(slug)
+    # Check if it matches the tenant slug format
+    slug.match?(/\A[a-z0-9-]+\z/)
   end
 end

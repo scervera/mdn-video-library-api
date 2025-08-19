@@ -13,8 +13,8 @@ servers:
   #     - 192.168.0.1
   #   cmd: bin/jobs
 
-# SSL is handled by the proxy server (curriculum-library-api.cerveras.com)
-# Kamal will run the app with SSL since the proxy handles termination
+# SSL is handled by the proxy server
+# For now, only handle the API host - tenant subdomains will be handled by nginx
 proxy:
   host: curriculum-library-api.cerveras.com
   ssl: true

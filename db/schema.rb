@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_19_145248) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_19_182855) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -93,7 +93,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_19_145248) do
 
   create_table "tenants", force: :cascade do |t|
     t.string "name", null: false
-    t.string "subdomain", null: false
+    t.string "slug", null: false
     t.string "domain"
     t.jsonb "branding_settings", default: {}
     t.jsonb "subscription_settings", default: {}
@@ -102,8 +102,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_19_145248) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "dns_record_id"
+    t.index ["slug"], name: "index_tenants_on_slug", unique: true
     t.index ["stripe_customer_id"], name: "index_tenants_on_stripe_customer_id"
-    t.index ["subdomain"], name: "index_tenants_on_subdomain", unique: true
   end
 
   create_table "user_highlights", force: :cascade do |t|

@@ -5,13 +5,12 @@ class Api::V1::TenantRegistrationController < Api::V1::BaseController
   def create
     @tenant = Tenant.new(tenant_params)
 
-    # Validate subdomain availability before saving
-    dns_service = CloudflareDnsService.new
-    unless dns_service.subdomain_available?(@tenant.subdomain)
+    # Validate slug availability before saving
+    if Tenant.exists?(slug: @tenant.slug)
       render json: { 
         success: false, 
-        error: 'Subdomain is not available',
-        field: 'subdomain'
+        error: 'Slug is already taken',
+        field: 'slug'
       }, status: :unprocessable_entity
       return
     end
@@ -33,7 +32,7 @@ class Api::V1::TenantRegistrationController < Api::V1::BaseController
         tenant: {
           id: @tenant.id,
           name: @tenant.name,
-          subdomain: @tenant.subdomain,
+          slug: @tenant.slug,
           full_domain: @tenant.full_domain,
           dns_record_id: @tenant.dns_record_id
         },
@@ -42,7 +41,7 @@ class Api::V1::TenantRegistrationController < Api::V1::BaseController
           email: admin_user.email,
           username: admin_user.username
         },
-        message: "Tenant created successfully. DNS record created for #{@tenant.full_domain}"
+        message: "Tenant created successfully. Access your tenant at #{@tenant.full_domain}"
       }, status: :created
     else
       render json: { 
@@ -60,6 +59,6 @@ class Api::V1::TenantRegistrationController < Api::V1::BaseController
   private
 
   def tenant_params
-    params.require(:tenant).permit(:name, :subdomain, :domain)
+    params.require(:tenant).permit(:name, :slug, :domain)
   end
 end
