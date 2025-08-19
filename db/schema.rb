@@ -10,9 +10,23 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_19_182855) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_19_234322) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "billing_tiers", force: :cascade do |t|
+    t.string "name", null: false
+    t.decimal "monthly_price", precision: 10, scale: 2, default: "0.0", null: false
+    t.decimal "per_user_price", precision: 10, scale: 2, default: "0.0", null: false
+    t.integer "user_limit"
+    t.jsonb "features", default: [], null: false
+    t.bigint "tenant_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["features"], name: "index_billing_tiers_on_features", using: :gin
+    t.index ["tenant_id", "name"], name: "index_billing_tiers_on_tenant_id_and_name", unique: true
+    t.index ["tenant_id"], name: "index_billing_tiers_on_tenant_id"
+  end
 
   create_table "bookmarks", force: :cascade do |t|
     t.string "title", null: false
@@ -91,6 +105,36 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_19_182855) do
     t.index ["tenant_id"], name: "index_lessons_on_tenant_id"
   end
 
+  create_table "stripe_connect_accounts", force: :cascade do |t|
+    t.bigint "tenant_id", null: false
+    t.string "account_id", null: false
+    t.string "status", default: "pending", null: false
+    t.boolean "charges_enabled", default: false, null: false
+    t.boolean "payouts_enabled", default: false, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_stripe_connect_accounts_on_account_id", unique: true
+    t.index ["status"], name: "index_stripe_connect_accounts_on_status"
+    t.index ["tenant_id"], name: "index_stripe_connect_accounts_on_tenant_id"
+  end
+
+  create_table "tenant_subscriptions", force: :cascade do |t|
+    t.bigint "tenant_id", null: false
+    t.bigint "billing_tier_id", null: false
+    t.string "status", default: "trial", null: false
+    t.datetime "trial_ends_at"
+    t.datetime "current_period_start"
+    t.datetime "current_period_end"
+    t.string "stripe_subscription_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["billing_tier_id"], name: "index_tenant_subscriptions_on_billing_tier_id"
+    t.index ["status"], name: "index_tenant_subscriptions_on_status"
+    t.index ["stripe_subscription_id"], name: "index_tenant_subscriptions_on_stripe_subscription_id", unique: true
+    t.index ["tenant_id"], name: "index_tenant_subscriptions_on_tenant_id"
+    t.index ["trial_ends_at"], name: "index_tenant_subscriptions_on_trial_ends_at"
+  end
+
   create_table "tenants", force: :cascade do |t|
     t.string "name", null: false
     t.string "slug", null: false
@@ -118,6 +162,23 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_19_182855) do
     t.index ["curriculum_id"], name: "index_user_highlights_on_curriculum_id"
     t.index ["tenant_id"], name: "index_user_highlights_on_tenant_id"
     t.index ["user_id"], name: "index_user_highlights_on_user_id"
+  end
+
+  create_table "user_invitations", force: :cascade do |t|
+    t.bigint "tenant_id", null: false
+    t.bigint "invited_by_id", null: false
+    t.string "email", null: false
+    t.string "token", null: false
+    t.datetime "expires_at", null: false
+    t.datetime "used_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["email"], name: "index_user_invitations_on_email"
+    t.index ["expires_at"], name: "index_user_invitations_on_expires_at"
+    t.index ["invited_by_id"], name: "index_user_invitations_on_invited_by_id"
+    t.index ["tenant_id"], name: "index_user_invitations_on_tenant_id"
+    t.index ["token"], name: "index_user_invitations_on_token", unique: true
+    t.index ["used_at"], name: "index_user_invitations_on_used_at"
   end
 
   create_table "user_notes", force: :cascade do |t|
@@ -149,6 +210,23 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_19_182855) do
     t.index ["user_id"], name: "index_user_progresses_on_user_id"
   end
 
+  create_table "user_subscriptions", force: :cascade do |t|
+    t.bigint "tenant_subscription_id", null: false
+    t.bigint "user_id", null: false
+    t.bigint "tenant_id", null: false
+    t.string "status", default: "active", null: false
+    t.string "stripe_subscription_id"
+    t.decimal "monthly_price", precision: 10, scale: 2, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["status"], name: "index_user_subscriptions_on_status"
+    t.index ["stripe_subscription_id"], name: "index_user_subscriptions_on_stripe_subscription_id", unique: true
+    t.index ["tenant_id"], name: "index_user_subscriptions_on_tenant_id"
+    t.index ["tenant_subscription_id", "user_id"], name: "index_user_subscriptions_on_tenant_subscription_id_and_user_id", unique: true
+    t.index ["tenant_subscription_id"], name: "index_user_subscriptions_on_tenant_subscription_id"
+    t.index ["user_id"], name: "index_user_subscriptions_on_user_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -169,6 +247,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_19_182855) do
     t.index ["tenant_id"], name: "index_users_on_tenant_id"
   end
 
+  add_foreign_key "billing_tiers", "tenants"
   add_foreign_key "bookmarks", "lessons"
   add_foreign_key "bookmarks", "tenants"
   add_foreign_key "bookmarks", "users"
@@ -180,10 +259,15 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_19_182855) do
   add_foreign_key "lesson_progresses", "users"
   add_foreign_key "lessons", "chapters"
   add_foreign_key "lessons", "tenants"
+  add_foreign_key "stripe_connect_accounts", "tenants"
+  add_foreign_key "tenant_subscriptions", "billing_tiers"
+  add_foreign_key "tenant_subscriptions", "tenants"
   add_foreign_key "user_highlights", "chapters"
   add_foreign_key "user_highlights", "curriculums"
   add_foreign_key "user_highlights", "tenants"
   add_foreign_key "user_highlights", "users"
+  add_foreign_key "user_invitations", "tenants"
+  add_foreign_key "user_invitations", "users", column: "invited_by_id"
   add_foreign_key "user_notes", "chapters"
   add_foreign_key "user_notes", "curriculums"
   add_foreign_key "user_notes", "tenants"
@@ -192,5 +276,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_19_182855) do
   add_foreign_key "user_progresses", "curriculums"
   add_foreign_key "user_progresses", "tenants"
   add_foreign_key "user_progresses", "users"
+  add_foreign_key "user_subscriptions", "tenant_subscriptions"
+  add_foreign_key "user_subscriptions", "tenants"
+  add_foreign_key "user_subscriptions", "users"
   add_foreign_key "users", "tenants"
 end
