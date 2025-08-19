@@ -28,8 +28,22 @@ fi
 
 echo ""
 
+# Get Domain
+read -p "Enter your root domain (e.g. cerveras.com): " CLOUDFLARE_DOMAIN
+if [ -n "$CLOUDFLARE_DOMAIN" ]; then
+    # Remove existing CLOUDFLARE_DOMAIN if it exists
+    sed -i '' '/CLOUDFLARE_DOMAIN=/d' .env
+    echo "CLOUDFLARE_DOMAIN=$CLOUDFLARE_DOMAIN" >> .env
+    echo "✅ Domain added to .env file"
+else
+    echo "❌ Domain is required"
+    exit 1
+fi
+
+echo ""
+
 # Get Zone ID
-read -p "Enter your Cloudflare Zone ID (for root domain e.g. cerveras.com): " CLOUDFLARE_ZONE_ID
+read -p "Enter your Cloudflare Zone ID (for root domain $CLOUDFLARE_DOMAIN): " CLOUDFLARE_ZONE_ID
 if [ -n "$CLOUDFLARE_ZONE_ID" ]; then
     # Remove existing CLOUDFLARE_ZONE_ID if it exists
     sed -i '' '/CLOUDFLARE_ZONE_ID=/d' .env
@@ -83,6 +97,10 @@ if [[ "$SET_ENV_VARS" =~ ^[Yy]$ ]]; then
     echo ""
     echo "Setting environment variables on your dev machine..."
     
+    # Export Domain
+    export CLOUDFLARE_DOMAIN="$CLOUDFLARE_DOMAIN"
+    echo "✅ CLOUDFLARE_DOMAIN exported"
+    
     # Export DNS API Token
     export CLOUDFLARE_DNS_API_TOKEN="$CLOUDFLARE_DNS_API_TOKEN"
     echo "✅ CLOUDFLARE_DNS_API_TOKEN exported"
@@ -103,7 +121,7 @@ if [[ "$SET_ENV_VARS" =~ ^[Yy]$ ]]; then
     echo "=== Validating Environment Variables ==="
     
     # Validate that all variables are set
-    if [ -n "$CLOUDFLARE_DNS_API_TOKEN" ] && [ -n "$CLOUDFLARE_ZONE_ID" ] && [ -n "$CLOUDFLARE_STREAM_API_TOKEN" ] && [ -n "$CLOUDFLARE_STREAM_ACCOUNT_ID" ]; then
+    if [ -n "$CLOUDFLARE_DOMAIN" ] && [ -n "$CLOUDFLARE_DNS_API_TOKEN" ] && [ -n "$CLOUDFLARE_ZONE_ID" ] && [ -n "$CLOUDFLARE_STREAM_API_TOKEN" ] && [ -n "$CLOUDFLARE_STREAM_ACCOUNT_ID" ]; then
         echo "✅ All environment variables are set correctly"
         
         # Test the configuration
@@ -118,6 +136,7 @@ if [[ "$SET_ENV_VARS" =~ ^[Yy]$ ]]; then
         
     else
         echo "❌ Some environment variables are missing:"
+        [ -z "$CLOUDFLARE_DOMAIN" ] && echo "  - CLOUDFLARE_DOMAIN"
         [ -z "$CLOUDFLARE_DNS_API_TOKEN" ] && echo "  - CLOUDFLARE_DNS_API_TOKEN"
         [ -z "$CLOUDFLARE_ZONE_ID" ] && echo "  - CLOUDFLARE_ZONE_ID"
         [ -z "$CLOUDFLARE_STREAM_API_TOKEN" ] && echo "  - CLOUDFLARE_STREAM_API_TOKEN"
@@ -150,6 +169,7 @@ if [[ "$SET_ENV_VARS" =~ ^[Yy]$ ]]; then
     # Add new exports
     echo "" >> "$PROFILE_FILE"
     echo "# Cloudflare API Configuration" >> "$PROFILE_FILE"
+    echo "export CLOUDFLARE_DOMAIN=\"$CLOUDFLARE_DOMAIN\"" >> "$PROFILE_FILE"
     echo "export CLOUDFLARE_DNS_API_TOKEN=\"$CLOUDFLARE_DNS_API_TOKEN\"" >> "$PROFILE_FILE"
     echo "export CLOUDFLARE_ZONE_ID=\"$CLOUDFLARE_ZONE_ID\"" >> "$PROFILE_FILE"
     echo "export CLOUDFLARE_STREAM_API_TOKEN=\"$CLOUDFLARE_STREAM_API_TOKEN\"" >> "$PROFILE_FILE"
@@ -172,15 +192,16 @@ if [[ "$SET_ENV_VARS" =~ ^[Yy]$ ]]; then
         echo "Or restart your terminal session."
     fi
     
-else
-    echo ""
-    echo "Environment variables were not set on your dev machine."
-    echo "You can set them manually when needed:"
-    echo "  export CLOUDFLARE_DNS_API_TOKEN=\"$CLOUDFLARE_DNS_API_TOKEN\""
-    echo "  export CLOUDFLARE_ZONE_ID=\"$CLOUDFLARE_ZONE_ID\""
-    echo "  export CLOUDFLARE_STREAM_API_TOKEN=\"$CLOUDFLARE_STREAM_API_TOKEN\""
-    echo "  export CLOUDFLARE_STREAM_ACCOUNT_ID=\"$CLOUDFLARE_STREAM_ACCOUNT_ID\""
-fi
+    else
+        echo ""
+        echo "Environment variables were not set on your dev machine."
+        echo "You can set them manually when needed:"
+        echo "  export CLOUDFLARE_DOMAIN=\"$CLOUDFLARE_DOMAIN\""
+        echo "  export CLOUDFLARE_DNS_API_TOKEN=\"$CLOUDFLARE_DNS_API_TOKEN\""
+        echo "  export CLOUDFLARE_ZONE_ID=\"$CLOUDFLARE_ZONE_ID\""
+        echo "  export CLOUDFLARE_STREAM_API_TOKEN=\"$CLOUDFLARE_STREAM_API_TOKEN\""
+        echo "  export CLOUDFLARE_STREAM_ACCOUNT_ID=\"$CLOUDFLARE_STREAM_ACCOUNT_ID\""
+    fi
 
 echo ""
 echo "For production deployment with Kamal:"
