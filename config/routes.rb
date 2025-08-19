@@ -26,6 +26,9 @@ Rails.application.routes.draw do
       post 'auth/register'
       get 'auth/me'
       
+      # Subdomain validation (no authentication required)
+      get 'subdomain_validation/check'
+      
       # Curricula
       resources :curricula, only: [:index, :show] do
         member do
