@@ -1,163 +1,192 @@
+require 'net/http'
+require 'json'
+
 class CloudflareStreamService
-  include HTTParty
-  
-  # Cloudflare Stream API base URL
-  base_uri 'https://api.cloudflare.com/client/v4/stream'
-  
-  # Default headers for API requests
-  headers 'Authorization' => "Bearer #{ENV['CLOUDFLARE_API_TOKEN']}",
-          'Content-Type' => 'application/json'
-  
-  class << self
-    
-    # Get video metadata from Cloudflare Stream
-    def get_video_metadata(video_id)
-      response = get("/#{video_id}")
+  include ActiveSupport::Configurable
+
+  def initialize
+    config = Rails.application.config_for(:cloudflare)
+    @api_token = config[:stream_api_token]
+    @account_id = config[:stream_account_id]
+  end
+
+  # Upload a video to Cloudflare Stream
+  def upload_video(file_path, metadata = {})
+    return { success: false, error: 'API token not configured' } unless cloudflare_configured?
+
+    begin
+      uri = URI("https://api.cloudflare.com/client/v4/accounts/#{@account_id}/stream")
       
-      if response.success?
-        data = response.parsed_response['result']
-        {
-          id: data['uid'],
-          title: data['meta']['name'],
-          duration: data['duration'],
-          thumbnail: data['thumbnail'],
-          status: data['status']['state'],
-          preview: data['preview'],
-          created_at: data['created'],
-          modified_at: data['modified']
-        }
+      request = Net::HTTP::Post.new(uri)
+      request['Authorization'] = "Bearer #{@api_token}"
+      request['Content-Type'] = 'multipart/form-data'
+      
+      # Add file and metadata
+      request.body = build_multipart_body(file_path, metadata)
+      
+      response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) do |http|
+        http.request(request)
+      end
+      
+      if response.code == '200'
+        result = JSON.parse(response.body)
+        if result['success']
+          { success: true, video_id: result['result']['uid'], data: result['result'] }
+        else
+          { success: false, error: result['errors']&.first&.dig('message') || 'Unknown error' }
+        end
       else
-        Rails.logger.error "Failed to fetch Cloudflare Stream video #{video_id}: #{response.body}"
-        nil
+        { success: false, error: "HTTP #{response.code}: #{response.body}" }
       end
     rescue => e
-      Rails.logger.error "Error fetching Cloudflare Stream video #{video_id}: #{e.message}"
-      nil
+      { success: false, error: "Upload failed: #{e.message}" }
     end
-    
-    # Generate Cloudflare Player embed URL
-    def player_url(video_id, options = {})
-      base_url = "https://iframe.videodelivery.net/#{video_id}"
+  end
+
+  # Get video information
+  def get_video(video_id)
+    return { success: false, error: 'API token not configured' } unless cloudflare_configured?
+
+    begin
+      uri = URI("https://api.cloudflare.com/client/v4/accounts/#{@account_id}/stream/#{video_id}")
       
-      # Default player options
-      default_options = {
-        autoplay: false,
-        controls: true,
-        loop: false,
-        muted: false,
-        preload: 'metadata',
-        poster: nil,
-        width: '100%',
-        height: '100%'
-      }
+      request = Net::HTTP::Get.new(uri)
+      request['Authorization'] = "Bearer #{@api_token}"
       
-      # Merge with provided options
-      player_options = default_options.merge(options)
-      
-      # Build query parameters
-      query_params = player_options.compact.map { |k, v| "#{k}=#{v}" }.join('&')
-      
-      # Return URL with query parameters if any
-      query_params.empty? ? base_url : "#{base_url}?#{query_params}"
-    end
-    
-    # Generate Cloudflare Player iframe HTML
-    def player_iframe(video_id, options = {})
-      url = player_url(video_id, options)
-      
-      # Default iframe attributes
-      default_attrs = {
-        src: url,
-        width: '100%',
-        height: '400',
-        frameborder: '0',
-        allowfullscreen: true,
-        allow: 'autoplay; fullscreen'
-      }
-      
-      # Merge with provided attributes
-      iframe_attrs = default_attrs.merge(options)
-      
-      # Build iframe HTML
-      attrs_html = iframe_attrs.map { |k, v| "#{k}=\"#{v}\"" }.join(' ')
-      "<iframe #{attrs_html}></iframe>"
-    end
-    
-    # Update lesson with Cloudflare Stream metadata
-    def update_lesson_with_stream_data(lesson, video_id)
-      metadata = get_video_metadata(video_id)
-      
-      if metadata
-        lesson.update!(
-          cloudflare_stream_id: video_id,
-          cloudflare_stream_thumbnail: metadata[:thumbnail],
-          cloudflare_stream_duration: metadata[:duration],
-          cloudflare_stream_status: metadata[:status]
-        )
-        
-        Rails.logger.info "Updated lesson #{lesson.id} with Cloudflare Stream data for video #{video_id}"
-        true
-      else
-        Rails.logger.error "Failed to update lesson #{lesson.id} with Cloudflare Stream data for video #{video_id}"
-        false
+      response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) do |http|
+        http.request(request)
       end
-    end
-    
-    # Check if video is ready for playback
-    def video_ready?(video_id)
-      metadata = get_video_metadata(video_id)
-      metadata && metadata[:status] == 'ready'
-    end
-    
-    # Get video thumbnail URL
-    def thumbnail_url(video_id, options = {})
-      base_url = "https://videodelivery.net/#{video_id}/thumbnails"
       
-      # Default thumbnail options
-      default_options = {
-        width: 640,
-        height: 360,
-        fit: 'scale-down'
-      }
-      
-      # Merge with provided options
-      thumbnail_options = default_options.merge(options)
-      
-      # Build query parameters
-      query_params = thumbnail_options.map { |k, v| "#{k}=#{v}" }.join('&')
-      
-      "#{base_url}?#{query_params}"
-    end
-    
-    # Get video preview URL (for download/streaming)
-    def preview_url(video_id)
-      "https://videodelivery.net/#{video_id}/manifest/video.m3u8"
-    end
-    
-    # Get video download URL
-    def download_url(video_id, quality = '720p')
-      "https://videodelivery.net/#{video_id}/downloads/default.mp4"
-    end
-    
-    # Validate Cloudflare Stream video ID format
-    def valid_video_id?(video_id)
-      # Cloudflare Stream video IDs are 32 character hexadecimal strings
-      video_id.present? && video_id.match?(/^[a-f0-9]{32}$/)
-    end
-    
-    # Get video analytics (if available)
-    def get_video_analytics(video_id)
-      response = get("/#{video_id}/analytics")
-      
-      if response.success?
-        response.parsed_response['result']
+      if response.code == '200'
+        result = JSON.parse(response.body)
+        if result['success']
+          { success: true, video: result['result'] }
+        else
+          { success: false, error: result['errors']&.first&.dig('message') || 'Unknown error' }
+        end
       else
-        Rails.logger.error "Failed to fetch analytics for video #{video_id}: #{response.body}"
-        nil
+        { success: false, error: "HTTP #{response.code}: #{response.body}" }
       end
     rescue => e
-      Rails.logger.error "Error fetching analytics for video #{video_id}: #{e.message}"
-      nil
+      { success: false, error: "Get video failed: #{e.message}" }
     end
+  end
+
+  # Delete a video
+  def delete_video(video_id)
+    return { success: false, error: 'API token not configured' } unless cloudflare_configured?
+
+    begin
+      uri = URI("https://api.cloudflare.com/client/v4/accounts/#{@account_id}/stream/#{video_id}")
+      
+      request = Net::HTTP::Delete.new(uri)
+      request['Authorization'] = "Bearer #{@api_token}"
+      
+      response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) do |http|
+        http.request(request)
+      end
+      
+      if response.code == '200'
+        result = JSON.parse(response.body)
+        if result['success']
+          { success: true }
+        else
+          { success: false, error: result['errors']&.first&.dig('message') || 'Unknown error' }
+        end
+      else
+        { success: false, error: "HTTP #{response.code}: #{response.body}" }
+      end
+    rescue => e
+      { success: false, error: "Delete video failed: #{e.message}" }
+    end
+  end
+
+  # List videos with pagination
+  def list_videos(page = 1, per_page = 20)
+    return { success: false, error: 'API token not configured' } unless cloudflare_configured?
+
+    begin
+      uri = URI("https://api.cloudflare.com/client/v4/accounts/#{@account_id}/stream?page=#{page}&limit=#{per_page}")
+      
+      request = Net::HTTP::Get.new(uri)
+      request['Authorization'] = "Bearer #{@api_token}"
+      
+      response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) do |http|
+        http.request(request)
+      end
+      
+      if response.code == '200'
+        result = JSON.parse(response.body)
+        if result['success']
+          { success: true, videos: result['result'], pagination: result['result_info'] }
+        else
+          { success: false, error: result['errors']&.first&.dig('message') || 'Unknown error' }
+        end
+      else
+        { success: false, error: "HTTP #{response.code}: #{response.body}" }
+      end
+    rescue => e
+      { success: false, error: "List videos failed: #{e.message}" }
+    end
+  end
+
+  # Get usage statistics
+  def get_usage_stats
+    return { success: false, error: 'API token not configured' } unless cloudflare_configured?
+
+    begin
+      uri = URI("https://api.cloudflare.com/client/v4/accounts/#{@account_id}/stream/usage")
+      
+      request = Net::HTTP::Get.new(uri)
+      request['Authorization'] = "Bearer #{@api_token}"
+      
+      response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) do |http|
+        http.request(request)
+      end
+      
+      if response.code == '200'
+        result = JSON.parse(response.body)
+        if result['success']
+          { success: true, usage: result['result'] }
+        else
+          { success: false, error: result['errors']&.first&.dig('message') || 'Unknown error' }
+        end
+      else
+        { success: false, error: "HTTP #{response.code}: #{response.body}" }
+      end
+    rescue => e
+      { success: false, error: "Get usage stats failed: #{e.message}" }
+    end
+  end
+
+  private
+
+  def cloudflare_configured?
+    @api_token.present? && @account_id.present?
+  end
+
+  def build_multipart_body(file_path, metadata)
+    boundary = "----WebKitFormBoundary#{SecureRandom.hex(16)}"
+    
+    body = []
+    
+    # Add file
+    body << "--#{boundary}"
+    body << "Content-Disposition: form-data; name=\"file\"; filename=\"#{File.basename(file_path)}\""
+    body << "Content-Type: video/mp4"
+    body << ""
+    body << File.read(file_path)
+    
+    # Add metadata
+    metadata.each do |key, value|
+      body << "--#{boundary}"
+      body << "Content-Disposition: form-data; name=\"#{key}\""
+      body << ""
+      body << value.to_s
+    end
+    
+    body << "--#{boundary}--"
+    
+    body.join("\r\n")
   end
 end
