@@ -30,7 +30,7 @@ Rails.application.routes.draw do
       get 'subdomain_validation/check'
       
       # Tenant registration (no authentication required)
-      post 'tenant_registration'
+      post 'tenant_registration', to: 'tenant_registration#create'
       
       # Curricula
       resources :curricula, only: [:index, :show] do
