@@ -9,8 +9,7 @@ class User < ApplicationRecord
   has_many :user_subscriptions, dependent: :destroy
 
   devise :database_authenticatable, :registerable,
-         :recoverable, :rememberable, :validatable,
-         :jwt_authenticatable, jwt_revocation_strategy: JwtDenylist
+         :recoverable, :rememberable, :validatable
 
   validates :email, presence: true, uniqueness: { scope: :tenant_id }
   validates :username, presence: true, uniqueness: { scope: :tenant_id }

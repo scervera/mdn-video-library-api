@@ -9,6 +9,8 @@ UserProgress.destroy_all
 LessonProgress.destroy_all
 UserNote.destroy_all
 UserHighlight.destroy_all
+TenantSubscription.destroy_all
+BillingTier.destroy_all
 Tenant.destroy_all
 
 # Create demo tenants
@@ -403,6 +405,32 @@ tenants.each do |tenant_data|
   tenant = Tenant.unscoped.create!(tenant_data)
   puts "  - Created tenant: #{tenant.name} (#{tenant.slug})"
 
+  # Create billing tiers for this tenant
+  puts "    - Creating billing tiers..."
+  config = BillingConfiguration.current
+  
+  config.tiers.each do |tier_key, tier_data|
+    billing_tier = tenant.billing_tiers.create!(
+      name: tier_data['name'],
+      monthly_price: tier_data['monthly_price'],
+      per_user_price: tier_data['per_user_price'],
+      user_limit: tier_data['user_limit'],
+      features: tier_data['features']
+    )
+    puts "      - Created billing tier: #{billing_tier.name}"
+  end
+
+  # Create trial subscription for this tenant
+  trial_tier = tenant.billing_tiers.find_by(name: 'Trial')
+  if trial_tier
+    subscription = tenant.tenant_subscriptions.create!(
+      billing_tier: trial_tier,
+      status: 'trial',
+      trial_ends_at: 30.days.from_now
+    )
+    puts "      - Created trial subscription (expires: #{subscription.trial_ends_at.strftime('%Y-%m-%d')})"
+  end
+
   # Create admin user for each tenant
   admin_user = tenant.users.create!(
     username: "admin_#{tenant.slug}",
@@ -577,6 +605,8 @@ tenants.each do |tenant_data|
   puts "        - First lesson: /api/v1/lessons/#{first_lesson.id}"
   puts "        - User progress: /api/v1/user/progress"
   puts "        - Bookmarks: /api/v1/lessons/#{first_lesson.id}/bookmarks"
+  puts "        - Billing tiers: /api/v1/billing_tiers"
+  puts "        - Trial status: /api/v1/trial/status"
   puts "      Login credentials:"
   puts "        - Admin: #{admin_user.username} / password"
   puts "        - Demo: #{demo_user.username} / password"
@@ -584,7 +614,7 @@ tenants.each do |tenant_data|
   puts ""
 end
 
-puts "🎉 Multitenant setup complete with unique content!"
+puts "🎉 Multitenant setup complete with unique content and billing system!"
 puts ""
 puts "📋 Summary:"
 puts "  - Created 3 tenants: acme1, acme2, acme3"
@@ -595,9 +625,15 @@ puts "    * Global Solutions: International Business & Cultural Intelligence"
 puts "  - All video lessons use Cloudflare Stream test video"
 puts "  - Demo users have progress, notes, highlights, and bookmarks"
 puts "  - Each tenant has unique branding colors"
+puts "  - Billing tiers created for each tenant"
+puts "  - Trial subscriptions active for all tenants"
 puts ""
 puts "🚀 Next steps:"
 puts "  1. Test tenant isolation by accessing different subdomains"
 puts "  2. Verify API endpoints work with tenant context"
-puts "  3. Test branding customization"
-puts "  4. Deploy to production with proper DNS setup"
+puts "  3. Test billing endpoints:"
+puts "     - GET /api/v1/billing_tiers"
+puts "     - GET /api/v1/trial/status"
+puts "     - GET /api/v1/subscriptions"
+puts "  4. Test branding customization"
+puts "  5. Deploy to production with proper DNS setup"

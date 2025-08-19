@@ -13,24 +13,24 @@ class CloudflareDnsService
     @domain = config[:domain]
   end
 
-  # Check if a subdomain is available (not already in use)
-  def subdomain_available?(subdomain)
-    return false unless valid_subdomain_format?(subdomain)
+  # Check if a slug is available (not already in use)
+  def slug_available?(slug)
+    return false unless valid_slug_format?(slug)
     
-    # Check if subdomain already exists in our database
-    return false if Tenant.exists?(subdomain: subdomain)
+    # Check if slug already exists in our database
+    return false if Tenant.exists?(slug: slug)
     
     # If Cloudflare credentials are not configured, only check database
     return true unless cloudflare_configured?
     
     # Check if DNS record already exists in Cloudflare
-    !dns_record_exists?(subdomain)
+    !dns_record_exists?(slug)
   end
 
-  # Create a CNAME record for the subdomain
-  def create_subdomain(subdomain)
-    return { success: false, error: 'Invalid subdomain format' } unless valid_subdomain_format?(subdomain)
-    return { success: false, error: 'Subdomain already exists' } unless subdomain_available?(subdomain)
+  # Create a CNAME record for the slug
+  def create_slug(slug)
+    return { success: false, error: 'Invalid slug format' } unless valid_slug_format?(slug)
+    return { success: false, error: 'Slug already exists' } unless slug_available?(slug)
 
     # If Cloudflare credentials are not configured, return mock success
     unless cloudflare_configured?
@@ -38,7 +38,7 @@ class CloudflareDnsService
     end
 
     begin
-      response = create_dns_record(subdomain)
+      response = create_dns_record(slug)
       
       if response[:success]
         { success: true, record_id: response[:record_id] }
@@ -50,10 +50,10 @@ class CloudflareDnsService
     end
   end
 
-  # Delete a CNAME record for the subdomain
-  def delete_subdomain(subdomain)
+  # Delete a CNAME record for the slug
+  def delete_slug(slug)
     begin
-      record_id = get_dns_record_id(subdomain)
+      record_id = get_dns_record_id(slug)
       return { success: false, error: 'DNS record not found' } unless record_id
 
       response = delete_dns_record(record_id)
@@ -68,40 +68,40 @@ class CloudflareDnsService
     end
   end
 
-  # Get DNS record ID for a subdomain
-  def get_dns_record_id(subdomain)
+  # Get DNS record ID for a slug
+  def get_dns_record_id(slug)
     records = list_dns_records
-    record = records.find { |r| r['name'] == "#{subdomain}.#{@domain}" }
+    record = records.find { |r| r['name'] == "#{slug}.#{@domain}" }
     record&.dig('id')
   end
 
   private
 
-  def valid_subdomain_format?(subdomain)
-    return false if subdomain.blank?
-    return false if subdomain.length < 3 || subdomain.length > 63
+  def valid_slug_format?(slug)
+    return false if slug.blank?
+    return false if slug.length < 3 || slug.length > 63
     
     # Must start and end with alphanumeric
-    return false unless subdomain.match?(/^[a-z0-9]/)
-    return false unless subdomain.match?(/[a-z0-9]$/)
+    return false unless slug.match?(/^[a-z0-9]/)
+    return false unless slug.match?(/[a-z0-9]$/)
     
     # Can contain alphanumeric and hyphens, but no consecutive hyphens
-    return false unless subdomain.match?(/^[a-z0-9]([a-z0-9-]*[a-z0-9])?$/)
-    return false if subdomain.include?('--')
+    return false unless slug.match?(/^[a-z0-9]([a-z0-9-]*[a-z0-9])?$/)
+    return false if slug.include?('--')
     
-    # Check for reserved subdomains
-    reserved_subdomains = %w[www api admin mail smtp pop imap ftp ssh sftp]
-    return false if reserved_subdomains.include?(subdomain.downcase)
+    # Check for reserved slugs
+    reserved_slugs = %w[www api admin mail smtp pop imap ftp ssh sftp]
+    return false if reserved_slugs.include?(slug.downcase)
     
     true
   end
 
-  def dns_record_exists?(subdomain)
-    record_id = get_dns_record_id(subdomain)
+  def dns_record_exists?(slug)
+    record_id = get_dns_record_id(slug)
     record_id.present?
   end
 
-  def create_dns_record(subdomain)
+  def create_dns_record(slug)
     uri = URI("https://api.cloudflare.com/client/v4/zones/#{@zone_id}/dns_records")
     
     request = Net::HTTP::Post.new(uri)
@@ -110,7 +110,7 @@ class CloudflareDnsService
     
     payload = {
       type: 'CNAME',
-      name: "#{subdomain}.#{@domain}",
+      name: "#{slug}.#{@domain}",
       content: "#{@domain}",
       ttl: 1, # Auto TTL
       proxied: false # DNS only, not proxied through Cloudflare
