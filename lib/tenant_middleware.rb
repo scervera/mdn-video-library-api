@@ -6,11 +6,6 @@ class TenantMiddleware
   def call(env)
     request = Rack::Request.new(env)
     
-    # Debug logging
-    Rails.logger.debug "TenantMiddleware: Path = #{request.path}"
-    Rails.logger.debug "TenantMiddleware: X-Tenant header = #{request.get_header('HTTP_X_TENANT')}"
-    Rails.logger.debug "TenantMiddleware: All headers = #{env.select { |k, v| k.start_with?('HTTP_') }}"
-    
     # Allow health checks to pass through without tenant validation
     if request.path == '/up'
       return @app.call(env)
@@ -20,28 +15,21 @@ class TenantMiddleware
     if api_endpoint?(request.path)
       tenant_slug = request.get_header('HTTP_X_TENANT')
       
-      Rails.logger.debug "TenantMiddleware: API endpoint detected, tenant_slug = #{tenant_slug}"
-      
       if tenant_slug.blank?
-        Rails.logger.debug "TenantMiddleware: X-Tenant header missing, returning 400"
         return [400, {'Content-Type' => 'application/json'}, ['{"error": "X-Tenant header is required for API endpoints"}']]
       end
       
       tenant = Tenant.find_by(slug: tenant_slug)
       if tenant
-        Rails.logger.debug "TenantMiddleware: Setting Current.tenant = #{tenant.name}"
         Current.tenant = tenant
         @app.call(env)
       else
-        Rails.logger.debug "TenantMiddleware: Tenant not found for slug = #{tenant_slug}"
         # Tenant not found
         [404, {'Content-Type' => 'application/json'}, ['{"error": "Tenant not found"}']]
       end
     else
       # For non-API endpoints, try to extract tenant from URL path
       tenant_slug = extract_tenant_from_path(request.path)
-      
-      Rails.logger.debug "TenantMiddleware: Non-API endpoint, extracted tenant_slug = #{tenant_slug}"
       
       if tenant_slug.present?
         tenant = Tenant.find_by(slug: tenant_slug)

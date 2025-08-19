@@ -32,9 +32,6 @@ Rails.application.routes.draw do
       # Tenant registration (no authentication required)
       post 'tenant_registration', to: 'tenant_registration#create'
       
-      # Debug endpoint (no authentication required)
-      get 'debug/tenant_info'
-      
       # Curricula
       resources :curricula, only: [:index, :show] do
         member do
