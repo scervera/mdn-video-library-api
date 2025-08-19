@@ -1,0 +1,42 @@
+{
+  "tiers": {
+    "trial": {
+      "name": "Trial",
+      "duration_days": 30,
+      "user_limit": 10,
+      "monthly_price": 0,
+      "per_user_price": 0,
+      "features": ["basic_access", "up_to_10_users"],
+      "description": "30-day free trial with up to 10 users"
+    },
+    "starter": {
+      "name": "Starter", 
+      "user_limit": 25,
+      "monthly_price": 99,
+      "per_user_price": 0,
+      "features": ["full_access", "up_to_25_users"],
+      "description": "Perfect for small teams up to 25 users"
+    },
+    "professional": {
+      "name": "Professional",
+      "user_limit": null,
+      "monthly_price": 49,
+      "per_user_price": 15,
+      "features": ["full_access", "unlimited_users", "per_user_billing"],
+      "description": "Unlimited users with per-user billing"
+    },
+    "enterprise": {
+      "name": "Enterprise",
+      "user_limit": null, 
+      "monthly_price": 299,
+      "per_user_price": 0,
+      "features": ["full_access", "unlimited_users", "priority_support"],
+      "description": "Enterprise solution with unlimited users and priority support"
+    }
+  },
+  "invitation_expiry_days": 14,
+  "trial_duration_days": 30,
+  "automatic_trial_conversion": true,
+  "supported_payment_methods": ["card"],
+  "currencies": ["usd"]
+}

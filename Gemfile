@@ -7,16 +7,16 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 ruby "3.3.0"
 
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
-gem "rails", "~> 8.0.0"
+gem "rails", "~> 8.0.2"
 
 # The original asset pipeline for Rails [https://github.com/rails/sprockets-rails]
-# gem "sprockets-rails"
+gem "sprockets-rails"
 
 # Use postgresql as the database for Active Record
 gem "pg", "~> 1.1"
 
 # Use the Puma web server [https://github.com/puma/puma]
-gem "puma", ">= 6.0"
+gem "puma", ">= 5.0"
 
 # Build JSON APIs with ease [https://github.com/rails/jbuilder]
 gem "jbuilder"
@@ -24,22 +24,16 @@ gem "jbuilder"
 # Use Redis adapter to run Action Cable in production
 gem "redis", ">= 4.0.1"
 
-# Use Kredis to get excited about Redis again
-gem "kredis"
+# Use Kredis to get higher-level data types in Redis [https://github.com/rails/kredis]
+# gem "kredis"
 
-# Background job processing
-gem "solid_queue"
-
-# Use Active Model has_secure_password
-# gem "bcrypt", "~> 3.1.7"
-
-# Use Active Storage variants [https://guides.rubyonrails.org/active_storage.html]
-# gem "image_processing", "~> 1.2"
+# Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
+gem "bcrypt", "~> 3.1.7"
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 # Uncomment the following line if you're running Rails
 # on a native Windows system:
-# gem "tzinfo", platforms: %i[ mingw mswin x64_mingw jruby ]
+# gem "tzinfo", ">= 1", platforms: %i[ mingw mswin x64_mingw jruby ]
 
 # Reduces boot times through caching; required in config/boot.rb
 gem "bootsnap", require: false
@@ -47,30 +41,17 @@ gem "bootsnap", require: false
 # Use Rack CORS for handling Cross-Origin Resource Sharing (CORS), making cross-origin Ajax requests possible
 gem "rack-cors"
 
-# Authentication
+# Use devise for authentication
 gem "devise"
+
+# Use devise-jwt for JWT authentication
 gem "devise-jwt"
 
-# JSON serialization
-gem "fast_jsonapi"
+# Use stripe for payment processing
+gem "stripe"
 
-# Authorization
-gem "pundit"
-
-# File storage
-gem "aws-sdk-s3", require: false
-
-# JWT for token authentication
-gem "jwt"
-
-# Faker for generating seed data
-gem "faker"
-
-# Rails 8 health check gem
-gem "thruster"
-
-# HTTP client for API requests
-gem "httparty"
+# Use dotenv-rails for environment variables in development
+gem "dotenv-rails", group: :development
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
@@ -86,12 +67,6 @@ group :development do
 
   # Speed up commands on slow machines / big apps [https://github.com/rails/spring]
   # gem "spring"
-
-  # Deployment tool
-  gem "kamal"
-  
-  # Environment variables from .env file
-  gem "dotenv-rails"
 end
 
 group :test do
