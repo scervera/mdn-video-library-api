@@ -32,6 +32,9 @@ Rails.application.routes.draw do
       # Tenant registration (no authentication required)
       post 'tenant_registration', to: 'tenant_registration#create'
       
+      # Debug endpoint (no authentication required)
+      get 'debug/tenant_info'
+      
       # Curricula
       resources :curricula, only: [:index, :show] do
         member do
@@ -58,19 +61,19 @@ Rails.application.routes.draw do
       end
       
       # Lessons
-      resources :lessons, only: [:show] do
+      resources :lessons, only: [:index, :show] do
         member do
           post :complete
         end
-        resources :bookmarks, only: [:index, :show, :create, :update, :destroy]
+        resources :bookmarks, only: [:index, :create, :update, :destroy]
       end
       
-      # User Progress
+      # User progress
       namespace :user do
         get 'progress', to: 'progress#index'
-        get 'progress/:curriculum_id', to: 'progress#curriculum_progress', as: :curriculum_progress
-        resources :notes, only: [:index, :show, :create, :update, :destroy]
-        resources :highlights, only: [:index, :show, :create, :update, :destroy]
+        get 'progress/:curriculum_id', to: 'progress#curriculum_progress'
+        resources :notes, only: [:index, :create, :update, :destroy]
+        resources :highlights, only: [:index, :create, :update, :destroy]
       end
     end
   end
@@ -109,19 +112,19 @@ Rails.application.routes.draw do
     end
     
     # Lessons
-    resources :lessons, only: [:show] do
+    resources :lessons, only: [:index, :show] do
       member do
         post :complete
       end
-      resources :bookmarks, only: [:index, :show, :create, :update, :destroy]
+      resources :bookmarks, only: [:index, :create, :update, :destroy]
     end
     
-    # User Progress
+    # User progress
     namespace :user do
       get 'progress', to: 'progress#index'
-      get 'progress/:curriculum_id', to: 'progress#curriculum_progress', as: :curriculum_progress
-      resources :notes, only: [:index, :show, :create, :update, :destroy]
-      resources :highlights, only: [:index, :show, :create, :update, :destroy]
+      get 'progress/:curriculum_id', to: 'progress#curriculum_progress'
+      resources :notes, only: [:index, :create, :update, :destroy]
+      resources :highlights, only: [:index, :create, :update, :destroy]
     end
   end
 
