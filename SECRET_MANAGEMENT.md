@@ -24,6 +24,7 @@ This project uses a standardized approach to secret management with Kamal.
 
 1. **Set environment variables on your local machine:**
 ```bash
+export CLOUDFLARE_DOMAIN="your_domain_here"
 export CLOUDFLARE_DNS_API_TOKEN="your_dns_api_token_here"
 export CLOUDFLARE_ZONE_ID="your_zone_id_here"
 export CLOUDFLARE_STREAM_API_TOKEN="your_stream_api_token_here"
@@ -52,6 +53,7 @@ export DATABASE_PASSWORD="your_database_password_here"
 
 1. **Set secrets in Kamal:**
 ```bash
+kamal secrets set CLOUDFLARE_DOMAIN=your_domain
 kamal secrets set CLOUDFLARE_DNS_API_TOKEN=your_dns_api_token
 kamal secrets set CLOUDFLARE_ZONE_ID=your_zone_id
 kamal secrets set CLOUDFLARE_STREAM_API_TOKEN=your_stream_api_token

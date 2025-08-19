@@ -1,5 +1,5 @@
 defaults: &defaults
-  domain: cerveras.com
+  domain: <%= ENV['CLOUDFLARE_DOMAIN'] || 'cerveras.com' %>
   # DNS management (for tenant subdomains)
   dns_api_token: <%= ENV['CLOUDFLARE_DNS_API_TOKEN'] %>
   zone_id: <%= ENV['CLOUDFLARE_ZONE_ID'] %>

@@ -10,7 +10,7 @@ class CloudflareDnsService
     config = Rails.application.config_for(:cloudflare)
     @api_token = config[:dns_api_token]
     @zone_id = config[:zone_id]
-    @domain = config[:domain] || 'cerveras.com'
+    @domain = config[:domain]
   end
 
   # Check if a subdomain is available (not already in use)
