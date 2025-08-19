@@ -29,6 +29,9 @@ Rails.application.routes.draw do
       # Subdomain validation (no authentication required)
       get 'subdomain_validation/check'
       
+      # Tenant registration (no authentication required)
+      post 'tenant_registration'
+      
       # Curricula
       resources :curricula, only: [:index, :show] do
         member do

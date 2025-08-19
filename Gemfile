@@ -89,6 +89,9 @@ group :development do
 
   # Deployment tool
   gem "kamal"
+  
+  # Environment variables from .env file
+  gem "dotenv-rails"
 end
 
 group :test do
