@@ -125,15 +125,52 @@ if [[ "$SET_ENV_VARS" =~ ^[Yy]$ ]]; then
     fi
     
     echo ""
-    echo "💡 To make these environment variables permanent, add them to your shell profile:"
-    echo "   Add the following lines to ~/.zshrc or ~/.bash_profile:"
+    echo "💡 Making environment variables permanent..."
+    
+    # Determine shell profile file
+    if [[ "$SHELL" == *"zsh"* ]] || [ -n "$ZSH_VERSION" ]; then
+        PROFILE_FILE="$HOME/.zshrc"
+    elif [[ "$SHELL" == *"bash"* ]] || [ -n "$BASH_VERSION" ]; then
+        PROFILE_FILE="$HOME/.bash_profile"
+        if [ ! -f "$PROFILE_FILE" ]; then
+            PROFILE_FILE="$HOME/.bashrc"
+        fi
+    else
+        PROFILE_FILE="$HOME/.profile"
+    fi
+    
+    echo "Adding environment variables to $PROFILE_FILE"
+    
+    # Remove existing Cloudflare exports if they exist
+    sed -i '' '/export CLOUDFLARE_DNS_API_TOKEN=/d' "$PROFILE_FILE"
+    sed -i '' '/export CLOUDFLARE_ZONE_ID=/d' "$PROFILE_FILE"
+    sed -i '' '/export CLOUDFLARE_STREAM_API_TOKEN=/d' "$PROFILE_FILE"
+    sed -i '' '/export CLOUDFLARE_STREAM_ACCOUNT_ID=/d' "$PROFILE_FILE"
+    
+    # Add new exports
+    echo "" >> "$PROFILE_FILE"
+    echo "# Cloudflare API Configuration" >> "$PROFILE_FILE"
+    echo "export CLOUDFLARE_DNS_API_TOKEN=\"$CLOUDFLARE_DNS_API_TOKEN\"" >> "$PROFILE_FILE"
+    echo "export CLOUDFLARE_ZONE_ID=\"$CLOUDFLARE_ZONE_ID\"" >> "$PROFILE_FILE"
+    echo "export CLOUDFLARE_STREAM_API_TOKEN=\"$CLOUDFLARE_STREAM_API_TOKEN\"" >> "$PROFILE_FILE"
+    echo "export CLOUDFLARE_STREAM_ACCOUNT_ID=\"$CLOUDFLARE_STREAM_ACCOUNT_ID\"" >> "$PROFILE_FILE"
+    
+    echo "✅ Environment variables added to $PROFILE_FILE"
     echo ""
-    echo "   export CLOUDFLARE_DNS_API_TOKEN=\"$CLOUDFLARE_DNS_API_TOKEN\""
-    echo "   export CLOUDFLARE_ZONE_ID=\"$CLOUDFLARE_ZONE_ID\""
-    echo "   export CLOUDFLARE_STREAM_API_TOKEN=\"$CLOUDFLARE_STREAM_API_TOKEN\""
-    echo "   export CLOUDFLARE_STREAM_ACCOUNT_ID=\"$CLOUDFLARE_STREAM_ACCOUNT_ID\""
-    echo ""
-    echo "   Then run: source ~/.zshrc (or source ~/.bash_profile)"
+    
+    # Ask if user wants to apply changes immediately
+    read -p "Would you like to apply these changes immediately? (y/n): " APPLY_NOW
+    
+    if [[ "$APPLY_NOW" =~ ^[Yy]$ ]]; then
+        echo "Applying changes..."
+        source "$PROFILE_FILE"
+        echo "✅ Environment variables are now active in this session!"
+    else
+        echo "🔄 To apply changes later, run:"
+        echo "   source $PROFILE_FILE"
+        echo ""
+        echo "Or restart your terminal session."
+    fi
     
 else
     echo ""
