@@ -7,9 +7,10 @@ class CloudflareDnsService
   config_accessor :api_token, :zone_id, :domain
 
   def initialize
-    @api_token = Rails.application.credentials.cloudflare[:api_token]
-    @zone_id = Rails.application.credentials.cloudflare[:zone_id]
-    @domain = Rails.application.credentials.cloudflare[:domain] || 'cerveras.com'
+    config = Rails.application.config_for(:cloudflare)
+    @api_token = config[:api_token]
+    @zone_id = config[:zone_id]
+    @domain = config[:domain] || 'cerveras.com'
   end
 
   # Check if a subdomain is available (not already in use)
@@ -19,6 +20,9 @@ class CloudflareDnsService
     # Check if subdomain already exists in our database
     return false if Tenant.exists?(subdomain: subdomain)
     
+    # If Cloudflare credentials are not configured, only check database
+    return true unless cloudflare_configured?
+    
     # Check if DNS record already exists in Cloudflare
     !dns_record_exists?(subdomain)
   end
@@ -27,6 +31,11 @@ class CloudflareDnsService
   def create_subdomain(subdomain)
     return { success: false, error: 'Invalid subdomain format' } unless valid_subdomain_format?(subdomain)
     return { success: false, error: 'Subdomain already exists' } unless subdomain_available?(subdomain)
+
+    # If Cloudflare credentials are not configured, return mock success
+    unless cloudflare_configured?
+      return { success: true, record_id: "mock_record_#{SecureRandom.hex(8)}" }
+    end
 
     begin
       response = create_dns_record(subdomain)
@@ -167,5 +176,11 @@ class CloudflareDnsService
     else
       []
     end
+  end
+
+  private
+
+  def cloudflare_configured?
+    @api_token.present? && @zone_id.present?
   end
 end

@@ -1,8 +1,8 @@
 defaults: &defaults
   domain: cerveras.com
-  # These will be overridden by Rails credentials
-  api_token: <%= Rails.application.credentials.cloudflare&.dig(:api_token) %>
-  zone_id: <%= Rails.application.credentials.cloudflare&.dig(:zone_id) %>
+  # These will be overridden by environment variables
+  api_token: <%= ENV['CLOUDFLARE_API_TOKEN'] %>
+  zone_id: <%= ENV['CLOUDFLARE_ZONE_ID'] %>
 
 development:
   <<: *defaults
