@@ -10,7 +10,7 @@ class Tenant < ApplicationRecord
   has_many :user_highlights, dependent: :destroy
 
   validates :name, presence: true
-  validates :subdomain, presence: true, uniqueness: true,
+  validates :slug, presence: true, uniqueness: true,
             format: { with: /\A[a-z0-9-]+\z/, message: "can only contain lowercase letters, numbers, and hyphens" }
   
   # DNS record management
@@ -48,20 +48,20 @@ class Tenant < ApplicationRecord
   end
 
   def full_domain
-    domain.presence || "#{subdomain}.curriculum-library-api.cerveras.com"
+    domain.presence || "#{slug}.curriculum.cerveras.com"
   end
 
-  # DNS management methods
+  # DNS management methods (keeping for future custom domain support)
   def create_dns_record
     return if Rails.env.test? # Skip DNS operations in test environment
     
     dns_service = CloudflareDnsService.new
-    result = dns_service.create_subdomain(subdomain)
+    result = dns_service.create_subdomain(slug)
     
     if result[:success]
       self.dns_record_id = result[:record_id]
     else
-      errors.add(:subdomain, "DNS creation failed: #{result[:error]}")
+      errors.add(:slug, "DNS creation failed: #{result[:error]}")
       throw(:abort)
     end
   end
@@ -71,10 +71,10 @@ class Tenant < ApplicationRecord
     return unless dns_record_id.present?
     
     dns_service = CloudflareDnsService.new
-    result = dns_service.delete_subdomain(subdomain)
+    result = dns_service.delete_subdomain(slug)
     
     unless result[:success]
-      Rails.logger.error "Failed to delete DNS record for #{subdomain}: #{result[:error]}"
+      Rails.logger.error "Failed to delete DNS record for #{slug}: #{result[:error]}"
     end
   end
 
@@ -82,8 +82,8 @@ class Tenant < ApplicationRecord
     return if Rails.env.test? # Skip DNS validation in test environment
     
     dns_service = CloudflareDnsService.new
-    unless dns_service.subdomain_available?(subdomain)
-      errors.add(:subdomain, "is not available")
+    unless dns_service.subdomain_available?(slug)
+      errors.add(:slug, "is not available")
     end
   end
 

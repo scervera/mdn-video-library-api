@@ -8,13 +8,13 @@ puts "=== Tenant Isolation Debug ==="
 tenants = Tenant.all
 puts "\nAll tenants:"
 tenants.each do |tenant|
-  puts "  - #{tenant.name} (#{tenant.subdomain}) - ID: #{tenant.id}"
+  puts "  - #{tenant.name} (#{tenant.slug}) - ID: #{tenant.id}"
 end
 
 # Check curricula for each tenant
 puts "\nCurricula by tenant:"
 tenants.each do |tenant|
-  puts "\n#{tenant.name} (#{tenant.subdomain}):"
+  puts "\n#{tenant.name} (#{tenant.slug}):"
   curricula = tenant.curriculums
   curricula.each do |curriculum|
     puts "  - #{curriculum.title} (ID: #{curriculum.id})"
@@ -25,7 +25,7 @@ end
 puts "\n=== Testing Default Scope ==="
 
 # Set Current.tenant to acme1
-acme1 = Tenant.find_by(subdomain: 'acme1')
+acme1 = Tenant.find_by(slug: 'acme1')
 if acme1
   puts "\nSetting Current.tenant to acme1..."
   Current.tenant = acme1
@@ -37,7 +37,7 @@ if acme1
 end
 
 # Set Current.tenant to acme2
-acme2 = Tenant.find_by(subdomain: 'acme2')
+acme2 = Tenant.find_by(slug: 'acme2')
 if acme2
   puts "\nSetting Current.tenant to acme2..."
   Current.tenant = acme2

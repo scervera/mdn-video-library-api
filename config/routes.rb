@@ -26,8 +26,8 @@ Rails.application.routes.draw do
       post 'auth/register'
       get 'auth/me'
       
-      # Subdomain validation (no authentication required)
-      get 'subdomain_validation/check'
+      # Slug validation (no authentication required)
+      get 'slug_validation/check'
       
       # Tenant registration (no authentication required)
       post 'tenant_registration', to: 'tenant_registration#create'

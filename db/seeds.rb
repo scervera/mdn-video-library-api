@@ -17,8 +17,8 @@ puts "Creating demo tenants..."
 tenants = [
   {
     name: "ACME Corporation",
-    subdomain: "acme1",
-    domain: "curriculum-library-api.cerveras.com",
+    slug: "acme1",
+    domain: "curriculum.cerveras.com",
     branding_settings: {
       'primary_color' => '#3B82F6',
       'secondary_color' => '#1F2937',
@@ -28,8 +28,8 @@ tenants = [
   },
   {
     name: "TechStart Inc",
-    subdomain: "acme2",
-    domain: "curriculum-library-api.cerveras.com",
+    slug: "acme2",
+    domain: "curriculum.cerveras.com",
     branding_settings: {
       'primary_color' => '#10B981',
       'secondary_color' => '#374151',
@@ -39,8 +39,8 @@ tenants = [
   },
   {
     name: "Global Solutions",
-    subdomain: "acme3",
-    domain: "curriculum-library-api.cerveras.com",
+    slug: "acme3",
+    domain: "curriculum.cerveras.com",
     branding_settings: {
       'primary_color' => '#EF4444',
       'secondary_color' => '#111827',
@@ -401,12 +401,12 @@ chapter_lessons = {
 tenants.each do |tenant_data|
   # Temporarily disable default scope for tenant creation
   tenant = Tenant.unscoped.create!(tenant_data)
-  puts "  - Created tenant: #{tenant.name} (#{tenant.subdomain})"
+  puts "  - Created tenant: #{tenant.name} (#{tenant.slug})"
 
   # Create admin user for each tenant
   admin_user = tenant.users.create!(
-    username: "admin_#{tenant.subdomain}",
-    email: "admin@#{tenant.subdomain}.com",
+    username: "admin_#{tenant.slug}",
+    email: "admin@#{tenant.slug}.com",
     password: "password",
     password_confirmation: "password",
     first_name: "Admin",
@@ -417,8 +417,8 @@ tenants.each do |tenant_data|
 
   # Create demo user for each tenant
   demo_user = tenant.users.create!(
-    username: "demo_#{tenant.subdomain}",
-    email: "demo@#{tenant.subdomain}.com",
+    username: "demo_#{tenant.slug}",
+    email: "demo@#{tenant.slug}.com",
     password: "password",
     password_confirmation: "password",
     first_name: "Demo",
@@ -430,7 +430,7 @@ tenants.each do |tenant_data|
   # Create unique curricula for each tenant
   puts "    - Creating unique curricula for #{tenant.name}..."
 
-  curricula_data = tenant_curricula[tenant.subdomain]
+      curricula_data = tenant_curricula[tenant.slug]
   curricula_data.each_with_index do |curriculum_data, index|
     curriculum = tenant.curriculums.create!(
       title: curriculum_data[:title],
@@ -442,7 +442,7 @@ tenants.each do |tenant_data|
     puts "      - Created curriculum: #{curriculum.title}"
 
     # Determine which chapters to create based on curriculum type
-    chapter_type = case tenant.subdomain
+    chapter_type = case tenant.slug
     when "acme1"
       index == 0 ? "business" : "innovation"
     when "acme2"
@@ -580,7 +580,7 @@ tenants.each do |tenant_data|
   puts "      Login credentials:"
   puts "        - Admin: #{admin_user.username} / password"
   puts "        - Demo: #{demo_user.username} / password"
-  puts "      Subdomain: #{tenant.subdomain}.curriculum-library-api.cerveras.com"
+        puts "      URL: #{tenant.slug}.curriculum.cerveras.com"
   puts ""
 end
 
