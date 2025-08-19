@@ -32,6 +32,22 @@ Rails.application.routes.draw do
       # Tenant registration (no authentication required)
       post 'tenant_registration', to: 'tenant_registration#create'
       
+      # Billing endpoints
+      resources :billing_tiers, only: [:index, :show]
+      resources :subscriptions, only: [:index, :show, :create, :update] do
+        member do
+          delete :cancel
+        end
+      end
+      
+      # Trial management
+      namespace :trial do
+        get 'status'
+        post 'start'
+        post 'convert'
+        get 'expired'
+      end
+      
       # Curricula
       resources :curricula, only: [:index, :show] do
         member do
