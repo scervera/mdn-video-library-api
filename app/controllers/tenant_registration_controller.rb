@@ -7,6 +7,13 @@ class TenantRegistrationController < ApplicationController
   def create
     @tenant = Tenant.new(tenant_params)
 
+    # Validate subdomain availability before saving
+    dns_service = CloudflareDnsService.new
+    unless dns_service.subdomain_available?(@tenant.subdomain)
+      @tenant.errors.add(:subdomain, "is not available")
+      render :new and return
+    end
+
     if @tenant.save
       # Create default admin user
       admin_user = @tenant.users.create!(
@@ -24,6 +31,9 @@ class TenantRegistrationController < ApplicationController
     else
       render :new
     end
+  rescue => e
+    @tenant.errors.add(:base, "Registration failed: #{e.message}")
+    render :new
   end
 
   private
