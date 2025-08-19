@@ -1,276 +1,454 @@
 # MDN Video Library API
 
-A Rails API for managing video-based learning curricula, lessons, and user progress tracking with **multitenancy support**.
+A Rails-based API for managing video curriculum content with multitenant support.
 
-## Features
+## Architecture
 
-- **Multitenancy**: Complete tenant isolation with subdomain-based routing
-- **Curriculum Management**: Create and manage learning paths with chapters and lessons
-- **User Progress Tracking**: Monitor user completion of chapters and lessons
-- **Notes & Highlights**: Users can take notes and highlight content
-- **Authentication**: JWT-based authentication using Devise
-- **API-First**: RESTful API designed for frontend consumption
-- **Tenant Branding**: Customizable branding per tenant
-- **Cloudflare Stream Integration**: Video hosting and streaming
+### Multitenancy Strategy
 
-## Multitenancy Architecture
+This application uses **path-based multitenancy** with header-based tenant identification:
 
-This application supports multiple tenants with complete data isolation:
+- **Frontend URLs**: `curriculum.cerveras.com/{tenant-slug}` (e.g., `curriculum.cerveras.com/acme1`)
+- **API URLs**: `curriculum-library-api.cerveras.com/api/v1/*` (with `X-Tenant` header)
+- **Tenant Identification**: Via `X-Tenant` header containing the tenant slug
 
-### Tenant Structure
-- **Subdomain-based routing**: Each tenant has a unique subdomain (e.g., `acme1.curriculum-library-api.cerveras.com`)
-- **Data isolation**: All data is scoped to the current tenant
-- **Custom branding**: Each tenant can customize colors, logos, and company information
-- **Independent user management**: Users are isolated per tenant
+### Tenant Isolation
 
-### Demo Tenants
-The application comes with three demo tenants:
+- All data is automatically scoped to the current tenant
+- API requests must include the `X-Tenant` header
+- Tenant slugs are validated against the database
+- Health checks (`/up`) bypass tenant validation
 
-1. **ACME Corporation** (`acme1`)
-   - ACME Business Fundamentals
-   - ACME Innovation Workshop
+## API Authentication
 
-2. **TechStart Inc** (`acme2`)
-   - TechStart Programming Bootcamp
-   - TechStart Product Management
+### JWT Authentication
 
-3. **Global Solutions** (`acme3`)
-   - Global Solutions International Business
-   - Global Solutions Cultural Intelligence
+All API endpoints require JWT authentication using Devise JWT:
+
+```bash
+# Login
+POST /api/v1/auth/login
+Content-Type: application/json
+
+{
+  "user": {
+    "email": "user@example.com",
+    "password": "password"
+  }
+}
+
+# Response includes JWT token
+{
+  "token": "eyJhbGciOiJIUzI1NiJ9..."
+}
+```
+
+### Using JWT Token
+
+Include the JWT token in the Authorization header:
+
+```bash
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
+X-Tenant: acme1
+```
 
 ## API Endpoints
 
-### Authentication
-- `POST /api/v1/auth/login` - User sign in
-- `POST /api/v1/auth/register` - User registration
-- `POST /api/v1/auth/logout` - User sign out
-- `GET /api/v1/auth/me` - Get current user info
+### Base URL
+```
+https://curriculum-library-api.cerveras.com
+```
 
-### Curricula
-- `GET /api/v1/curricula` - List all curricula for current tenant
-- `GET /api/v1/curricula/:id` - Get curriculum details with progress
-- `POST /api/v1/curricula/:id/enroll` - Enroll in a curriculum
-- `GET /api/v1/curricula/:id/enrollment_status` - Check enrollment status
+### Required Headers
+- `Authorization: Bearer <jwt_token>` (for authenticated endpoints)
+- `X-Tenant: <tenant_slug>` (for all endpoints except health checks)
 
-### Chapters
-- `GET /api/v1/curricula/:curriculum_id/chapters` - List chapters for a curriculum
-- `GET /api/v1/chapters/:id` - Get chapter details
-- `POST /api/v1/chapters/:id/complete` - Mark chapter as complete
+### Authentication Endpoints
 
-### Lessons
-- `GET /api/v1/chapters/:chapter_id/lessons` - List lessons for a chapter
-- `GET /api/v1/lessons/:id` - Get lesson details
-- `POST /api/v1/lessons/:id/complete` - Mark lesson as complete
+```bash
+# Login
+POST /api/v1/auth/login
+Content-Type: application/json
 
-### User Progress
-- `GET /api/v1/curricula/user/progress` - Get user progress for all curricula
-- `GET /api/v1/user/progress` - Get user progress for current tenant
+# Logout
+POST /api/v1/auth/logout
+Authorization: Bearer <token>
+X-Tenant: <tenant_slug>
 
-### Notes & Highlights
-- `GET /api/v1/user/notes` - Get user notes for current tenant
-- `POST /api/v1/user/notes` - Create a new note
-- `PUT /api/v1/user/notes/:id` - Update a note
-- `DELETE /api/v1/user/notes/:id` - Delete a note
+# Get current user
+GET /api/v1/auth/me
+Authorization: Bearer <token>
+X-Tenant: <tenant_slug>
 
-- `GET /api/v1/user/highlights` - Get user highlights for current tenant
-- `POST /api/v1/user/highlights` - Create a new highlight
-- `PUT /api/v1/user/highlights/:id` - Update a highlight
-- `DELETE /api/v1/user/highlights/:id` - Delete a highlight
-
-### Bookmarks
-- `GET /api/v1/lessons/:lesson_id/bookmarks` - Get bookmarks for a lesson
-- `POST /api/v1/lessons/:lesson_id/bookmarks` - Create a bookmark
-- `PUT /api/v1/bookmarks/:id` - Update a bookmark
-- `DELETE /api/v1/bookmarks/:id` - Delete a bookmark
+# Register new user
+POST /api/v1/auth/register
+Content-Type: application/json
+X-Tenant: <tenant_slug>
+```
 
 ### Tenant Management
-- `GET /tenant/new` - Tenant registration form
-- `POST /tenant` - Create new tenant
-- `GET /tenant/settings` - Tenant settings
-- `PATCH /tenant/settings` - Update tenant settings
-- `GET /branding.css` - Get tenant-specific CSS
 
-## Quick Start
+```bash
+# Check if tenant slug is available
+GET /api/v1/slug_validation/check?slug=acme1
+
+# Register new tenant
+POST /api/v1/tenant_registration
+Content-Type: application/json
+
+{
+  "tenant": {
+    "name": "ACME Corporation",
+    "slug": "acme1"
+  },
+  "admin_username": "admin",
+  "admin_email": "admin@acme.com",
+  "admin_password": "password",
+  "admin_first_name": "Admin",
+  "admin_last_name": "User"
+}
+```
+
+### Curriculum Endpoints
+
+```bash
+# List all curricula for tenant
+GET /api/v1/curricula
+Authorization: Bearer <token>
+X-Tenant: <tenant_slug>
+
+# Get specific curriculum
+GET /api/v1/curricula/{id}
+Authorization: Bearer <token>
+X-Tenant: <tenant_slug>
+
+# Enroll in curriculum
+POST /api/v1/curricula/{id}/enroll
+Authorization: Bearer <token>
+X-Tenant: <tenant_slug>
+
+# Check enrollment status
+GET /api/v1/curricula/{id}/enrollment_status
+Authorization: Bearer <token>
+X-Tenant: <tenant_slug>
+```
+
+### Chapter Endpoints
+
+```bash
+# List chapters for curriculum
+GET /api/v1/curricula/{curriculum_id}/chapters
+Authorization: Bearer <token>
+X-Tenant: <tenant_slug>
+
+# Get specific chapter
+GET /api/v1/curricula/{curriculum_id}/chapters/{id}
+Authorization: Bearer <token>
+X-Tenant: <tenant_slug>
+
+# Mark chapter as complete
+POST /api/v1/curricula/{curriculum_id}/chapters/{id}/complete
+Authorization: Bearer <token>
+X-Tenant: <tenant_slug>
+```
+
+### Lesson Endpoints
+
+```bash
+# List lessons for chapter
+GET /api/v1/curricula/{curriculum_id}/chapters/{chapter_id}/lessons
+Authorization: Bearer <token>
+X-Tenant: <tenant_slug>
+
+# Get specific lesson
+GET /api/v1/lessons/{id}
+Authorization: Bearer <token>
+X-Tenant: <tenant_slug>
+
+# Mark lesson as complete
+POST /api/v1/lessons/{id}/complete
+Authorization: Bearer <token>
+X-Tenant: <tenant_slug>
+```
+
+### User Progress Endpoints
+
+```bash
+# Get user progress overview
+GET /api/v1/user/progress
+Authorization: Bearer <token>
+X-Tenant: <tenant_slug>
+
+# Get progress for specific curriculum
+GET /api/v1/user/progress/{curriculum_id}
+Authorization: Bearer <token>
+X-Tenant: <tenant_slug>
+```
+
+### User Notes Endpoints
+
+```bash
+# List user notes
+GET /api/v1/user/notes
+Authorization: Bearer <token>
+X-Tenant: <tenant_slug>
+
+# Create note
+POST /api/v1/user/notes
+Authorization: Bearer <token>
+X-Tenant: <tenant_slug>
+Content-Type: application/json
+
+{
+  "content": "Note content",
+  "curriculum_id": 1,
+  "chapter_id": 1
+}
+
+# Update note
+PUT /api/v1/user/notes/{id}
+Authorization: Bearer <token>
+X-Tenant: <tenant_slug>
+Content-Type: application/json
+
+# Delete note
+DELETE /api/v1/user/notes/{id}
+Authorization: Bearer <token>
+X-Tenant: <tenant_slug>
+```
+
+### User Highlights Endpoints
+
+```bash
+# List user highlights
+GET /api/v1/user/highlights
+Authorization: Bearer <token>
+X-Tenant: <tenant_slug>
+
+# Create highlight
+POST /api/v1/user/highlights
+Authorization: Bearer <token>
+X-Tenant: <tenant_slug>
+Content-Type: application/json
+
+{
+  "highlighted_text": "Important text",
+  "curriculum_id": 1,
+  "chapter_id": 1
+}
+
+# Update highlight
+PUT /api/v1/user/highlights/{id}
+Authorization: Bearer <token>
+X-Tenant: <tenant_slug>
+Content-Type: application/json
+
+# Delete highlight
+DELETE /api/v1/user/highlights/{id}
+Authorization: Bearer <token>
+X-Tenant: <tenant_slug>
+```
+
+### Bookmark Endpoints
+
+```bash
+# List bookmarks for lesson
+GET /api/v1/lessons/{lesson_id}/bookmarks
+Authorization: Bearer <token>
+X-Tenant: <tenant_slug>
+
+# Create bookmark
+POST /api/v1/lessons/{lesson_id}/bookmarks
+Authorization: Bearer <token>
+X-Tenant: <tenant_slug>
+Content-Type: application/json
+
+{
+  "title": "Bookmark title",
+  "notes": "Bookmark notes",
+  "timestamp": 120.5
+}
+
+# Update bookmark
+PUT /api/v1/lessons/{lesson_id}/bookmarks/{id}
+Authorization: Bearer <token>
+X-Tenant: <tenant_slug>
+Content-Type: application/json
+
+# Delete bookmark
+DELETE /api/v1/lessons/{lesson_id}/bookmarks/{id}
+Authorization: Bearer <token>
+X-Tenant: <tenant_slug>
+```
+
+## Development Setup
 
 ### Prerequisites
+
 - Ruby 3.3.0
 - PostgreSQL
 - Redis
-- Node.js (for asset compilation)
+- Docker (for deployment)
 
-### Installation
+### Local Development
 
-1. Clone the repository
-```bash
-git clone <repository-url>
-cd mdn-video-library-api
-```
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd mdn-video-library-api
+   ```
 
-2. Install dependencies
-```bash
-bundle install
-```
+2. **Install dependencies**
+   ```bash
+   bundle install
+   ```
 
-3. Setup database
-```bash
-bin/rails db:create
-bin/rails db:migrate
-bin/rails db:seed
-```
+3. **Setup environment variables**
+   ```bash
+   cp .env.example .env
+   # Edit .env with your configuration
+   ```
 
-4. Start the server
-```bash
-bin/dev
-```
+4. **Setup database**
+   ```bash
+   bin/rails db:create
+   bin/rails db:migrate
+   bin/rails db:seed
+   ```
 
-The API will be available at `http://localhost:3000`
+5. **Start the server**
+   ```bash
+   bin/rails server
+   ```
 
 ### Testing Tenant Isolation
 
-Use the debug script to verify tenant isolation:
+Use the debug script to test tenant isolation:
+
 ```bash
-ruby debug_tenants.rb
-```
-
-### Demo Credentials
-
-Each tenant has demo users:
-
-**ACME Corporation** (`acme1.localhost:3000`)
-- Admin: `admin_acme1` / `password`
-- Demo: `demo_acme1` / `password`
-
-**TechStart Inc** (`acme2.localhost:3000`)
-- Admin: `admin_acme2` / `password`
-- Demo: `demo_acme2` / `password`
-
-**Global Solutions** (`acme3.localhost:3000`)
-- Admin: `admin_acme3` / `password`
-- Demo: `demo_acme3` / `password`
-
-### Testing
-
-Run the test suite:
-```bash
-bin/rails test
+bin/rails runner debug_tenants.rb
 ```
 
 ## Deployment
 
-This application uses [Kamal](https://kamal-deploy.org/) for deployment. See [KAMAL_DEPLOYMENT.md](KAMAL_DEPLOYMENT.md) for detailed deployment instructions.
+### Production Deployment
 
-### Quick Deployment Commands
+The application is deployed using Kamal to `cloud.cerveras.com`.
+
+### Environment Variables
+
+Required environment variables for production:
 
 ```bash
-# Build Docker image
-bundle exec kamal build
+# Database
+DATABASE_PASSWORD=<password>
+POSTGRES_PASSWORD=<password>
 
-# Deploy to production
-bundle exec kamal deploy
+# Redis
+REDIS_URL=redis://redis:6379/0
 
-# Check status
-bundle exec kamal app status
+# Rails
+RAILS_ENV=production
+RAILS_MASTER_KEY=<master_key>
 
-# View logs
-bundle exec kamal logs
+# Cloudflare (for future custom domain support)
+CLOUDFLARE_DOMAIN=cerveras.com
+CLOUDFLARE_DNS_API_TOKEN=<token>
+CLOUDFLARE_ZONE_ID=<zone_id>
+CLOUDFLARE_STREAM_API_TOKEN=<token>
+CLOUDFLARE_STREAM_ACCOUNT_ID=<account_id>
 ```
 
-## Development
+## Tenant Management
 
-### Database Schema
+### Creating Tenants
 
-The application uses several key models with tenant isolation:
+Tenants are created through the API:
 
-- **Tenant**: Multitenancy configuration and branding
-- **User**: Authentication and user management (scoped to tenant)
-- **Curriculum**: Learning paths containing chapters (scoped to tenant)
-- **Chapter**: Sections within a curriculum containing lessons (scoped to tenant)
-- **Lesson**: Individual learning units (scoped to tenant)
-- **UserProgress**: Tracks user enrollment and chapter completion (scoped to tenant)
-- **LessonProgress**: Tracks individual lesson completion (scoped to tenant)
-- **UserNote**: User-generated notes for content (scoped to tenant)
-- **UserHighlight**: User highlights of content (scoped to tenant)
-- **Bookmark**: Video bookmarks with timestamps (scoped to tenant)
+```bash
+POST /api/v1/tenant_registration
+Content-Type: application/json
 
-### Key Relationships
-
-- All models are scoped to a Tenant
-- A User belongs to one Tenant
-- A User can enroll in multiple Curricula within their tenant
-- A Curriculum contains multiple Chapters
-- A Chapter contains multiple Lessons
-- UserProgress tracks enrollment and chapter completion
-- LessonProgress tracks individual lesson completion
-- Notes and Highlights are associated with specific chapters and curricula
-
-### Tenant Middleware
-
-The application uses middleware to detect the current tenant based on the subdomain:
-
-```ruby
-# lib/tenant_middleware.rb
-class TenantMiddleware
-  def call(env)
-    request = Rack::Request.new(env)
-    subdomain = extract_subdomain(request.host)
-    
-    if subdomain.present? && subdomain != 'www'
-      tenant = Tenant.find_by(subdomain: subdomain)
-      if tenant
-        Current.tenant = tenant
-        @app.call(env)
-      else
-        [404, {'Content-Type' => 'text/html'}, ['Tenant not found']]
-      end
-    else
-      @app.call(env)
-    end
-  ensure
-    Current.tenant = nil
-  end
-end
+{
+  "tenant": {
+    "name": "Company Name",
+    "slug": "company-slug"
+  },
+  "admin_username": "admin",
+  "admin_email": "admin@company.com",
+  "admin_password": "password",
+  "admin_first_name": "Admin",
+  "admin_last_name": "User"
+}
 ```
 
-### Tenant Isolation
+### Tenant Slug Validation
 
-All models inherit from `ApplicationRecord` which includes a default scope for tenant isolation:
+Tenant slugs must:
+- Contain only lowercase letters, numbers, and hyphens
+- Be unique across all tenants
+- Not conflict with existing slugs
 
-```ruby
-# app/models/application_record.rb
-class ApplicationRecord < ActiveRecord::Base
-  primary_abstract_class
+### Tenant Data Isolation
 
-  # Scope all queries to current tenant (only for models that have tenant_id column)
-  default_scope { where(tenant_id: Current.tenant.id) if Current.tenant && column_names.include?('tenant_id') }
+All data is automatically scoped to the current tenant:
+- Users can only access data from their tenant
+- API responses only include tenant-specific data
+- Database queries are automatically filtered by tenant
 
-  # Ensure tenant is set on creation
-  before_create :set_tenant
+## Health Checks
 
-  private
+The application provides a health check endpoint:
 
-  def set_tenant
-    self.tenant_id = Current.tenant.id if respond_to?(:tenant_id=) && tenant_id.nil? && Current.tenant
-  end
-end
+```bash
+GET /up
 ```
 
-## Documentation
+This endpoint:
+- Returns 200 if the application is healthy
+- Returns 500 if there are any exceptions
+- Bypasses tenant middleware for load balancer compatibility
 
-- [Multitenant Implementation](MULTITENANT_IMPLEMENTATION.md) - Detailed multitenancy guide
-- [API Testing with Postman](POSTMAN_API_TESTING.md) - API testing guide
-- [Cloudflare Stream Integration](CLOUDFLARE_STREAM_INTEGRATION.md) - Video streaming setup
-- [Deployment Guide](DEPLOYMENT_GUIDE.md) - Production deployment
-- [Backup System](COMPLETE_BACKUP_SYSTEM.md) - Database backup and restore
+## Error Handling
+
+### Common Error Responses
+
+```json
+{
+  "error": "No token provided"
+}
+```
+
+```json
+{
+  "error": "Tenant not found"
+}
+```
+
+```json
+{
+  "error": "Unauthorized"
+}
+```
+
+### HTTP Status Codes
+
+- `200` - Success
+- `201` - Created
+- `400` - Bad Request
+- `401` - Unauthorized
+- `404` - Not Found
+- `422` - Unprocessable Entity
+- `500` - Internal Server Error
 
 ## Contributing
 
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
-4. Add tests for new functionality
-5. Ensure all tests pass
-6. Submit a pull request
+4. Add tests
+5. Submit a pull request
 
 ## License
 
-This project is licensed under the MIT License.
+[Add your license information here]
