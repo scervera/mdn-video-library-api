@@ -14,15 +14,43 @@ fi
 echo "Please provide your Cloudflare credentials:"
 echo ""
 
-# Get API Token
-read -p "Enter your Cloudflare API Token: " CLOUDFLARE_API_TOKEN
-if [ -n "$CLOUDFLARE_API_TOKEN" ]; then
-    # Remove existing CLOUDFLARE_API_TOKEN if it exists
-    sed -i '' '/CLOUDFLARE_API_TOKEN=/d' .env
-    echo "CLOUDFLARE_API_TOKEN=$CLOUDFLARE_API_TOKEN" >> .env
-    echo "✅ API Token added to .env file"
+# Get DNS API Token
+read -p "Enter your Cloudflare DNS API Token (for managing subdomains): " CLOUDFLARE_DNS_API_TOKEN
+if [ -n "$CLOUDFLARE_DNS_API_TOKEN" ]; then
+    # Remove existing CLOUDFLARE_DNS_API_TOKEN if it exists
+    sed -i '' '/CLOUDFLARE_DNS_API_TOKEN=/d' .env
+    echo "CLOUDFLARE_DNS_API_TOKEN=$CLOUDFLARE_DNS_API_TOKEN" >> .env
+    echo "✅ DNS API Token added to .env file"
 else
-    echo "❌ API Token is required"
+    echo "❌ DNS API Token is required"
+    exit 1
+fi
+
+echo ""
+
+# Get Stream API Token
+read -p "Enter your Cloudflare Stream API Token (for video hosting): " CLOUDFLARE_STREAM_API_TOKEN
+if [ -n "$CLOUDFLARE_STREAM_API_TOKEN" ]; then
+    # Remove existing CLOUDFLARE_STREAM_API_TOKEN if it exists
+    sed -i '' '/CLOUDFLARE_STREAM_API_TOKEN=/d' .env
+    echo "CLOUDFLARE_STREAM_API_TOKEN=$CLOUDFLARE_STREAM_API_TOKEN" >> .env
+    echo "✅ Stream API Token added to .env file"
+else
+    echo "❌ Stream API Token is required"
+    exit 1
+fi
+
+echo ""
+
+# Get Stream Account ID
+read -p "Enter your Cloudflare Stream Account ID: " CLOUDFLARE_STREAM_ACCOUNT_ID
+if [ -n "$CLOUDFLARE_STREAM_ACCOUNT_ID" ]; then
+    # Remove existing CLOUDFLARE_STREAM_ACCOUNT_ID if it exists
+    sed -i '' '/CLOUDFLARE_STREAM_ACCOUNT_ID=/d' .env
+    echo "CLOUDFLARE_STREAM_ACCOUNT_ID=$CLOUDFLARE_STREAM_ACCOUNT_ID" >> .env
+    echo "✅ Stream Account ID added to .env file"
+else
+    echo "❌ Stream Account ID is required"
     exit 1
 fi
 
@@ -50,8 +78,10 @@ echo "1. Source the .env file: source .env"
 echo "2. Or use dotenv gem (recommended)"
 echo ""
 echo "For production deployment with Kamal:"
-echo "1. Set the secrets: kamal secrets set CLOUDFLARE_API_TOKEN=your_token"
+echo "1. Set the secrets: kamal secrets set CLOUDFLARE_DNS_API_TOKEN=your_dns_token"
 echo "2. Set the secrets: kamal secrets set CLOUDFLARE_ZONE_ID=your_zone_id"
+echo "3. Set the secrets: kamal secrets set CLOUDFLARE_STREAM_API_TOKEN=your_stream_token"
+echo "4. Set the secrets: kamal secrets set CLOUDFLARE_STREAM_ACCOUNT_ID=your_stream_account_id"
 echo ""
 echo "Current .env contents:"
 echo "======================"

@@ -8,7 +8,7 @@ class CloudflareDnsService
 
   def initialize
     config = Rails.application.config_for(:cloudflare)
-    @api_token = config[:api_token]
+    @api_token = config[:dns_api_token]
     @zone_id = config[:zone_id]
     @domain = config[:domain] || 'cerveras.com'
   end

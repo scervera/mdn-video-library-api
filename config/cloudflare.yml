@@ -1,8 +1,11 @@
 defaults: &defaults
   domain: cerveras.com
-  # These will be overridden by environment variables
-  api_token: <%= ENV['CLOUDFLARE_API_TOKEN'] %>
+  # DNS management (for tenant subdomains)
+  dns_api_token: <%= ENV['CLOUDFLARE_DNS_API_TOKEN'] %>
   zone_id: <%= ENV['CLOUDFLARE_ZONE_ID'] %>
+  # Stream management (for video hosting)
+  stream_api_token: <%= ENV['CLOUDFLARE_STREAM_API_TOKEN'] %>
+  stream_account_id: <%= ENV['CLOUDFLARE_STREAM_ACCOUNT_ID'] %>
 
 development:
   <<: *defaults
