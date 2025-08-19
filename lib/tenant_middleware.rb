@@ -5,6 +5,12 @@ class TenantMiddleware
 
   def call(env)
     request = Rack::Request.new(env)
+    
+    # Allow health checks to pass through without tenant validation
+    if request.path == '/up'
+      return @app.call(env)
+    end
+    
     tenant_slug = extract_tenant_slug(request)
 
     if tenant_slug.present?
