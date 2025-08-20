@@ -22,7 +22,9 @@ class TenantMiddleware
       tenant = Tenant.find_by(slug: tenant_slug)
       if tenant
         Current.tenant = tenant
-        @app.call(env)
+        result = @app.call(env)
+        Current.tenant = nil
+        result
       else
         # Tenant not found
         [404, {'Content-Type' => 'application/json'}, ['{"error": "Tenant not found"}']]
@@ -35,7 +37,9 @@ class TenantMiddleware
         tenant = Tenant.find_by(slug: tenant_slug)
         if tenant
           Current.tenant = tenant
-          @app.call(env)
+          result = @app.call(env)
+          Current.tenant = nil
+          result
         else
           # Tenant not found
           [404, {'Content-Type' => 'application/json'}, ['{"error": "Tenant not found"}']]
@@ -45,8 +49,6 @@ class TenantMiddleware
         @app.call(env)
       end
     end
-  ensure
-    Current.tenant = nil
   end
 
   private
