@@ -1,6 +1,5 @@
 class Api::V1::WebhooksController < Api::V1::BaseController
   skip_before_action :authenticate_user!
-  protect_from_forgery with: :null_session
 
   # POST /api/v1/webhooks/stripe
   def stripe
