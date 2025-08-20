@@ -28,7 +28,7 @@ class UserInvitation < ApplicationRecord
     used_at.present?
   end
 
-  def valid?
+  def invitation_valid?
     !expired? && !used?
   end
 
