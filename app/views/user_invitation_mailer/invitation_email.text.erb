@@ -1,0 +1,28 @@
+📚 Curriculum Library - You've been invited!
+
+Hello <%= @user.first_name %>,
+
+<%= @invited_by.full_name %> has invited you to join <%= @tenant.name %> on our curriculum management platform.
+
+INVITATION DETAILS:
+- Organization: <%= @tenant.name %>
+- Your Role: <%= @user.role.titleize %>
+- Invited By: <%= @invited_by.full_name %>
+- Expires: <%= @invitation.expires_at.strftime("%B %d, %Y") %>
+
+<% if @invitation.message.present? %>
+MESSAGE FROM <%= @invited_by.first_name.upcase %>:
+"<%= @invitation.message %>"
+<% end %>
+
+TO ACCEPT YOUR INVITATION:
+Visit this link: <%= @accept_url %>
+
+IMPORTANT: This invitation will expire on <%= @invitation.expires_at.strftime("%B %d, %Y at %I:%M %p") %>. 
+Please accept it before then to activate your account.
+
+If you have any questions, please contact <%= @invited_by.first_name %> or reply to this email.
+
+---
+This invitation was sent from the Curriculum Library platform.
+If you didn't expect this invitation, you can safely ignore this email.

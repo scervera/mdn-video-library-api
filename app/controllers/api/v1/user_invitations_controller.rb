@@ -69,8 +69,8 @@ module Api
           message: invitation_params[:message]
         )
 
-          # TODO: Send invitation email
-          # send_invitation_email(invitation)
+                            # Send invitation email
+                  UserInvitationMailer.invitation_email(invitation).deliver_later
 
           render json: { invitation: invitation_response(invitation) }, status: :created
         else
@@ -90,8 +90,8 @@ module Api
           return
         end
 
-        # TODO: Send invitation email
-        # send_invitation_email(@invitation)
+        # Send invitation reminder email
+        UserInvitationMailer.invitation_reminder(@invitation).deliver_later
 
         @invitation.update!(resent_at: Time.current, resent_count: @invitation.resent_count + 1)
 

@@ -50,6 +50,9 @@ gem "devise-jwt"
 # Use stripe for payment processing
 gem "stripe"
 
+# Use Brevo (Sendinblue) for transactional emails
+gem "brevo"
+
 # Use dotenv-rails for environment variables in development
 gem "dotenv-rails", group: :development
 

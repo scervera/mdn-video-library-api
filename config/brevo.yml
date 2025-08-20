@@ -1,0 +1,17 @@
+default: &default
+  api_key: <%= ENV['BREVO_API_KEY'] %>
+  smtp_host: "smtp-relay.brevo.com"
+  smtp_port: 587
+  smtp_username: <%= ENV['BREVO_SMTP_USERNAME'] %>
+  smtp_password: <%= ENV['BREVO_SMTP_PASSWORD'] %>
+  from_email: <%= ENV['BREVO_FROM_EMAIL'] || 'noreply@cerveras.com' %>
+  from_name: <%= ENV['BREVO_FROM_NAME'] || 'Curriculum Library' %>
+
+development:
+  <<: *default
+
+test:
+  <<: *default
+
+production:
+  <<: *default
