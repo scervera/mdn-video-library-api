@@ -1,6 +1,11 @@
 class UserInvitation < ApplicationRecord
   belongs_to :tenant
   belongs_to :invited_by, class_name: 'User'
+  
+  # Find user by email (since there's no user_id column)
+  def user
+    tenant.users.find_by(email: email)
+  end
 
   validates :email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }
   validates :token, presence: true, uniqueness: true
