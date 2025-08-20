@@ -141,6 +141,21 @@ class StripeService
     connect_account.update_from_stripe!(account)
   end
 
+  def retrieve_connect_account(account_id)
+    params = {}
+    params[:stripe_account] = @stripe_account if @stripe_account
+    
+    Stripe::Account.retrieve(account_id, params)
+  end
+
+  def delete_connect_account(account_id)
+    params = {}
+    params[:stripe_account] = @stripe_account if @stripe_account
+    
+    account = Stripe::Account.retrieve(account_id, params)
+    account.delete
+  end
+
   # Customer management methods
   def list_customers(limit: 10, starting_after: nil)
     params = { limit: limit }
