@@ -56,17 +56,8 @@ Rails.application.configure do
   # Set host to be used by links generated in mailer templates.
   config.action_mailer.default_url_options = { host: "curriculum.cerveras.com" }
 
-  # Email configuration for production using Brevo
-  config.action_mailer.delivery_method = :smtp
-  config.action_mailer.smtp_settings = {
-    address: "smtp-relay.brevo.com",
-    port: 587,
-    domain: "cerveras.com",
-    user_name: ENV['BREVO_SMTP_USERNAME'],
-    password: ENV['BREVO_SMTP_PASSWORD'],
-    authentication: :plain,
-    enable_starttls_auto: true
-  }
+  # Email configuration for production using Brevo API
+  config.action_mailer.delivery_method = :brevo
   config.action_mailer.raise_delivery_errors = false
   config.action_mailer.perform_deliveries = true
 

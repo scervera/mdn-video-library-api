@@ -1,12 +1,12 @@
 📚 Curriculum Library - You've been invited!
 
-Hello <%= @user.first_name %>,
+Hello <%= @user&.first_name || @invitation.email.split('@').first %>,
 
 <%= @invited_by.full_name %> has invited you to join <%= @tenant.name %> on our curriculum management platform.
 
 INVITATION DETAILS:
 - Organization: <%= @tenant.name %>
-- Your Role: <%= @user.role.titleize %>
+- Your Role: <%= @user&.role&.titleize || 'User' %>
 - Invited By: <%= @invited_by.full_name %>
 - Expires: <%= @invitation.expires_at.strftime("%B %d, %Y") %>
 
