@@ -66,7 +66,6 @@ module Api
         invitation = Current.tenant.user_invitations.create!(
           email: user.email,
           invited_by: current_user,
-          expires_at: 14.days.from_now,
           message: invitation_params[:message]
         )
 

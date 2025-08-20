@@ -18,7 +18,7 @@ class UserInvitation < ApplicationRecord
   scope :accepted, -> { where(status: 'accepted') }
   scope :cancelled, -> { where(status: 'cancelled') }
 
-  before_create :generate_token, :set_expiry
+  before_create :generate_token, :set_expiry, :set_default_status
 
   def expired?
     expires_at <= Time.current
@@ -45,5 +45,9 @@ class UserInvitation < ApplicationRecord
   def set_expiry
     config = BillingConfiguration.current
     self.expires_at = config.invitation_expiry_days.days.from_now
+  end
+
+  def set_default_status
+    self.status ||= 'pending'
   end
 end
