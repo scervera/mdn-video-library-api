@@ -225,7 +225,7 @@ module Api
         {
           id: invitation.id,
           email: invitation.email,
-          user_id: invitation.user_id,
+          user_id: invitation.user&.id,
           user: invitation.user ? {
             id: invitation.user.id,
             username: invitation.user.username,
