@@ -58,8 +58,8 @@ module Api
         last_name: invitation_params[:last_name],
         role: invitation_params[:role] || 'user',
         active: false,
-        password: SecureRandom.hex(12), # Generate a temporary password
-        password_confirmation: SecureRandom.hex(12)
+        password: (temp_password = SecureRandom.hex(12)), # Generate a temporary password
+        password_confirmation: temp_password
       )
 
       if user.save
