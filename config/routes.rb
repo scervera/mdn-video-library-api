@@ -113,6 +113,45 @@ Rails.application.routes.draw do
           get :statistics
         end
       end
+
+      # Stripe payment management
+      resources :stripe_customers do
+        member do
+          get :payment_methods
+          get :subscriptions
+        end
+      end
+
+      resources :payment_methods do
+        member do
+          post :set_default
+        end
+        collection do
+          post :setup_intent
+        end
+      end
+
+      resources :payment_intents do
+        member do
+          post :confirm
+          post :cancel
+        end
+        collection do
+          post :subscription_payment
+        end
+      end
+
+      resources :invoices do
+        member do
+          post :pay
+          post :void
+          post :mark_uncollectible
+          post :send, action: :send_invoice
+        end
+        collection do
+          get :upcoming
+        end
+      end
     end
   end
 
