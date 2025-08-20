@@ -17,6 +17,7 @@ module Api
               first_name: user.first_name,
               last_name: user.last_name,
               full_name: user.full_name,
+              role: user.role,
               active: user.active
             }, 
             token: token 
@@ -39,6 +40,7 @@ module Api
           first_name: current_user.first_name,
           last_name: current_user.last_name,
           full_name: current_user.full_name,
+          role: current_user.role,
           active: current_user.active
         }
       end
@@ -56,6 +58,7 @@ module Api
               first_name: user.first_name,
               last_name: user.last_name,
               full_name: user.full_name,
+              role: user.role,
               active: user.active
             }, 
             token: token 
