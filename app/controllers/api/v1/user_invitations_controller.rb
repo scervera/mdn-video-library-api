@@ -7,7 +7,7 @@ module Api
 
       # GET /api/v1/user_invitations
       def index
-        invitations = Current.tenant.user_invitations.includes(:user, :invited_by)
+        invitations = Current.tenant.user_invitations.includes(:invited_by)
         
         # Apply filters
         invitations = invitations.where(status: params[:status]) if params[:status].present?
