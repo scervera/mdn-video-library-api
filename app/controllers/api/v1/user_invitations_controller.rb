@@ -198,7 +198,7 @@ module Api
       end
 
       def invitation_params
-        params.require(:invitation).permit(:email, :first_name, :last_name, :role, :message)
+        params.permit(:email, :first_name, :last_name, :role, :message)
       end
 
       def generate_username(email)
