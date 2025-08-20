@@ -108,7 +108,7 @@
 
     <div class="content">
       <div class="greeting">
-        Hello <%= @user.first_name %>,
+        Hello <%= @user&.first_name || @invitation.email.split('@').first %>,
       </div>
 
       <div class="message">
@@ -122,7 +122,7 @@
         </div>
         <div class="detail-row">
           <span class="detail-label">Your Role:</span>
-          <span class="detail-value"><%= @user.role.titleize %></span>
+          <span class="detail-value"><%= @user&.role&.titleize || 'User' %></span>
         </div>
         <div class="detail-row">
           <span class="detail-label">Invited By:</span>
@@ -136,7 +136,7 @@
 
       <% if @invitation.message.present? %>
         <div class="message">
-          <strong>Message from <%= @invited_by.first_name %>:</strong><br>
+          <strong>Message from <%= @invited_by&.first_name || @invited_by&.email&.split('@')&.first %>:</strong><br>
           "<%= @invitation.message %>"
         </div>
       <% end %>
@@ -153,7 +153,7 @@
       </div>
 
       <div class="message">
-        If you have any questions, please contact <%= @invited_by.first_name %> or reply to this email.
+        If you have any questions, please contact <%= @invited_by&.first_name || @invited_by&.email&.split('@')&.first %> or reply to this email.
       </div>
     </div>
 
