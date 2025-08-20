@@ -54,4 +54,19 @@ Rails.application.configure do
   config.hosts << "acme2.curriculum-library-api.cerveras.com"
   config.hosts << "acme3.curriculum-library-api.cerveras.com"
   config.hosts << "*.curriculum-library-api.cerveras.com"
+
+  # Email configuration for development
+  config.action_mailer.delivery_method = :smtp
+  config.action_mailer.smtp_settings = {
+    address: "smtp-relay.brevo.com",
+    port: 587,
+    domain: "cerveras.com",
+    user_name: ENV['BREVO_SMTP_USERNAME'],
+    password: ENV['BREVO_SMTP_PASSWORD'],
+    authentication: :plain,
+    enable_starttls_auto: true
+  }
+  config.action_mailer.raise_delivery_errors = true
+  config.action_mailer.perform_deliveries = true
+  config.action_mailer.default_url_options = { host: 'localhost', port: 3000 }
 end

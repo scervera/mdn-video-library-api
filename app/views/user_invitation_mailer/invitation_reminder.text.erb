@@ -1,0 +1,23 @@
+📚 Curriculum Library - Reminder: Complete Your Invitation
+
+Hello <%= @user.first_name %>,
+
+This is a friendly reminder that you have a pending invitation to join <%= @tenant.name %> on our curriculum management platform.
+
+INVITATION DETAILS:
+- Organization: <%= @tenant.name %>
+- Your Role: <%= @user.role.titleize %>
+- Invited By: <%= @invited_by.full_name %>
+- Expires: <%= @invitation.expires_at.strftime("%B %d, %Y") %>
+
+TO ACCEPT YOUR INVITATION:
+Visit this link: <%= @accept_url %>
+
+⚠️ TIME SENSITIVE: This invitation will expire on <%= @invitation.expires_at.strftime("%B %d, %Y at %I:%M %p") %>. 
+Please accept it soon to avoid missing out!
+
+If you have any questions or need assistance, please contact <%= @invited_by.first_name %> or reply to this email.
+
+---
+This reminder was sent from the Curriculum Library platform.
+If you've already accepted this invitation, you can safely ignore this email.

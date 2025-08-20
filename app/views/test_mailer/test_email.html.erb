@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Test Email</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    .container { max-width: 600px; margin: 0 auto; }
+    .header { background-color: #3B82F6; color: white; padding: 20px; text-align: center; }
+    .content { padding: 20px; }
+    .footer { background-color: #F3F4F6; padding: 10px; text-align: center; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>📧 Test Email</h1>
+    </div>
+    
+    <div class="content">
+      <h2>Brevo Email Service Test</h2>
+      <p>This is a test email to verify that the Brevo email service is working correctly.</p>
+      
+      <h3>Test Details:</h3>
+      <ul>
+        <li><strong>Environment:</strong> <%= @environment %></li>
+        <li><strong>Timestamp:</strong> <%= @timestamp.strftime("%Y-%m-%d %H:%M:%S %Z") %></li>
+        <li><strong>From:</strong> <%= Rails.application.config.action_mailer.default_url_options[:host] %></li>
+      </ul>
+      
+      <p>If you received this email, the Brevo SMTP configuration is working correctly! 🎉</p>
+    </div>
+    
+    <div class="footer">
+      <p>This is a test email from the Curriculum Library API</p>
+    </div>
+  </div>
+</body>
+</html>
