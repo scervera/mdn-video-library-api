@@ -19,7 +19,7 @@
     },
     "professional": {
       "name": "Professional",
-      "user_limit": null,
+      "user_limit": 150,
       "monthly_price": 49,
       "per_user_price": 2,
       "features": ["full_access", "unlimited_users", "per_user_billing"],
