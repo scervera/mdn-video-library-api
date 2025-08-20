@@ -18,7 +18,7 @@ class UserInvitation < ApplicationRecord
   scope :accepted, -> { where(status: 'accepted') }
   scope :cancelled, -> { where(status: 'cancelled') }
 
-  before_create :generate_token, :set_expiry, :set_default_status
+  before_validation :generate_token, :set_expiry, :set_default_status
 
   def expired?
     expires_at <= Time.current
