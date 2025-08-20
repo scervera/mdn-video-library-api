@@ -243,7 +243,6 @@ module Api
           message: invitation.message,
           expires_at: invitation.expires_at,
           created_at: invitation.created_at,
-          accepted_at: invitation.accepted_at,
           used_at: invitation.used_at,
           cancelled_at: invitation.cancelled_at,
           resent_at: invitation.resent_at,
