@@ -21,7 +21,7 @@
       "name": "Professional",
       "user_limit": null,
       "monthly_price": 49,
-      "per_user_price": 15,
+      "per_user_price": 2,
       "features": ["full_access", "unlimited_users", "per_user_billing"],
       "description": "Unlimited users with per-user billing"
     },
