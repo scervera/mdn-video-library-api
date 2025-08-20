@@ -8,6 +8,7 @@ module Api
         user = ::User.find_by(username: params[:username]) || ::User.find_by(email: params[:email])
         
         if user&.valid_password?(params[:password])
+          user.update!(last_login_at: Time.current)
           token = JWT.encode({ user_id: user.id }, Rails.application.credentials.secret_key_base)
           render json: { 
             user: {

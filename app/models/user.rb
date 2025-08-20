@@ -6,6 +6,7 @@ class User < ApplicationRecord
   has_many :user_highlights, dependent: :destroy
   has_many :bookmarks, dependent: :destroy
   has_many :user_invitations_sent, class_name: 'UserInvitation', foreign_key: 'invited_by_id', dependent: :destroy
+  has_many :user_invitations, dependent: :destroy
   has_many :user_subscriptions, dependent: :destroy
 
   devise :database_authenticatable, :registerable,

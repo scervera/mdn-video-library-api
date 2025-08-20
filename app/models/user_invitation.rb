@@ -9,6 +9,9 @@ class UserInvitation < ApplicationRecord
   scope :active, -> { where('expires_at > ?', Time.current).where(used_at: nil) }
   scope :expired, -> { where('expires_at <= ?', Time.current) }
   scope :used, -> { where.not(used_at: nil) }
+  scope :pending, -> { where(status: 'pending') }
+  scope :accepted, -> { where(status: 'accepted') }
+  scope :cancelled, -> { where(status: 'cancelled') }
 
   before_create :generate_token, :set_expiry
 

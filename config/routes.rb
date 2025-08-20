@@ -88,6 +88,31 @@ Rails.application.routes.draw do
         resources :notes, only: [:index, :create, :update, :destroy]
         resources :highlights, only: [:index, :create, :update, :destroy]
       end
+      
+      # User management
+      resources :users, only: [:index, :show, :create, :update, :destroy] do
+        member do
+          post :activate
+          post :deactivate
+        end
+        collection do
+          get :me
+          put :me, action: :update_profile
+          get :statistics
+        end
+      end
+      
+      # User invitations
+      resources :user_invitations, only: [:index, :show, :create, :destroy] do
+        member do
+          post :resend
+          delete :cancel
+        end
+        collection do
+          post :accept
+          get :statistics
+        end
+      end
     end
   end
 

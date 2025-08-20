@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_19_234322) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_20_183456) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -173,9 +173,17 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_19_234322) do
     t.datetime "used_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "status", default: "pending", null: false
+    t.integer "resent_count", default: 0, null: false
+    t.datetime "resent_at"
+    t.datetime "cancelled_at"
+    t.text "message"
+    t.index ["cancelled_at"], name: "index_user_invitations_on_cancelled_at"
     t.index ["email"], name: "index_user_invitations_on_email"
     t.index ["expires_at"], name: "index_user_invitations_on_expires_at"
     t.index ["invited_by_id"], name: "index_user_invitations_on_invited_by_id"
+    t.index ["resent_at"], name: "index_user_invitations_on_resent_at"
+    t.index ["status"], name: "index_user_invitations_on_status"
     t.index ["tenant_id"], name: "index_user_invitations_on_tenant_id"
     t.index ["token"], name: "index_user_invitations_on_token", unique: true
     t.index ["used_at"], name: "index_user_invitations_on_used_at"
@@ -241,7 +249,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_19_234322) do
     t.datetime "updated_at", null: false
     t.bigint "tenant_id", null: false
     t.string "role", default: "user"
+    t.datetime "last_login_at"
     t.index ["email"], name: "index_users_on_email", unique: true
+    t.index ["last_login_at"], name: "index_users_on_last_login_at"
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
     t.index ["role"], name: "index_users_on_role"
     t.index ["tenant_id"], name: "index_users_on_tenant_id"
