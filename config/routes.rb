@@ -114,6 +114,15 @@ Rails.application.routes.draw do
         end
       end
 
+      # Stripe Connect management
+      namespace :stripe_connect do
+        get :status
+        post :authorize
+        get :account_details
+        post :refresh
+        delete :disconnect
+      end
+
       # Stripe payment management
       resources :stripe_customers do
         member do
@@ -152,6 +161,9 @@ Rails.application.routes.draw do
           get :upcoming
         end
       end
+
+      # Webhooks
+      post 'webhooks/stripe', to: 'webhooks#stripe'
     end
   end
 

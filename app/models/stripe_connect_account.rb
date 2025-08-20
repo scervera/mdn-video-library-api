@@ -19,7 +19,11 @@ class StripeConnectAccount < ApplicationRecord
     update!(
       status: stripe_account.status,
       charges_enabled: stripe_account.charges_enabled,
-      payouts_enabled: stripe_account.payouts_enabled
+      payouts_enabled: stripe_account.payouts_enabled,
+      requirements: stripe_account.requirements&.to_h,
+      capabilities: stripe_account.capabilities&.to_h,
+      business_type: stripe_account.business_type,
+      country: stripe_account.country
     )
   end
 end
