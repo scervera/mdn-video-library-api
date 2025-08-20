@@ -168,7 +168,7 @@ module Api
           updated_at: user.updated_at,
           last_login_at: user.last_login_at,
           subscription_status: user.user_subscriptions.active.exists? ? 'active' : 'none',
-          invitation_status: user.user_invitations.pending.exists? ? 'pending' : 'accepted'
+          invitation_status: Current.tenant.user_invitations.pending.where(email: user.email).exists? ? 'pending' : 'accepted'
         }
       end
 

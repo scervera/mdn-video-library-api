@@ -50,24 +50,23 @@ module Api
           return
         end
 
-        # Create user and invitation
-        user = Current.tenant.users.build(
-          username: generate_username(invitation_params[:email]),
-          email: invitation_params[:email],
-          first_name: invitation_params[:first_name],
-          last_name: invitation_params[:last_name],
-          role: invitation_params[:role] || 'user',
-          active: false
-        )
+              # Create user and invitation
+      user = Current.tenant.users.build(
+        username: generate_username(invitation_params[:email]),
+        email: invitation_params[:email],
+        first_name: invitation_params[:first_name],
+        last_name: invitation_params[:last_name],
+        role: invitation_params[:role] || 'user',
+        active: false
+      )
 
-        if user.save
-          invitation = Current.tenant.user_invitations.create!(
-            user: user,
-            email: user.email,
-            invited_by: current_user,
-            expires_at: 14.days.from_now,
-            message: invitation_params[:message]
-          )
+      if user.save
+        invitation = Current.tenant.user_invitations.create!(
+          email: user.email,
+          invited_by: current_user,
+          expires_at: 14.days.from_now,
+          message: invitation_params[:message]
+        )
 
           # TODO: Send invitation email
           # send_invitation_email(invitation)
@@ -133,6 +132,11 @@ module Api
 
         # Update user with password and activate
         user = invitation.user
+        if user.nil?
+          render json: { error: "User not found for this invitation" }, status: :not_found
+          return
+        end
+        
         user.password = params[:password]
         user.password_confirmation = params[:password_confirmation]
         user.active = true
