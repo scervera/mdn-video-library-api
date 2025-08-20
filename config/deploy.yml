@@ -69,6 +69,10 @@ env:
     
     # CORS configuration - allow frontend domains
     ALLOWED_ORIGINS: "http://localhost:3000,http://localhost:3001,http://localhost:4000,https://curriculum.cerveras.com,https://curriculum-library-api.cerveras.com,https://mdn-video-library-app.vercel.app"
+    
+    # Brevo Email Service Configuration
+    BREVO_FROM_EMAIL: noreply@cerveras.com
+    BREVO_FROM_NAME: Curriculum Library
 
 
 
