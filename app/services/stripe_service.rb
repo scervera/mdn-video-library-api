@@ -424,6 +424,183 @@ class StripeService
     Stripe::Invoice.upcoming(params)
   end
 
+  # Enhanced subscription update with proration
+  def update_tenant_subscription_with_proration(subscription, new_billing_tier)
+    proration_service = ProrationService.new(subscription)
+    proration_data = proration_service.calculate_proration(new_billing_tier)
+
+    # Update the subscription with proration
+    stripe_subscription = Stripe::Subscription.retrieve(subscription.stripe_subscription_id)
+    
+    # Update the subscription item with new price and proration
+    subscription_item = stripe_subscription.items.data.first
+    Stripe::SubscriptionItem.update(
+      subscription_item.id,
+      price: new_billing_tier.stripe_price_id,
+      proration_behavior: proration_service.get_proration_behavior,
+      proration_date: proration_service.get_proration_date
+    )
+
+    # Update the subscription metadata
+    updated_subscription = Stripe::Subscription.update(
+      subscription.stripe_subscription_id,
+      metadata: {
+        tenant_id: subscription.tenant.id,
+        billing_tier: new_billing_tier.name,
+        proration_amount: proration_data[:amount],
+        proration_credit: proration_data[:credit],
+        proration_charge: proration_data[:charge]
+      }
+    )
+
+    # Update local subscription record
+    subscription.update!(
+      billing_tier: new_billing_tier,
+      status: updated_subscription.status,
+      current_period_start: Time.at(updated_subscription.current_period_start),
+      current_period_end: Time.at(updated_subscription.current_period_end)
+    )
+
+    # Return proration data for frontend
+    {
+      subscription: subscription,
+      proration: proration_data,
+      stripe_subscription: updated_subscription
+    }
+  end
+
+  # Create Stripe price for billing tier if it doesn't exist
+  def ensure_billing_tier_price(billing_tier)
+    return billing_tier.stripe_price_id if billing_tier.stripe_price_id.present?
+
+    # Create a new Stripe price for this billing tier
+    price = Stripe::Price.create(
+      unit_amount: (billing_tier.monthly_price * 100).to_i, # Convert to cents
+      currency: 'usd',
+      recurring: {
+        interval: 'month'
+      },
+      product_data: {
+        name: "#{billing_tier.name} Tier",
+        description: "Monthly subscription for #{billing_tier.name} tier"
+      },
+      metadata: {
+        billing_tier_id: billing_tier.id,
+        tier_name: billing_tier.name
+      }
+    )
+
+    # Update the billing tier with the Stripe price ID
+    billing_tier.update!(stripe_price_id: price.id)
+    price.id
+  end
+
+  # Create Stripe customer for tenant if it doesn't exist
+  def ensure_tenant_customer(tenant)
+    return tenant.stripe_customer_id if tenant.stripe_customer_id.present?
+
+    # Create a new Stripe customer
+    customer = Stripe::Customer.create(
+      email: tenant.admin_user.email,
+      name: tenant.name,
+      metadata: {
+        tenant_id: tenant.id,
+        tenant_slug: tenant.slug
+      }
+    )
+
+    # Update the tenant with the Stripe customer ID
+    tenant.update!(stripe_customer_id: customer.id)
+    customer.id
+  end
+
+  # Process immediate payment for subscription upgrade
+  def process_upgrade_payment(subscription, proration_data)
+    return if proration_data[:charge] <= 0
+
+    # Create an invoice for the proration amount
+    invoice = Stripe::Invoice.create(
+      customer: subscription.tenant.stripe_customer_id,
+      auto_advance: true,
+      collection_method: 'charge_automatically',
+      metadata: {
+        tenant_id: subscription.tenant.id,
+        subscription_id: subscription.id,
+        proration_type: 'upgrade'
+      }
+    )
+
+    # Add invoice item for the proration
+    Stripe::InvoiceItem.create(
+      customer: subscription.tenant.stripe_customer_id,
+      invoice: invoice.id,
+      amount: proration_data[:charge],
+      currency: 'usd',
+      description: "Proration for subscription upgrade to #{subscription.billing_tier.name} tier"
+    )
+
+    # Pay the invoice immediately
+    invoice.pay
+
+    invoice
+  end
+
+  # Handle subscription creation with proper Stripe integration
+  def create_tenant_subscription_with_stripe(tenant, billing_tier)
+    # Ensure tenant has a Stripe customer
+    customer_id = ensure_tenant_customer(tenant)
+    
+    # Ensure billing tier has a Stripe price
+    price_id = ensure_billing_tier_price(billing_tier)
+
+    # Create Stripe subscription
+    stripe_subscription = Stripe::Subscription.create(
+      customer: customer_id,
+      items: [{ price: price_id }],
+      trial_period_days: billing_tier.trial? ? BillingConfiguration.current.trial_duration_days : nil,
+      metadata: {
+        tenant_id: tenant.id,
+        billing_tier: billing_tier.name
+      }
+    )
+
+    # Create local subscription record
+    tenant.tenant_subscriptions.create!(
+      billing_tier: billing_tier,
+      status: stripe_subscription.status,
+      stripe_subscription_id: stripe_subscription.id,
+      current_period_start: Time.at(stripe_subscription.current_period_start),
+      current_period_end: Time.at(stripe_subscription.current_period_end)
+    )
+  end
+
+  # Get upcoming invoice for subscription
+  def get_upcoming_invoice(subscription)
+    return nil unless subscription.stripe_subscription_id
+
+    Stripe::Invoice.upcoming(
+      customer: subscription.tenant.stripe_customer_id,
+      subscription: subscription.stripe_subscription_id
+    )
+  end
+
+  # Add payment method to customer
+  def add_payment_method_to_customer(customer_id, payment_method_id)
+    # Attach payment method to customer
+    payment_method = Stripe::PaymentMethod.retrieve(payment_method_id)
+    payment_method.attach(customer: customer_id)
+
+    # Set as default payment method
+    Stripe::Customer.update(
+      customer_id,
+      invoice_settings: {
+        default_payment_method: payment_method_id
+      }
+    )
+
+    payment_method
+  end
+
   # Webhook handling
   def handle_webhook(event)
     case event.type

@@ -110,13 +110,11 @@ class Api::V1::SubscriptionsController < Api::V1::BaseController
       tier.features = tier_data['features']
     end
 
-    # Create subscription
-    subscription = Current.tenant.tenant_subscriptions.build(
-      billing_tier: billing_tier,
-      status: 'trial'
-    )
+    begin
+      # Create subscription with Stripe integration
+      stripe_service = StripeService.new(Current.tenant)
+      subscription = stripe_service.create_tenant_subscription_with_stripe(Current.tenant, billing_tier)
 
-    if subscription.save
       subscription_data = {
         id: subscription.id,
         status: subscription.status,
@@ -128,12 +126,27 @@ class Api::V1::SubscriptionsController < Api::V1::BaseController
           user_limit: billing_tier.user_limit
         },
         trial_ends_at: subscription.trial_ends_at,
-        days_until_trial_expires: subscription.days_until_trial_expires
+        days_until_trial_expires: subscription.days_until_trial_expires,
+        stripe_subscription_id: subscription.stripe_subscription_id
       }
       
       render_single_response(subscription_data, status: :created)
-    else
-      render_validation_errors(subscription)
+    rescue Stripe::StripeError => e
+      Rails.logger.error "Stripe error creating subscription: #{e.message}"
+      render_error_response(
+        error_code: 'stripe_error',
+        message: 'Payment processing failed',
+        details: { stripe_error: e.message },
+        status: :unprocessable_entity
+      )
+    rescue => e
+      Rails.logger.error "Error creating subscription: #{e.message}"
+      render_error_response(
+        error_code: 'subscription_creation_failed',
+        message: 'Failed to create subscription',
+        details: { error: e.message },
+        status: :internal_server_error
+      )
     end
   end
 
@@ -159,12 +172,17 @@ class Api::V1::SubscriptionsController < Api::V1::BaseController
       tier.features = tier_data['features']
     end
 
-    @subscription.billing_tier = billing_tier
+    begin
+      # Update subscription with proration
+      stripe_service = StripeService.new(Current.tenant)
+      result = stripe_service.update_tenant_subscription_with_proration(@subscription, billing_tier)
+      
+      subscription = result[:subscription]
+      proration_data = result[:proration]
 
-    if @subscription.save
       subscription_data = {
-        id: @subscription.id,
-        status: @subscription.status,
+        id: subscription.id,
+        status: subscription.status,
         billing_tier: {
           id: billing_tier.name,
           name: billing_tier.name,
@@ -172,22 +190,59 @@ class Api::V1::SubscriptionsController < Api::V1::BaseController
           per_user_price: billing_tier.per_user_price,
           user_limit: billing_tier.user_limit
         },
-        trial_ends_at: @subscription.trial_ends_at,
-        days_until_trial_expires: @subscription.days_until_trial_expires
+        trial_ends_at: subscription.trial_ends_at,
+        days_until_trial_expires: subscription.days_until_trial_expires,
+        proration: {
+          amount: proration_data[:amount],
+          credit: proration_data[:credit],
+          charge: proration_data[:charge],
+          remaining_days: proration_data[:remaining_days]
+        }
       }
       
       render_single_response(subscription_data)
-    else
-      render_validation_errors(@subscription)
+    rescue Stripe::StripeError => e
+      Rails.logger.error "Stripe error updating subscription: #{e.message}"
+      render_error_response(
+        error_code: 'stripe_error',
+        message: 'Payment processing failed',
+        details: { stripe_error: e.message },
+        status: :unprocessable_entity
+      )
+    rescue => e
+      Rails.logger.error "Error updating subscription: #{e.message}"
+      render_error_response(
+        error_code: 'subscription_update_failed',
+        message: 'Failed to update subscription',
+        details: { error: e.message },
+        status: :internal_server_error
+      )
     end
   end
 
   # DELETE /api/v1/subscriptions/:id
   def cancel
-    if @subscription.update(status: 'canceled')
+    begin
+      stripe_service = StripeService.new(Current.tenant)
+      stripe_service.cancel_tenant_subscription(@subscription)
+      
       render_action_response(message: 'Subscription canceled successfully')
-    else
-      render_validation_errors(@subscription)
+    rescue Stripe::StripeError => e
+      Rails.logger.error "Stripe error canceling subscription: #{e.message}"
+      render_error_response(
+        error_code: 'stripe_error',
+        message: 'Failed to cancel subscription',
+        details: { stripe_error: e.message },
+        status: :unprocessable_entity
+      )
+    rescue => e
+      Rails.logger.error "Error canceling subscription: #{e.message}"
+      render_error_response(
+        error_code: 'subscription_cancel_failed',
+        message: 'Failed to cancel subscription',
+        details: { error: e.message },
+        status: :internal_server_error
+      )
     end
   end
 
