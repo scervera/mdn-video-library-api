@@ -26,6 +26,10 @@ FileUtils.chdir APP_ROOT do
   puts "\n== Removing old logs and tempfiles =="
   system! "bin/rails log:clear tmp:clear"
 
+  puts "\n== Stripe Integration Setup =="
+  puts "To set up Stripe integration, run: bin/setup_stripe.sh"
+  puts "This will configure Stripe API keys, webhooks, and database setup."
+
   unless ARGV.include?("--skip-server")
     puts "\n== Starting development server =="
     STDOUT.flush # flush the output before exec(2) so that it displays
