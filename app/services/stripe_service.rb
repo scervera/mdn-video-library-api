@@ -3,10 +3,10 @@ class StripeService
     @tenant = tenant
     # Use tenant's Stripe Connect account if available, otherwise fall back to platform account
     if tenant&.stripe_connect_account&.charges_enabled?
-      Stripe.api_key = Rails.application.credentials.stripe[:secret_key]
+      Stripe.api_key = ENV['STRIPE_SECRET_KEY']
       @stripe_account = tenant.stripe_connect_account.account_id
     else
-      Stripe.api_key = Rails.application.credentials.stripe[:secret_key]
+      Stripe.api_key = ENV['STRIPE_SECRET_KEY']
       @stripe_account = nil
     end
   end
@@ -481,8 +481,7 @@ class StripeService
         interval: 'month'
       },
       product_data: {
-        name: "#{billing_tier.name} Tier",
-        description: "Monthly subscription for #{billing_tier.name} tier"
+        name: "#{billing_tier.name} Tier"
       },
       metadata: {
         billing_tier_id: billing_tier.id,
