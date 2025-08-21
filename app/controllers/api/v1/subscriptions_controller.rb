@@ -6,33 +6,36 @@ class Api::V1::SubscriptionsController < Api::V1::BaseController
   def index
     subscriptions = Current.tenant.tenant_subscriptions.includes(:billing_tier)
     
-    render json: {
-      subscriptions: subscriptions.map do |subscription|
-        {
-          id: subscription.id,
-          status: subscription.status,
-          billing_tier: {
-            id: subscription.billing_tier.name,
-            name: subscription.billing_tier.name,
-            monthly_price: subscription.billing_tier.monthly_price,
-            per_user_price: subscription.billing_tier.per_user_price,
-            user_limit: subscription.billing_tier.user_limit
-          },
-          trial_ends_at: subscription.trial_ends_at,
-          current_period_start: subscription.current_period_start,
-          current_period_end: subscription.current_period_end,
-          current_user_count: subscription.current_user_count,
-          can_add_user: subscription.can_add_user?,
-          days_until_trial_expires: subscription.days_until_trial_expires
-        }
-      end,
+    subscription_data = subscriptions.map do |subscription|
+      {
+        id: subscription.id,
+        status: subscription.status,
+        billing_tier: {
+          id: subscription.billing_tier.name,
+          name: subscription.billing_tier.name,
+          monthly_price: subscription.billing_tier.monthly_price,
+          per_user_price: subscription.billing_tier.per_user_price,
+          user_limit: subscription.billing_tier.user_limit
+        },
+        trial_ends_at: subscription.trial_ends_at,
+        current_period_start: subscription.current_period_start,
+        current_period_end: subscription.current_period_end,
+        current_user_count: subscription.current_user_count,
+        can_add_user: subscription.can_add_user?,
+        days_until_trial_expires: subscription.days_until_trial_expires
+      }
+    end
+
+    meta = {
       current_subscription: Current.tenant.current_subscription&.id
     }
+
+    render_list_response(subscription_data, meta: meta)
   end
 
   # GET /api/v1/subscriptions/:id
   def show
-    render json: {
+    subscription_data = {
       id: @subscription.id,
       status: @subscription.status,
       billing_tier: {
@@ -61,6 +64,8 @@ class Api::V1::SubscriptionsController < Api::V1::BaseController
         }
       end
     }
+
+    render_single_response(subscription_data)
   end
 
   # POST /api/v1/subscriptions
@@ -75,17 +80,25 @@ class Api::V1::SubscriptionsController < Api::V1::BaseController
     if tier_data.nil?
       available_tiers = config.tier_names.join(', ')
       received_tier = subscription_params[:billing_tier_id]
-      render json: { 
-        error: "Invalid billing tier: '#{received_tier}'. Available tiers: #{available_tiers}",
-        received_tier: received_tier,
-        available_tiers: available_tiers
-      }, status: :bad_request
+      render_error_response(
+        error_code: 'invalid_billing_tier',
+        message: "Invalid billing tier: '#{received_tier}'. Available tiers: #{available_tiers}",
+        details: {
+          received_tier: received_tier,
+          available_tiers: available_tiers
+        },
+        status: :bad_request
+      )
       return
     end
 
     # Check if tenant already has an active subscription
     if Current.tenant.current_subscription.present?
-      render json: { error: 'Tenant already has an active subscription' }, status: :unprocessable_entity
+      render_error_response(
+        error_code: 'subscription_exists',
+        message: 'Tenant already has an active subscription',
+        status: :unprocessable_entity
+      )
       return
     end
 
@@ -104,7 +117,7 @@ class Api::V1::SubscriptionsController < Api::V1::BaseController
     )
 
     if subscription.save
-      render json: {
+      subscription_data = {
         id: subscription.id,
         status: subscription.status,
         billing_tier: {
@@ -116,9 +129,11 @@ class Api::V1::SubscriptionsController < Api::V1::BaseController
         },
         trial_ends_at: subscription.trial_ends_at,
         days_until_trial_expires: subscription.days_until_trial_expires
-      }, status: :created
+      }
+      
+      render_single_response(subscription_data, status: :created)
     else
-      render json: { error: subscription.errors.full_messages.join(', ') }, status: :unprocessable_entity
+      render_validation_errors(subscription)
     end
   end
 
@@ -128,7 +143,11 @@ class Api::V1::SubscriptionsController < Api::V1::BaseController
     tier_data = config.get_tier(subscription_params[:billing_tier_id])
 
     if tier_data.nil?
-      render json: { error: 'Invalid billing tier' }, status: :bad_request
+      render_error_response(
+        error_code: 'invalid_billing_tier',
+        message: 'Invalid billing tier',
+        status: :bad_request
+      )
       return
     end
 
@@ -143,7 +162,7 @@ class Api::V1::SubscriptionsController < Api::V1::BaseController
     @subscription.billing_tier = billing_tier
 
     if @subscription.save
-      render json: {
+      subscription_data = {
         id: @subscription.id,
         status: @subscription.status,
         billing_tier: {
@@ -156,17 +175,19 @@ class Api::V1::SubscriptionsController < Api::V1::BaseController
         trial_ends_at: @subscription.trial_ends_at,
         days_until_trial_expires: @subscription.days_until_trial_expires
       }
+      
+      render_single_response(subscription_data)
     else
-      render json: { error: @subscription.errors.full_messages.join(', ') }, status: :unprocessable_entity
+      render_validation_errors(@subscription)
     end
   end
 
   # DELETE /api/v1/subscriptions/:id
   def cancel
     if @subscription.update(status: 'canceled')
-      render json: { message: 'Subscription canceled successfully' }
+      render_action_response(message: 'Subscription canceled successfully')
     else
-      render json: { error: @subscription.errors.full_messages.join(', ') }, status: :unprocessable_entity
+      render_validation_errors(@subscription)
     end
   end
 
@@ -175,7 +196,7 @@ class Api::V1::SubscriptionsController < Api::V1::BaseController
   def set_subscription
     @subscription = Current.tenant.tenant_subscriptions.find(params[:id])
   rescue ActiveRecord::RecordNotFound
-    render json: { error: 'Subscription not found' }, status: :not_found
+    render_not_found_error('Subscription')
   end
 
   def subscription_params
@@ -192,7 +213,7 @@ class Api::V1::SubscriptionsController < Api::V1::BaseController
 
   def ensure_admin_user
     unless current_user&.admin?
-      render json: { error: 'Admin access required' }, status: :forbidden
+      render_forbidden_error('Admin access required')
     end
   end
 end

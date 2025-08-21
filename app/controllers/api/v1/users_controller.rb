@@ -19,23 +19,25 @@ module Api
         per_page = [(params[:per_page] || 20).to_i, 100].min
         users = users.offset((page - 1) * per_page).limit(per_page)
         
-        render json: {
-          users: users.map { |user| user_response(user) },
-          pagination: {
-            page: page,
-            per_page: per_page,
-            total: Current.tenant.users.count,
-            total_pages: (Current.tenant.users.count.to_f / per_page).ceil
-          }
+        user_data = users.map { |user| user_response(user) }
+        pagination = {
+          page: page,
+          per_page: per_page,
+          total: Current.tenant.users.count,
+          total_pages: (Current.tenant.users.count.to_f / per_page).ceil
         }
+
+        render_list_response(user_data, pagination: pagination)
       end
 
       # GET /api/v1/users/:id
       def show
-        render json: {
-          user: user_response(@user),
+        user_data = user_response(@user)
+        meta = {
           statistics: user_statistics(@user)
         }
+
+        render_single_response(user_data, meta: meta)
       end
 
       # POST /api/v1/users
@@ -55,69 +57,79 @@ module Api
             # TODO: Send invitation email
           end
           
-          render json: { user: user_response(user) }, status: :created
+          render_single_response(user_response(user), status: :created)
         else
-          render json: { errors: user.errors.full_messages }, status: :unprocessable_entity
+          render_validation_errors(user)
         end
       end
 
       # PUT /api/v1/users/:id
       def update
         if @user.update(user_params)
-          render json: { user: user_response(@user) }
+          render_single_response(user_response(@user))
         else
-          render json: { errors: @user.errors.full_messages }, status: :unprocessable_entity
+          render_validation_errors(@user)
         end
       end
 
       # DELETE /api/v1/users/:id
       def destroy
         if @user == current_user
-          render json: { error: "Cannot delete your own account" }, status: :unprocessable_entity
+          render_error_response(
+            error_code: 'cannot_delete_self',
+            message: "Cannot delete your own account",
+            status: :unprocessable_entity
+          )
           return
         end
         
         @user.destroy
-        render json: { message: "User deleted successfully" }
+        render_action_response(message: "User deleted successfully")
       end
 
       # GET /api/v1/users/me
       def me
-        render json: {
-          user: user_response(current_user),
+        user_data = user_response(current_user)
+        meta = {
           statistics: user_statistics(current_user)
         }
+
+        render_single_response(user_data, meta: meta)
       end
 
       # PUT /api/v1/users/me
       def update_profile
         if current_user.update(profile_params)
-          render json: { user: user_response(current_user) }
+          render_single_response(user_response(current_user))
         else
-          render json: { errors: current_user.errors.full_messages }, status: :unprocessable_entity
+          render_validation_errors(current_user)
         end
       end
 
       # POST /api/v1/users/:id/activate
       def activate
         @user.update!(active: true)
-        render json: { user: user_response(@user) }
+        render_single_response(user_response(@user))
       end
 
       # POST /api/v1/users/:id/deactivate
       def deactivate
         if @user == current_user
-          render json: { error: "Cannot deactivate your own account" }, status: :unprocessable_entity
+          render_error_response(
+            error_code: 'cannot_deactivate_self',
+            message: "Cannot deactivate your own account",
+            status: :unprocessable_entity
+          )
           return
         end
         
         @user.update!(active: false)
-        render json: { user: user_response(@user) }
+        render_single_response(user_response(@user))
       end
 
       # GET /api/v1/users/statistics
       def statistics
-        render json: {
+        statistics_data = {
           total_users: Current.tenant.users.count,
           active_users: Current.tenant.users.where(active: true).count,
           inactive_users: Current.tenant.users.where(active: false).count,
@@ -131,6 +143,8 @@ module Api
             last_90_days: Current.tenant.users.where('created_at >= ?', 90.days.ago).count
           }
         }
+
+        render_single_response(statistics_data)
       end
 
       private
@@ -141,7 +155,7 @@ module Api
 
       def ensure_admin!
         unless current_user.role == 'admin'
-          render json: { error: 'Admin access required' }, status: :forbidden
+          render_forbidden_error('Admin access required')
         end
       end
 

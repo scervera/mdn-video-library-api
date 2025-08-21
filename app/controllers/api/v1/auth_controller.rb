@@ -10,31 +10,35 @@ module Api
         if user&.valid_password?(params[:password])
           user.update!(last_login_at: Time.current)
           token = JWT.encode({ user_id: user.id }, Rails.application.credentials.secret_key_base)
-          render json: { 
-            user: {
-              id: user.id,
-              username: user.username,
-              email: user.email,
-              first_name: user.first_name,
-              last_name: user.last_name,
-              full_name: user.full_name,
-              role: user.role,
-              active: user.active
-            }, 
-            token: token 
+          
+          user_data = {
+            id: user.id,
+            username: user.username,
+            email: user.email,
+            first_name: user.first_name,
+            last_name: user.last_name,
+            full_name: user.full_name,
+            role: user.role,
+            active: user.active
           }
+          
+          meta = {
+            token: token
+          }
+          
+          render_single_response(user_data, meta: meta)
         else
-          render json: { error: 'Invalid credentials' }, status: :unauthorized
+          render_unauthorized_error('Invalid credentials')
         end
       end
 
       def logout
         # In a real app, you might want to blacklist the token
-        render json: { message: 'Logged out successfully' }
+        render_action_response(message: 'Logged out successfully')
       end
 
       def me
-        render json: {
+        user_data = {
           id: current_user.id,
           username: current_user.username,
           email: current_user.email,
@@ -44,6 +48,8 @@ module Api
           role: current_user.role,
           active: current_user.active
         }
+        
+        render_single_response(user_data)
       end
 
       def register
@@ -51,21 +57,25 @@ module Api
         
         if user.save
           token = JWT.encode({ user_id: user.id }, Rails.application.credentials.secret_key_base)
-          render json: { 
-            user: {
-              id: user.id,
-              username: user.username,
-              email: user.email,
-              first_name: user.first_name,
-              last_name: user.last_name,
-              full_name: user.full_name,
-              role: user.role,
-              active: user.active
-            }, 
-            token: token 
-          }, status: :created
+          
+          user_data = {
+            id: user.id,
+            username: user.username,
+            email: user.email,
+            first_name: user.first_name,
+            last_name: user.last_name,
+            full_name: user.full_name,
+            role: user.role,
+            active: user.active
+          }
+          
+          meta = {
+            token: token
+          }
+          
+          render_single_response(user_data, meta: meta, status: :created)
         else
-          render json: { errors: user.errors.full_messages }, status: :unprocessable_entity
+          render_validation_errors(user)
         end
       end
 
