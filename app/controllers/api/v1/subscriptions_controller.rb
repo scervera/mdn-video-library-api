@@ -65,11 +65,21 @@ class Api::V1::SubscriptionsController < Api::V1::BaseController
 
   # POST /api/v1/subscriptions
   def create
+    # Debug logging
+    Rails.logger.info "Subscription create params: #{params.inspect}"
+    Rails.logger.info "Billing tier ID: #{subscription_params[:billing_tier_id]}"
+    
     config = BillingConfiguration.current
     tier_data = config.get_tier(subscription_params[:billing_tier_id])
 
     if tier_data.nil?
-      render json: { error: 'Invalid billing tier' }, status: :bad_request
+      available_tiers = config.tier_names.join(', ')
+      received_tier = subscription_params[:billing_tier_id]
+      render json: { 
+        error: "Invalid billing tier: '#{received_tier}'. Available tiers: #{available_tiers}",
+        received_tier: received_tier,
+        available_tiers: available_tiers
+      }, status: :bad_request
       return
     end
 
@@ -169,7 +179,15 @@ class Api::V1::SubscriptionsController < Api::V1::BaseController
   end
 
   def subscription_params
-    params.require(:subscription).permit(:billing_tier_id)
+    # Handle both nested and direct parameters
+    if params[:subscription]
+      params.require(:subscription).permit(:billing_tier_id)
+    else
+      # Allow direct parameters for flexibility
+      ActionController::Parameters.new(
+        billing_tier_id: params[:billing_tier_id] || params[:tier_id] || params[:tierId]
+      )
+    end
   end
 
   def ensure_admin_user
