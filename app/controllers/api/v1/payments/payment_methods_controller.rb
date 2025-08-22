@@ -25,7 +25,7 @@ module Api
                     exp_month: pm.card.exp_month,
                     exp_year: pm.card.exp_year
                   },
-                  is_default: pm.id == Current.tenant.stripe_customer_id&.default_payment_method
+                  is_default: pm.id == get_customer_default_payment_method
                 }
               end
 
@@ -42,6 +42,20 @@ module Api
           else
             # No Stripe customer yet, return empty array
             render_single_response([])
+          end
+        end
+
+        private
+
+        def get_customer_default_payment_method
+          return nil unless Current.tenant.stripe_customer_id.present?
+          
+          begin
+            customer = Stripe::Customer.retrieve(Current.tenant.stripe_customer_id)
+            customer.invoice_settings.default_payment_method
+          rescue Stripe::StripeError => e
+            Rails.logger.error "Error retrieving customer default payment method: #{e.message}"
+            nil
           end
         end
       end
