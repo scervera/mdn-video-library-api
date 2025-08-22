@@ -99,6 +99,7 @@ Rails.application.routes.draw do
           get :me
           put :me, action: :update_profile
           get :statistics
+          get :stats, action: :statistics
           post :invite, to: 'user_invitations#create'
           get :invitations, to: 'user_invitations#index'
           post 'invitations/:id/resend', to: 'user_invitations#resend'

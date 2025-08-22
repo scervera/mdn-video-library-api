@@ -130,17 +130,35 @@ module Api
       # GET /api/v1/users/statistics
       def statistics
         statistics_data = {
+          # Basic user counts (frontend expected format)
           total_users: Current.tenant.users.count,
           active_users: Current.tenant.users.where(active: true).count,
+          pending_invitations: Current.tenant.user_invitations.pending.count,
+          admins_count: Current.tenant.users.where(role: 'admin').count,
+          users_count: Current.tenant.users.where(role: 'user').count,
+          
+          # Additional detailed statistics
           inactive_users: Current.tenant.users.where(active: false).count,
-          admin_users: Current.tenant.users.where(role: 'admin').count,
-          regular_users: Current.tenant.users.where(role: 'user').count,
           users_with_subscriptions: Current.tenant.users.joins(:user_subscriptions).distinct.count,
           recent_signups: Current.tenant.users.where('created_at >= ?', 30.days.ago).count,
+          
+          # Invitation statistics
+          total_invitations: Current.tenant.user_invitations.count,
+          accepted_invitations: Current.tenant.user_invitations.accepted.count,
+          expired_invitations: Current.tenant.user_invitations.where('expires_at < ?', Time.current).count,
+          cancelled_invitations: Current.tenant.user_invitations.cancelled.count,
+          
+          # Growth metrics
           user_growth: {
             last_7_days: Current.tenant.users.where('created_at >= ?', 7.days.ago).count,
             last_30_days: Current.tenant.users.where('created_at >= ?', 30.days.ago).count,
             last_90_days: Current.tenant.users.where('created_at >= ?', 90.days.ago).count
+          },
+          
+          # Recent activity
+          recent_activity: {
+            users_created_last_7_days: Current.tenant.users.where('created_at >= ?', 7.days.ago).count,
+            invitations_sent_last_7_days: Current.tenant.user_invitations.where('created_at >= ?', 7.days.ago).count
           }
         }
 
