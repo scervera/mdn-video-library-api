@@ -56,11 +56,8 @@ module Api
             Stripe.api_key = ENV['STRIPE_SECRET_KEY']
             
             # Create payment method in Stripe
-            payment_method = Stripe::PaymentMethod.create(
-              type: payment_method_params[:type] || 'card',
-              card: { token: payment_method_params[:card][:token] },
-              billing_details: payment_method_params[:billing_details]
-            )
+            # The frontend sends a payment method ID, not a token
+            payment_method = Stripe::PaymentMethod.retrieve(payment_method_params[:card][:token])
             
             # Attach payment method to customer
             payment_method.attach(customer: customer_id)
