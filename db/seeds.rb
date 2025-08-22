@@ -405,28 +405,20 @@ tenants.each do |tenant_data|
   tenant = Tenant.unscoped.create!(tenant_data)
   puts "  - Created tenant: #{tenant.name} (#{tenant.slug})"
 
-  # Create billing tiers for this tenant with Stripe price IDs
-  puts "    - Creating billing tiers with Stripe integration..."
+  # Create billing tiers for this tenant (Stripe price IDs will be created when needed)
+  puts "    - Creating billing tiers..."
   config = BillingConfiguration.current
   
-  # Define Stripe price IDs for each tier (these are the ones we created)
-  stripe_price_ids = {
-    'Trial' => 'price_1RyhtOJLPZyP4RVP26ANYEiZ',
-    'Starter' => 'price_1RyhtOJLPZyP4RVPBGkFLBTj', 
-    'Professional' => 'price_1RyhtOJLPZyP4RVPnVN9N3CK',
-    'Enterprise' => 'price_1RyhtPJLPZyP4RVPFJynYL8F'
-  }
-  
   config.tiers.each do |tier_key, tier_data|
+    # Create billing tier for this tenant (Stripe price IDs will be created when subscriptions are created)
     billing_tier = tenant.billing_tiers.create!(
       name: tier_data['name'],
       monthly_price: tier_data['monthly_price'],
       per_user_price: tier_data['per_user_price'],
       user_limit: tier_data['user_limit'],
-      features: tier_data['features'],
-      stripe_price_id: stripe_price_ids[tier_data['name']]
+      features: tier_data['features']
     )
-    puts "      - Created billing tier: #{billing_tier.name} (Stripe Price: #{billing_tier.stripe_price_id})"
+    puts "      - Created billing tier: #{billing_tier.name}"
   end
 
   # Create trial subscription for this tenant
