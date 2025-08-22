@@ -207,8 +207,8 @@ class Api::V1::SubscriptionsController < Api::V1::BaseController
           billing_tier: billing_tier,
           status: stripe_subscription.status,
           stripe_subscription_id: stripe_subscription.id,
-          current_period_start: Time.at(stripe_subscription.current_period_start),
-          current_period_end: Time.at(stripe_subscription.current_period_end),
+          current_period_start: Time.at(stripe_subscription.items.data.first.current_period_start),
+          current_period_end: Time.at(stripe_subscription.items.data.first.current_period_end),
           trial_ends_at: nil # Clear trial end date since it's now paid
         )
         
