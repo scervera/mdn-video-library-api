@@ -177,6 +177,28 @@ class Api::V1::SubscriptionsController < Api::V1::BaseController
       
       # Handle trial subscription conversion
       if @subscription.trial? && @subscription.stripe_subscription_id.blank?
+        # First, ensure tenant has a Stripe customer
+        customer_id = stripe_service.ensure_tenant_customer(Current.tenant)
+        
+        # Then, attach payment method to customer if provided
+        if subscription_params[:payment_method_id].present?
+          begin
+            stripe_service.add_payment_method_to_customer(
+              customer_id,
+              subscription_params[:payment_method_id]
+            )
+          rescue Stripe::StripeError => e
+            Rails.logger.error "Failed to attach payment method: #{e.message}"
+            render_error_response(
+              error_code: 'payment_method_attachment_failed',
+              message: 'Failed to attach payment method',
+              details: { stripe_error: e.message },
+              status: :unprocessable_entity
+            )
+            return
+          end
+        end
+        
         # Convert trial to paid subscription
         subscription = stripe_service.create_tenant_subscription_with_stripe(Current.tenant, billing_tier)
         
