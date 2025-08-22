@@ -199,8 +199,20 @@ class Api::V1::SubscriptionsController < Api::V1::BaseController
           end
         end
         
-        # Convert trial to paid subscription
-        subscription = stripe_service.create_tenant_subscription_with_stripe(Current.tenant, billing_tier)
+        # Convert trial to paid subscription by creating Stripe subscription and updating existing record
+        stripe_subscription = stripe_service.create_stripe_subscription_only(Current.tenant, billing_tier)
+        
+        # Update the existing trial subscription with the new data
+        @subscription.update!(
+          billing_tier: billing_tier,
+          status: stripe_subscription.status,
+          stripe_subscription_id: stripe_subscription.id,
+          current_period_start: Time.at(stripe_subscription.current_period_start),
+          current_period_end: Time.at(stripe_subscription.current_period_end),
+          trial_ends_at: nil # Clear trial end date since it's now paid
+        )
+        
+        subscription = @subscription.reload
         
         subscription_data = {
           id: subscription.id,
