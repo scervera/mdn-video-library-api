@@ -586,15 +586,13 @@ class StripeService
   # Add payment method to customer
   def add_payment_method_to_customer(customer_id, payment_method_id)
     # Attach payment method to customer
-    payment_method = Stripe::PaymentMethod.retrieve(payment_method_id)
-    payment_method.attach(customer: customer_id)
+    payment_method = Stripe::PaymentMethod.retrieve(payment_method_id, { stripe_account: @stripe_account }.compact)
+    payment_method.attach({ customer: customer_id, stripe_account: @stripe_account }.compact)
 
     # Set as default payment method
     Stripe::Customer.update(
       customer_id,
-      invoice_settings: {
-        default_payment_method: payment_method_id
-      }
+      { invoice_settings: { default_payment_method: payment_method_id }, stripe_account: @stripe_account }.compact
     )
 
     payment_method
