@@ -454,6 +454,7 @@ class StripeService
     )
 
     # Update local subscription record
+    Rails.logger.info "Updating subscription with Stripe data: #{updated_subscription.inspect}"
     subscription.update!(
       billing_tier: new_billing_tier,
       status: updated_subscription.status,
