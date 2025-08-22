@@ -11,6 +11,11 @@ class TenantMiddleware
       return @app.call(env)
     end
     
+    # Allow webhook endpoints to pass through without tenant validation
+    if webhook_endpoint?(request.path)
+      return @app.call(env)
+    end
+    
     # For API endpoints, require X-Tenant header
     if api_endpoint?(request.path)
       tenant_slug = request.get_header('HTTP_X_TENANT')
@@ -56,6 +61,11 @@ class TenantMiddleware
   def api_endpoint?(path)
     # Check if the path starts with /api
     path.start_with?('/api')
+  end
+
+  def webhook_endpoint?(path)
+    # Check if the path is a webhook endpoint
+    path.include?('/webhooks/')
   end
 
   def extract_tenant_from_path(path)
