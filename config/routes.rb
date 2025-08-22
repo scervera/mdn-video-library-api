@@ -140,6 +140,12 @@ Rails.application.routes.draw do
         end
       end
 
+      # Payment endpoints (for frontend compatibility)
+      namespace :payments do
+        get 'payment_methods', to: 'payment_methods#index'
+        get 'invoices', to: 'invoices#index'
+      end
+
       resources :payment_intents do
         member do
           post :confirm
