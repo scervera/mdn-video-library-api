@@ -573,6 +573,25 @@ class StripeService
     )
   end
 
+  # Create Stripe subscription only (for trial conversion)
+  def create_stripe_subscription_only(tenant, billing_tier)
+    # Ensure tenant has a Stripe customer
+    customer_id = ensure_tenant_customer(tenant)
+    
+    # Ensure billing tier has a Stripe price
+    price_id = ensure_billing_tier_price(billing_tier)
+
+    # Create Stripe subscription only (no database record)
+    Stripe::Subscription.create(
+      customer: customer_id,
+      items: [{ price: price_id }],
+      metadata: {
+        tenant_id: tenant.id,
+        billing_tier: billing_tier.name
+      }
+    )
+  end
+
   # Get upcoming invoice for subscription
   def get_upcoming_invoice(subscription)
     return nil unless subscription.stripe_subscription_id
