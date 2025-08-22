@@ -173,32 +173,54 @@ class Api::V1::SubscriptionsController < Api::V1::BaseController
     end
 
     begin
-      # Update subscription with proration
       stripe_service = StripeService.new(Current.tenant)
-      result = stripe_service.update_tenant_subscription_with_proration(@subscription, billing_tier)
       
-      subscription = result[:subscription]
-      proration_data = result[:proration]
-
-      subscription_data = {
-        id: subscription.id,
-        status: subscription.status,
-        billing_tier: {
-          id: billing_tier.name,
-          name: billing_tier.name,
-          monthly_price: billing_tier.monthly_price,
-          per_user_price: billing_tier.per_user_price,
-          user_limit: billing_tier.user_limit
-        },
-        trial_ends_at: subscription.trial_ends_at,
-        days_until_trial_expires: subscription.days_until_trial_expires,
-        proration: {
-          amount: proration_data[:amount],
-          credit: proration_data[:credit],
-          charge: proration_data[:charge],
-          remaining_days: proration_data[:remaining_days]
+      # Handle trial subscription conversion
+      if @subscription.trial? && @subscription.stripe_subscription_id.blank?
+        # Convert trial to paid subscription
+        subscription = stripe_service.create_tenant_subscription_with_stripe(Current.tenant, billing_tier)
+        
+        subscription_data = {
+          id: subscription.id,
+          status: subscription.status,
+          billing_tier: {
+            id: billing_tier.name,
+            name: billing_tier.name,
+            monthly_price: billing_tier.monthly_price,
+            per_user_price: billing_tier.per_user_price,
+            user_limit: billing_tier.user_limit
+          },
+          trial_ends_at: subscription.trial_ends_at,
+          days_until_trial_expires: subscription.days_until_trial_expires,
+          stripe_subscription_id: subscription.stripe_subscription_id
         }
-      }
+      else
+        # Update existing paid subscription with proration
+        result = stripe_service.update_tenant_subscription_with_proration(@subscription, billing_tier)
+        
+        subscription = result[:subscription]
+        proration_data = result[:proration]
+
+              subscription_data = {
+          id: subscription.id,
+          status: subscription.status,
+          billing_tier: {
+            id: billing_tier.name,
+            name: billing_tier.name,
+            monthly_price: billing_tier.monthly_price,
+            per_user_price: billing_tier.per_user_price,
+            user_limit: billing_tier.user_limit
+          },
+          trial_ends_at: subscription.trial_ends_at,
+          days_until_trial_expires: subscription.days_until_trial_expires,
+          proration: {
+            amount: proration_data[:amount],
+            credit: proration_data[:credit],
+            charge: proration_data[:charge],
+            remaining_days: proration_data[:remaining_days]
+          }
+        }
+      end
       
       render_single_response(subscription_data)
     rescue Stripe::StripeError => e
