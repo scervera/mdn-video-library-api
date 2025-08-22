@@ -142,6 +142,8 @@ Rails.application.routes.draw do
 
       # Payment endpoints (for frontend compatibility)
       namespace :payments do
+        get 'customer', to: 'customers#show'
+        post 'customer', to: 'customers#create'
         get 'payment_methods', to: 'payment_methods#index'
         post 'payment_methods', to: 'payment_methods#create'
         put 'payment_methods/:id', to: 'payment_methods#update'
