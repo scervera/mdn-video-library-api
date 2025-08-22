@@ -26,7 +26,7 @@ module Api
                   due_date: invoice.due_date ? Time.at(invoice.due_date) : nil,
                   period_start: invoice.period_start ? Time.at(invoice.period_start) : nil,
                   period_end: invoice.period_end ? Time.at(invoice.period_end) : nil,
-                  subscription: invoice.subscription,
+                  subscription: invoice.subscription_id,
                   lines: invoice.lines.data.map do |line|
                     {
                       id: line.id,
