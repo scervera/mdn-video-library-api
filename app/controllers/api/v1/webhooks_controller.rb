@@ -72,8 +72,8 @@ class Api::V1::WebhooksController < Api::V1::BaseController
 
     subscription.update!(
       status: stripe_subscription.status,
-      current_period_start: Time.at(stripe_subscription.current_period_start),
-      current_period_end: Time.at(stripe_subscription.current_period_end)
+      current_period_start: Time.at(stripe_subscription.items.data.first.current_period_start),
+      current_period_end: Time.at(stripe_subscription.items.data.first.current_period_end)
     )
 
     Rails.logger.info "Updated subscription: #{stripe_subscription.id}"

@@ -458,8 +458,8 @@ class StripeService
     subscription.update!(
       billing_tier: new_billing_tier,
       status: updated_subscription.status,
-      current_period_start: Time.at(updated_subscription.current_period_start),
-      current_period_end: Time.at(updated_subscription.current_period_end)
+      current_period_start: Time.at(updated_subscription.items.data.first.current_period_start),
+      current_period_end: Time.at(updated_subscription.items.data.first.current_period_end)
     )
 
     # Return proration data for frontend
