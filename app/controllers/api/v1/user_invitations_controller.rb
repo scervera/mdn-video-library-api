@@ -51,11 +51,16 @@ module Api
         end
 
               # Create user and invitation
+      # Generate first_name and last_name from email if not provided
+      email_parts = invitation_params[:email].split('@').first.split(/[._-]/)
+      first_name = invitation_params[:first_name] || email_parts.first&.capitalize || 'User'
+      last_name = invitation_params[:last_name] || email_parts.last&.capitalize || 'User'
+      
       user = Current.tenant.users.build(
         username: generate_username(invitation_params[:email]),
         email: invitation_params[:email],
-        first_name: invitation_params[:first_name],
-        last_name: invitation_params[:last_name],
+        first_name: first_name,
+        last_name: last_name,
         role: invitation_params[:role] || 'user',
         active: false,
         password: (temp_password = SecureRandom.hex(12)), # Generate a temporary password
