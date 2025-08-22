@@ -9,6 +9,7 @@ module Api
           # Get payment methods for the current tenant's Stripe customer
           if Current.tenant.stripe_customer_id.present?
             begin
+              Stripe.api_key = ENV['STRIPE_SECRET_KEY']
               stripe_service = StripeService.new(Current.tenant)
               payment_methods = Stripe::PaymentMethod.list(
                 customer: Current.tenant.stripe_customer_id,

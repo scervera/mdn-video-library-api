@@ -9,6 +9,7 @@ module Api
           # Get invoices for the current tenant's Stripe customer
           if Current.tenant.stripe_customer_id.present?
             begin
+              Stripe.api_key = ENV['STRIPE_SECRET_KEY']
               invoices = Stripe::Invoice.list(
                 customer: Current.tenant.stripe_customer_id,
                 limit: 20
