@@ -176,54 +176,53 @@ module Api
           return
         end
         
-        # Check if user already exists with this email
+        # Find the existing inactive user that was created when the invitation was sent
         existing_user = ::User.find_by(email: invitation.email, tenant: invitation.tenant)
+        
         if existing_user
-          render json: { error: 'A user with this email already exists' }, status: :unprocessable_entity
-          return
-        end
-        
-        # Generate a unique username if the requested one is taken
-        username = accept_params[:username]
-        counter = 1
-        while invitation.tenant.users.exists?(username: username)
-          username = "#{accept_params[:username]}#{counter}"
-          counter += 1
-        end
-        
-        # Create the user account
-        user = ::User.new(
-          email: invitation.email,
-          username: username,
-          first_name: accept_params[:first_name],
-          last_name: accept_params[:last_name],
-          password: accept_params[:password],
-          password_confirmation: accept_params[:password],
-          role: invitation.role,
-          tenant: invitation.tenant,
-          active: true
-        )
-        
-        if user.save
-          # Mark invitation as accepted
-          invitation.update(
-            status: 'accepted',
-            used_at: Time.current
+          # Generate a unique username if the requested one is taken
+          username = accept_params[:username]
+          counter = 1
+          while invitation.tenant.users.exists?(username: username) && 
+                invitation.tenant.users.find_by(username: username) != existing_user
+            username = "#{accept_params[:username]}#{counter}"
+            counter += 1
+          end
+          
+          # Update the existing inactive user with the provided information
+          existing_user.assign_attributes(
+            username: username,
+            first_name: accept_params[:first_name],
+            last_name: accept_params[:last_name],
+            password: accept_params[:password],
+            password_confirmation: accept_params[:password],
+            active: true
           )
           
-          render json: {
-            user: {
-              id: user.id,
-              email: user.email,
-              username: user.username,
-              first_name: user.first_name,
-              last_name: user.last_name,
-              role: user.role
-            },
-            message: 'Account created successfully'
-          }, status: :created
+          if existing_user.save
+            # Mark invitation as accepted
+            invitation.update(
+              status: 'accepted',
+              used_at: Time.current
+            )
+            
+            render json: {
+              user: {
+                id: existing_user.id,
+                email: existing_user.email,
+                username: existing_user.username,
+                first_name: existing_user.first_name,
+                last_name: existing_user.last_name,
+                role: existing_user.role
+              },
+              message: 'Account activated successfully'
+            }, status: :ok
+          else
+            render json: { error: existing_user.errors.full_messages.join(', ') }, status: :unprocessable_entity
+          end
         else
-          render json: { error: user.errors.full_messages.join(', ') }, status: :unprocessable_entity
+          # This shouldn't happen, but handle it gracefully
+          render json: { error: 'No user account found for this invitation' }, status: :unprocessable_entity
         end
       end
 
