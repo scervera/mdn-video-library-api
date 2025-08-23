@@ -104,6 +104,8 @@ Rails.application.routes.draw do
           get :invitations, to: 'user_invitations#index'
           post 'invitations/:id/resend', to: 'user_invitations#resend'
           post 'invitations/:id/cancel', to: 'user_invitations#cancel'
+          get 'invitations/validate/:token', to: 'user_invitations#validate'
+          post 'invitations/accept/:token', to: 'user_invitations#accept'
         end
       end
       
