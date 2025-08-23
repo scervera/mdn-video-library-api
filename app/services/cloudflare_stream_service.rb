@@ -159,6 +159,126 @@ class CloudflareStreamService
     end
   end
 
+  # Static methods for URL generation and utility functions
+  def self.player_url(video_id, options = {})
+    return nil unless video_id.present?
+    
+    # Default options
+    default_options = {
+      controls: true,
+      autoplay: false,
+      muted: false,
+      loop: false,
+      width: '100%',
+      height: '100%'
+    }.merge(options)
+    
+    # Build query parameters
+    query_params = default_options.map { |k, v| "#{k}=#{v}" }.join('&')
+    
+    "https://iframe.videodelivery.net/#{video_id}?#{query_params}"
+  end
+
+  def self.player_iframe(video_id, options = {})
+    return nil unless video_id.present?
+    
+    player_url = player_url(video_id, options)
+    return nil unless player_url
+    
+    width = options[:width] || '100%'
+    height = options[:height] || '100%'
+    
+    "<iframe src=\"#{player_url}\" width=\"#{width}\" height=\"#{height}\" frameborder=\"0\" allowfullscreen></iframe>"
+  end
+
+  def self.thumbnail_url(video_id, options = {})
+    return nil unless video_id.present?
+    
+    # Default options
+    default_options = {
+      width: 640,
+      height: 360,
+      fit: 'scale-down'
+    }.merge(options)
+    
+    # Build query parameters
+    query_params = default_options.map { |k, v| "#{k}=#{v}" }.join('&')
+    
+    "https://videodelivery.net/#{video_id}/thumbnails/thumbnail.jpg?#{query_params}"
+  end
+
+  def self.preview_url(video_id)
+    return nil unless video_id.present?
+    "https://videodelivery.net/#{video_id}/manifest/video.m3u8"
+  end
+
+  def self.download_url(video_id, quality = '720p')
+    return nil unless video_id.present?
+    
+    # Handle demo video placeholder
+    if video_id == 'demo-video-placeholder'
+      return "https://videodelivery.net/73cb888469576ace114104f131e8c6c2/manifest/video.m3u8"
+    end
+    
+    "https://videodelivery.net/#{video_id}/manifest/video.m3u8"
+  end
+
+  def self.video_ready?(video_id)
+    return false unless video_id.present?
+    
+    # For now, assume all videos are ready
+    # In a real implementation, you would check the video status via API
+    true
+  end
+
+  def self.get_video_metadata(video_id)
+    return nil unless video_id.present?
+    
+    # For now, return basic metadata
+    # In a real implementation, you would fetch this from Cloudflare API
+    {
+      uid: video_id,
+      status: 'ready',
+      duration: 120, # Default duration in seconds
+      width: 1920,
+      height: 1080,
+      size: 1024000 # Default size in bytes
+    }
+  end
+
+  def self.update_lesson_with_stream_data(lesson, video_id)
+    return false unless video_id.present?
+    
+    metadata = get_video_metadata(video_id)
+    return false unless metadata
+    
+    lesson.update(
+      cloudflare_stream_duration: metadata[:duration],
+      cloudflare_stream_status: metadata[:status],
+      cloudflare_stream_thumbnail: thumbnail_url(video_id)
+    )
+    
+    true
+  end
+
+  def self.valid_video_id?(video_id)
+    return false unless video_id.present?
+    # Cloudflare Stream video IDs are 32-character hex strings
+    video_id.match?(/\A[a-f0-9]{32}\z/)
+  end
+
+  def self.get_video_analytics(video_id)
+    return nil unless video_id.present?
+    
+    # For now, return basic analytics
+    # In a real implementation, you would fetch this from Cloudflare API
+    {
+      views: 0,
+      play_time: 0,
+      completion_rate: 0
+    }
+  end
+
   private
 
   def cloudflare_configured?
