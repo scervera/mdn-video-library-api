@@ -440,7 +440,8 @@ tenants.each do |tenant_data|
     password_confirmation: "password",
     first_name: "Admin",
     last_name: tenant.name.split.first,
-    role: 'admin'
+    role: 'admin',
+    active: true
   )
   puts "    - Created admin user: #{admin_user.username}"
 
@@ -452,7 +453,8 @@ tenants.each do |tenant_data|
     password_confirmation: "password",
     first_name: "Demo",
     last_name: "User",
-    role: 'user'
+    role: 'user',
+    active: true
   )
   puts "    - Created demo user: #{demo_user.username}"
 
