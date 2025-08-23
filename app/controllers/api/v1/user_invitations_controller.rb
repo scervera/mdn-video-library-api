@@ -36,7 +36,7 @@ module Api
 
       # GET /api/v1/users/invitations/validate/:token
       def validate
-        invitation = UserInvitation.find_by(token: params[:token])
+        invitation = ::UserInvitation.find_by(token: params[:token])
         
         if invitation.nil?
           render json: { error: 'Invalid invitation token' }, status: :not_found
@@ -159,7 +159,7 @@ module Api
 
       # POST /api/v1/users/invitations/accept/:token
       def accept
-        invitation = UserInvitation.find_by(token: params[:token])
+        invitation = ::UserInvitation.find_by(token: params[:token])
         
         if invitation.nil?
           render json: { error: 'Invalid invitation token' }, status: :not_found
@@ -177,7 +177,7 @@ module Api
         end
         
         # Create the user account
-        user = User.new(
+        user = ::User.new(
           email: invitation.email,
           username: accept_params[:username],
           first_name: accept_params[:first_name],
