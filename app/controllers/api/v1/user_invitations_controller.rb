@@ -176,10 +176,25 @@ module Api
           return
         end
         
+        # Check if user already exists with this email
+        existing_user = ::User.find_by(email: invitation.email, tenant: invitation.tenant)
+        if existing_user
+          render json: { error: 'A user with this email already exists' }, status: :unprocessable_entity
+          return
+        end
+        
+        # Generate a unique username if the requested one is taken
+        username = accept_params[:username]
+        counter = 1
+        while invitation.tenant.users.exists?(username: username)
+          username = "#{accept_params[:username]}#{counter}"
+          counter += 1
+        end
+        
         # Create the user account
         user = ::User.new(
           email: invitation.email,
-          username: accept_params[:username],
+          username: username,
           first_name: accept_params[:first_name],
           last_name: accept_params[:last_name],
           password: accept_params[:password],
