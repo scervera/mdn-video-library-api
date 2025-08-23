@@ -1,53 +1,86 @@
 module Api
   module V1
     class CurriculaController < BaseController
-        def index
+      before_action :set_curriculum, only: [:show, :update, :destroy, :enroll, :enrollment_status]
+      before_action :ensure_admin!, except: [:index, :show, :enroll, :enrollment_status]
+
+      def index
     curricula = ::Curriculum.published.ordered
     render json: curricula.map { |curriculum| curriculum_with_progress(curriculum) }
   end
 
   def show
-    curriculum = ::Curriculum.find(params[:id])
-    render json: curriculum_with_progress(curriculum)
+    render json: curriculum_with_progress(@curriculum)
+  end
+
+  def create
+    curriculum = Current.tenant.curricula.build(curriculum_params)
+    
+    if curriculum.save
+      render json: curriculum_with_progress(curriculum), status: :created
+    else
+      render json: { errors: curriculum.errors.full_messages }, status: :unprocessable_entity
+    end
+  end
+
+  def update
+    if @curriculum.update(curriculum_params)
+      render json: curriculum_with_progress(@curriculum)
+    else
+      render json: { errors: @curriculum.errors.full_messages }, status: :unprocessable_entity
+    end
+  end
+
+  def destroy
+    if @curriculum.destroy
+      render json: { message: 'Curriculum deleted successfully' }
+    else
+      render json: { errors: @curriculum.errors.full_messages }, status: :unprocessable_entity
+    end
   end
 
   def enroll
-    curriculum = ::Curriculum.find(params[:id])
-        
-        # Check if user is already enrolled
-        if current_user.enrolled_in?(curriculum)
-          render json: { message: 'Already enrolled in this curriculum' }, status: :unprocessable_entity
-        else
-          # Create initial progress records for all chapters in the curriculum
-          curriculum.chapters.published.ordered.each do |chapter|
-            current_user.user_progress.create!(
-              chapter: chapter,
-              curriculum: curriculum,
-              completed: false
-            )
-          end
-          
-          render json: { 
-            message: 'Successfully enrolled in curriculum',
-            curriculum_id: curriculum.id,
-            curriculum_title: curriculum.title
-          }
-        end
+    # Check if user is already enrolled
+    if current_user.enrolled_in?(@curriculum)
+      render json: { message: 'Already enrolled in this curriculum' }, status: :unprocessable_entity
+    else
+      # Create initial progress records for all chapters in the curriculum
+      @curriculum.chapters.published.ordered.each do |chapter|
+        current_user.user_progress.create!(
+          chapter: chapter,
+          curriculum: @curriculum,
+          completed: false
+        )
       end
+      
+      render json: { 
+        message: 'Successfully enrolled in curriculum',
+        curriculum_id: @curriculum.id,
+        curriculum_title: @curriculum.title
+      }
+    end
+  end
 
-        def enrollment_status
-    curriculum = ::Curriculum.find(params[:id])
-        is_enrolled = current_user.enrolled_in?(curriculum)
-        
-        render json: {
-          curriculum_id: curriculum.id,
-          curriculum_title: curriculum.title,
-          enrolled: is_enrolled,
-          enrollment_date: is_enrolled ? current_user.user_progress.where(curriculum: curriculum).first.created_at : nil
-        }
-      end
+  def enrollment_status
+    is_enrolled = current_user.enrolled_in?(@curriculum)
+    
+    render json: {
+      curriculum_id: @curriculum.id,
+      curriculum_title: @curriculum.title,
+      enrolled: is_enrolled,
+      enrollment_date: is_enrolled ? current_user.user_progress.where(curriculum: @curriculum).first.created_at : nil
+    }
+  end
 
       private
+
+      def set_curriculum
+        @curriculum = Current.tenant.curricula.find(params[:id])
+      end
+
+      def curriculum_params
+        params.require(:curriculum).permit(:title, :description, :order_index, :published)
+      end
 
       def curriculum_with_progress(curriculum)
         {

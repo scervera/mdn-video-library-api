@@ -49,32 +49,40 @@ Rails.application.routes.draw do
       end
       
       # Curricula
-      resources :curricula, only: [:index, :show] do
+      resources :curricula, only: [:index, :show, :create, :update, :destroy] do
         member do
           post :enroll
           get :enrollment_status
         end
         
-        resources :chapters, only: [:index, :show] do
+        resources :chapters, only: [:index, :show, :create, :update, :destroy] do
           member do
             post :complete
           end
-          resources :lessons, only: [:index]
+          resources :lessons, only: [:index, :show, :create, :update, :destroy] do
+            member do
+              post :complete
+            end
+          end
         end
         
         get 'user/progress', to: 'curricula/user#progress'
       end
       
       # Chapters (for backward compatibility)
-      resources :chapters, only: [:index, :show] do
+      resources :chapters, only: [:index, :show, :create, :update, :destroy] do
         member do
           post :complete
         end
-        resources :lessons, only: [:index]
+        resources :lessons, only: [:index, :show, :create, :update, :destroy] do
+          member do
+            post :complete
+          end
+        end
       end
       
       # Lessons
-      resources :lessons, only: [:index, :show] do
+      resources :lessons, only: [:index, :show, :create, :update, :destroy] do
         member do
           post :complete
         end
@@ -239,3 +247,5 @@ Rails.application.routes.draw do
   # Defines the root path route ("/")
   # root "posts#index"
 end
+
+
