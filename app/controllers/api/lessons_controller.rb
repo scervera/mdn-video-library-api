@@ -17,6 +17,18 @@ class Api::LessonsController < Api::BaseController
     render json: { message: 'Lesson completed' }
   end
 
+  def uncomplete
+    lesson = Lesson.find(params[:id])
+    progress = current_user.lesson_progress.find_by(lesson: lesson)
+    
+    if progress&.completed?
+      progress.update(completed: false, completed_at: nil)
+      render json: { success: true, message: 'Lesson marked as incomplete' }
+    else
+      render json: { success: false, error: 'Lesson was not previously completed' }, status: :unprocessable_entity
+    end
+  end
+
   private
 
   def lesson_with_progress(lesson)

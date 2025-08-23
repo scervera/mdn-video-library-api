@@ -62,6 +62,7 @@ Rails.application.routes.draw do
           resources :lessons, only: [:index, :show, :create, :update, :destroy] do
             member do
               post :complete
+              delete :complete, action: :uncomplete
             end
           end
         end
@@ -77,6 +78,7 @@ Rails.application.routes.draw do
         resources :lessons, only: [:index, :show, :create, :update, :destroy] do
           member do
             post :complete
+            delete :complete, action: :uncomplete
           end
         end
       end
@@ -85,6 +87,7 @@ Rails.application.routes.draw do
       resources :lessons, only: [:index, :show, :create, :update, :destroy] do
         member do
           post :complete
+          delete :complete, action: :uncomplete
         end
         resources :bookmarks, only: [:index, :create, :update, :destroy]
       end
@@ -231,6 +234,7 @@ Rails.application.routes.draw do
     resources :lessons, only: [:index, :show] do
       member do
         post :complete
+        delete :complete, action: :uncomplete
       end
       resources :bookmarks, only: [:index, :create, :update, :destroy]
     end

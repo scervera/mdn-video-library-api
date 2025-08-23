@@ -1,8 +1,8 @@
 module Api
   module V1
     class LessonsController < BaseController
-      before_action :set_lesson, only: [:show, :update, :destroy, :complete]
-      before_action :ensure_admin!, except: [:index, :show, :complete]
+      before_action :set_lesson, only: [:show, :update, :destroy, :complete, :uncomplete]
+      before_action :ensure_admin!, except: [:index, :show, :complete, :uncomplete]
 
       def index
         chapter = ::Chapter.find(params[:chapter_id])
@@ -45,6 +45,17 @@ module Api
         progress = current_user.lesson_progress.find_or_create_by(lesson: @lesson)
         progress.update(completed: true, completed_at: Time.current)
         render json: { message: 'Lesson completed' }
+      end
+
+      def uncomplete
+        progress = current_user.lesson_progress.find_by(lesson: @lesson)
+        
+        if progress&.completed?
+          progress.update(completed: false, completed_at: nil)
+          render json: { success: true, message: 'Lesson marked as incomplete' }
+        else
+          render json: { success: false, error: 'Lesson was not previously completed' }, status: :unprocessable_entity
+        end
       end
 
       private
