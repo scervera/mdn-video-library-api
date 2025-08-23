@@ -106,6 +106,7 @@ module Api
         invitation = Current.tenant.user_invitations.create!(
           email: user.email,
           invited_by: current_user,
+          role: invitation_params[:role] || 'user',
           message: invitation_params[:message]
         )
 
