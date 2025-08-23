@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_21_222329) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_23_004607) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -184,6 +184,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_21_222329) do
     t.datetime "resent_at"
     t.datetime "cancelled_at"
     t.text "message"
+    t.string "role"
     t.index ["cancelled_at"], name: "index_user_invitations_on_cancelled_at"
     t.index ["email"], name: "index_user_invitations_on_email"
     t.index ["expires_at"], name: "index_user_invitations_on_expires_at"
