@@ -14,19 +14,17 @@ Brevo is used for sending transactional emails such as:
 
 1. **Brevo Account**: Sign up at [brevo.com](https://brevo.com)
 2. **SMTP Access**: Ensure your Brevo account has SMTP access enabled
-3. **API Key**: Generate an API key from your Brevo dashboard
-4. **SMTP Credentials**: Get your SMTP username and password
+3. **SMTP Credentials**: Get your SMTP username and password from your Brevo dashboard
 
 ## 🔧 Setup Instructions
 
-### 1. Get Brevo Credentials
+### 1. Get Brevo SMTP Credentials
 
 1. Log into your [Brevo Dashboard](https://app.brevo.com/)
 2. Go to **Settings** → **SMTP & API**
-3. Note down your:
-   - **API Key**
+3. In the **SMTP** section, note down your:
    - **SMTP Username** (usually your Brevo account email)
-   - **SMTP Password**
+   - **SMTP Password** (a specific SMTP password, not your account password)
 
 ### 2. Configure Environment Variables
 
@@ -47,8 +45,7 @@ This script will:
 Create a `.env` file in the project root:
 
 ```bash
-# Brevo Email Service Configuration
-BREVO_API_KEY=your_api_key_here
+# Brevo Email Service Configuration (SMTP)
 BREVO_SMTP_USERNAME=your_smtp_username
 BREVO_SMTP_PASSWORD=your_smtp_password
 BREVO_FROM_EMAIL=noreply@cerveras.com
@@ -82,8 +79,7 @@ bin/rails email:test_invitation
 #### Set Kamal Secrets
 
 ```bash
-# Set Brevo credentials in production
-kamal secrets set BREVO_API_KEY=your_api_key_here
+# Set Brevo SMTP credentials in production
 kamal secrets set BREVO_SMTP_USERNAME=your_smtp_username
 kamal secrets set BREVO_SMTP_PASSWORD=your_smtp_password
 ```
@@ -141,14 +137,13 @@ kamal deploy
 
 ### Main Configuration
 
-- **`config/brevo.yml`**: Brevo service configuration
-- **`config/environments/development.rb`**: Development email settings
-- **`config/environments/production.rb`**: Production email settings
+- **`config/environments/development.rb`**: Development SMTP settings
+- **`config/environments/production.rb`**: Production SMTP settings
 - **`config/deploy.yml`**: Kamal deployment configuration
 
 ### Mailer Classes
 
-- **`app/mailers/application_mailer.rb`**: Base mailer with Brevo configuration
+- **`app/mailers/application_mailer.rb`**: Base mailer configuration
 - **`app/mailers/user_invitation_mailer.rb`**: User invitation emails
 - **`app/mailers/test_mailer.rb`**: Test emails for configuration verification
 
@@ -182,7 +177,7 @@ kamal app exec "bin/rails email:test TEST_EMAIL=your-email@example.com"
 1. **Authentication Failed**
    - Verify SMTP username and password
    - Check if SMTP access is enabled in Brevo
-   - Ensure API key is valid
+   - Ensure SMTP credentials are correct
 
 2. **Emails Not Sending**
    - Check Rails logs for error messages
