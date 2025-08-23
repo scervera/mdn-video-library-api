@@ -195,6 +195,7 @@ module Api
           last_name: user.last_name,
           full_name: user.full_name,
           role: user.role,
+          status: user.active ? 'active' : 'inactive',
           active: user.active,
           created_at: user.created_at,
           updated_at: user.updated_at,
