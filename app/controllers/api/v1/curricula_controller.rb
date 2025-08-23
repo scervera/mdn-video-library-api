@@ -49,6 +49,7 @@ module Api
         current_user.user_progress.create!(
           chapter: chapter,
           curriculum: @curriculum,
+          tenant: Current.tenant,
           completed: false
         )
       end
@@ -75,7 +76,7 @@ module Api
       private
 
       def set_curriculum
-        @curriculum = Current.tenant.curricula.find(params[:id])
+        @curriculum = Current.tenant.curriculums.find(params[:id])
       end
 
       def curriculum_params
