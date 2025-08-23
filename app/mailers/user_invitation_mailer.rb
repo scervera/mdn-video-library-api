@@ -31,6 +31,6 @@ class UserInvitationMailer < ApplicationMailer
     # This should point to the frontend invitation acceptance page
     # The frontend will handle the token validation and user activation
     base_url = Rails.env.production? ? "https://curriculum.cerveras.com" : "http://localhost:3000"
-    "#{base_url}/invitation/accept?token=#{invitation.token}"
+    "#{base_url}/#{invitation.tenant.slug}/invite/#{invitation.token}"
   end
 end

@@ -1,8 +1,8 @@
 module Api
   module V1
     class UserInvitationsController < BaseController
-      before_action :authenticate_user!
-      before_action :ensure_admin!, except: [:accept, :resend]
+      before_action :authenticate_user!, except: [:validate, :accept]
+      before_action :ensure_admin!, except: [:accept, :resend, :validate]
       before_action :set_invitation, only: [:show, :resend, :cancel]
 
       # GET /api/v1/user_invitations
@@ -32,6 +32,41 @@ module Api
       # GET /api/v1/user_invitations/:id
       def show
         render json: { invitation: invitation_response(@invitation) }
+      end
+
+      # GET /api/v1/users/invitations/validate/:token
+      def validate
+        invitation = UserInvitation.find_by(token: params[:token])
+        
+        if invitation.nil?
+          render json: { error: 'Invalid invitation token' }, status: :not_found
+          return
+        end
+        
+        if invitation.expired?
+          render json: { error: 'Invitation has expired' }, status: :unprocessable_entity
+          return
+        end
+        
+        if invitation.status != 'pending'
+          render json: { error: "Invitation has already been #{invitation.status}" }, status: :unprocessable_entity
+          return
+        end
+        
+        render json: {
+          invitation: {
+            id: invitation.id,
+            email: invitation.email,
+            role: invitation.role,
+            status: invitation.status,
+            expires_at: invitation.expires_at,
+            message: invitation.message,
+            tenant: {
+              name: invitation.tenant.name,
+              slug: invitation.tenant.slug
+            }
+          }
+        }
       end
 
       # POST /api/v1/user_invitations
@@ -121,58 +156,58 @@ module Api
         }
       end
 
-      # POST /api/v1/user_invitations/accept
+      # POST /api/v1/users/invitations/accept/:token
       def accept
-        token = params[:token]
-        invitation = Current.tenant.user_invitations.pending.find_by(token: token)
-
-        unless invitation
-          render json: { error: "Invalid or expired invitation token" }, status: :not_found
-          return
-        end
-
-        if invitation.expires_at < Time.current
-          render json: { error: "Invitation has expired" }, status: :unprocessable_entity
-          return
-        end
-
-        # Update user with password and activate
-        user = invitation.user
-        if user.nil?
-          render json: { error: "User not found for this invitation" }, status: :not_found
+        invitation = UserInvitation.find_by(token: params[:token])
+        
+        if invitation.nil?
+          render json: { error: 'Invalid invitation token' }, status: :not_found
           return
         end
         
-        user.password = params[:password]
-        user.password_confirmation = params[:password_confirmation]
-        user.active = true
-
+        if invitation.expired?
+          render json: { error: 'Invitation has expired' }, status: :unprocessable_entity
+          return
+        end
+        
+        if invitation.status != 'pending'
+          render json: { error: "Invitation has already been #{invitation.status}" }, status: :unprocessable_entity
+          return
+        end
+        
+        # Create the user account
+        user = User.new(
+          email: invitation.email,
+          username: accept_params[:username],
+          first_name: accept_params[:first_name],
+          last_name: accept_params[:last_name],
+          password: accept_params[:password],
+          password_confirmation: accept_params[:password],
+          role: invitation.role,
+          tenant: invitation.tenant,
+          active: true
+        )
+        
         if user.save
-          invitation.update!(
+          # Mark invitation as accepted
+          invitation.update(
             status: 'accepted',
-            accepted_at: Time.current,
             used_at: Time.current
           )
-
-          # Generate token for immediate login
-          token = JWT.encode({ user_id: user.id }, Rails.application.credentials.secret_key_base)
-
+          
           render json: {
             user: {
               id: user.id,
-              username: user.username,
               email: user.email,
+              username: user.username,
               first_name: user.first_name,
               last_name: user.last_name,
-              full_name: user.full_name,
-              role: user.role,
-              active: user.active
+              role: user.role
             },
-            token: token,
-            message: "Account activated successfully"
-          }
+            message: 'Account created successfully'
+          }, status: :created
         else
-          render json: { errors: user.errors.full_messages }, status: :unprocessable_entity
+          render json: { error: user.errors.full_messages.join(', ') }, status: :unprocessable_entity
         end
       end
 
@@ -203,6 +238,10 @@ module Api
 
       def invitation_params
         params.permit(:email, :first_name, :last_name, :role, :message)
+      end
+
+      def accept_params
+        params.require(:user).permit(:username, :first_name, :last_name, :password)
       end
 
       def generate_username(email)
