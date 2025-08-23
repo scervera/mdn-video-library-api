@@ -10,6 +10,7 @@ class UserInvitation < ApplicationRecord
   validates :email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }
   validates :token, presence: true, uniqueness: true
   validates :expires_at, presence: true
+  validates :role, presence: true, inclusion: { in: %w[admin user] }
 
   scope :active, -> { where('expires_at > ?', Time.current).where(used_at: nil) }
   scope :expired, -> { where('expires_at <= ?', Time.current) }
