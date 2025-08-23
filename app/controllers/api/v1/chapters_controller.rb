@@ -1,7 +1,10 @@
 module Api
   module V1
     class ChaptersController < BaseController
-        def index
+      before_action :set_chapter, only: [:show, :update, :destroy, :complete]
+      before_action :ensure_admin!, except: [:index, :show, :complete]
+
+      def index
     if params[:curriculum_id]
       curriculum = ::Curriculum.find(params[:curriculum_id])
       chapters = curriculum.chapters.published.ordered
@@ -12,19 +15,52 @@ module Api
   end
 
   def show
-    chapter = ::Chapter.find(params[:id])
-    render json: chapter_with_progress(chapter)
+    render json: chapter_with_progress(@chapter)
+  end
+
+  def create
+    curriculum = Current.tenant.curricula.find(params[:curriculum_id])
+    chapter = curriculum.chapters.build(chapter_params)
+    
+    if chapter.save
+      render json: chapter_with_progress(chapter), status: :created
+    else
+      render json: { errors: chapter.errors.full_messages }, status: :unprocessable_entity
+    end
+  end
+
+  def update
+    if @chapter.update(chapter_params)
+      render json: chapter_with_progress(@chapter)
+    else
+      render json: { errors: @chapter.errors.full_messages }, status: :unprocessable_entity
+    end
+  end
+
+  def destroy
+    if @chapter.destroy
+      render json: { message: 'Chapter deleted successfully' }
+    else
+      render json: { errors: @chapter.errors.full_messages }, status: :unprocessable_entity
+    end
   end
 
   def complete
-    chapter = ::Chapter.find(params[:id])
-        curriculum = chapter.curriculum
-        progress = current_user.user_progress.find_or_create_by(chapter: chapter, curriculum: curriculum)
-        progress.update(completed: true, completed_at: Time.current)
-        render json: { message: 'Chapter completed' }
-      end
+    curriculum = @chapter.curriculum
+    progress = current_user.user_progress.find_or_create_by(chapter: @chapter, curriculum: curriculum)
+    progress.update(completed: true, completed_at: Time.current)
+    render json: { message: 'Chapter completed' }
+  end
 
       private
+
+      def set_chapter
+        @chapter = Current.tenant.chapters.find(params[:id])
+      end
+
+      def chapter_params
+        params.require(:chapter).permit(:title, :description, :duration, :order_index, :published)
+      end
 
       def chapter_with_progress(chapter)
         progress = current_user.user_progress.find_by(chapter: chapter, curriculum: chapter.curriculum)

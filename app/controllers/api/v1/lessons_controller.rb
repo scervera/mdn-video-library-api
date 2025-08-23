@@ -1,6 +1,9 @@
 module Api
   module V1
     class LessonsController < BaseController
+      before_action :set_lesson, only: [:show, :update, :destroy, :complete]
+      before_action :ensure_admin!, except: [:index, :show, :complete]
+
       def index
         chapter = ::Chapter.find(params[:chapter_id])
         lessons = chapter.lessons.published.ordered
@@ -8,18 +11,51 @@ module Api
       end
 
       def show
-        lesson = ::Lesson.find(params[:id])
-        render json: lesson_with_progress(lesson)
+        render json: lesson_with_progress(@lesson)
+      end
+
+      def create
+        chapter = Current.tenant.chapters.find(params[:chapter_id])
+        lesson = chapter.lessons.build(lesson_params)
+        
+        if lesson.save
+          render json: lesson_with_progress(lesson), status: :created
+        else
+          render json: { errors: lesson.errors.full_messages }, status: :unprocessable_entity
+        end
+      end
+
+      def update
+        if @lesson.update(lesson_params)
+          render json: lesson_with_progress(@lesson)
+        else
+          render json: { errors: @lesson.errors.full_messages }, status: :unprocessable_entity
+        end
+      end
+
+      def destroy
+        if @lesson.destroy
+          render json: { message: 'Lesson deleted successfully' }
+        else
+          render json: { errors: @lesson.errors.full_messages }, status: :unprocessable_entity
+        end
       end
 
       def complete
-        lesson = ::Lesson.find(params[:id])
-        progress = current_user.lesson_progress.find_or_create_by(lesson: lesson)
+        progress = current_user.lesson_progress.find_or_create_by(lesson: @lesson)
         progress.update(completed: true, completed_at: Time.current)
         render json: { message: 'Lesson completed' }
       end
 
       private
+
+      def set_lesson
+        @lesson = Current.tenant.lessons.find(params[:id])
+      end
+
+      def lesson_params
+        params.require(:lesson).permit(:title, :description, :content_type, :content, :media_url, :order_index, :published, :cloudflare_stream_id)
+      end
 
       def lesson_with_progress(lesson)
         progress = current_user.lesson_progress.find_by(lesson: lesson)
