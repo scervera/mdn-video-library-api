@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_23_004607) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_23_184246) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -198,15 +198,18 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_23_004607) do
 
   create_table "user_notes", force: :cascade do |t|
     t.bigint "user_id", null: false
-    t.bigint "chapter_id", null: false
+    t.bigint "chapter_id"
     t.text "content"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "curriculum_id", null: false
     t.bigint "tenant_id", null: false
+    t.bigint "lesson_id"
     t.index ["chapter_id"], name: "index_user_notes_on_chapter_id"
     t.index ["curriculum_id"], name: "index_user_notes_on_curriculum_id"
+    t.index ["lesson_id"], name: "index_user_notes_on_lesson_id"
     t.index ["tenant_id"], name: "index_user_notes_on_tenant_id"
+    t.index ["user_id", "lesson_id"], name: "index_user_notes_on_user_id_and_lesson_id", unique: true, where: "(lesson_id IS NOT NULL)"
     t.index ["user_id"], name: "index_user_notes_on_user_id"
   end
 
@@ -289,6 +292,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_23_004607) do
   add_foreign_key "user_invitations", "users", column: "invited_by_id"
   add_foreign_key "user_notes", "chapters"
   add_foreign_key "user_notes", "curriculums"
+  add_foreign_key "user_notes", "lessons"
   add_foreign_key "user_notes", "tenants"
   add_foreign_key "user_notes", "users"
   add_foreign_key "user_progresses", "chapters"
