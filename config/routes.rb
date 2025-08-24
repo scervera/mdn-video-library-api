@@ -89,7 +89,11 @@ Rails.application.routes.draw do
           post :complete
           delete :complete, action: :uncomplete
         end
-        resources :bookmarks, only: [:index, :create, :update, :destroy]
+        resources :bookmarks, only: [:index, :create, :update, :destroy] do
+          member do
+            put :share
+          end
+        end
       end
       
       # User progress
@@ -99,6 +103,10 @@ Rails.application.routes.draw do
         resources :notes, only: [:index, :create, :update, :destroy]
         resources :highlights, only: [:index, :create, :update, :destroy]
       end
+      
+      # Shared content endpoints
+      get '/bookmarks/shared', to: 'bookmarks#shared'
+      get '/bookmarks/public', to: 'bookmarks#public'
       
       # User management
       resources :users, only: [:index, :show, :create, :update, :destroy] do
@@ -246,6 +254,10 @@ Rails.application.routes.draw do
       resources :notes, only: [:index, :create, :update, :destroy]
       resources :highlights, only: [:index, :create, :update, :destroy]
     end
+    
+    # Shared content endpoints
+    get '/bookmarks/shared', to: 'bookmarks#shared'
+    get '/bookmarks/public', to: 'bookmarks#public'
   end
 
   # Defines the root path route ("/")

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_23_184246) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_24_015245) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -33,17 +33,28 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_23_184246) do
   create_table "bookmarks", force: :cascade do |t|
     t.string "title", null: false
     t.text "notes"
-    t.decimal "timestamp", precision: 10, scale: 2, null: false
+    t.decimal "timestamp", precision: 10, scale: 2
     t.bigint "lesson_id", null: false
     t.bigint "user_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "tenant_id", null: false
+    t.integer "in_sec"
+    t.integer "out_sec"
+    t.string "content_type", default: "bookmark"
+    t.string "privacy_level", default: "private"
+    t.jsonb "shared_with", default: []
+    t.string "group_id"
+    t.index ["content_type"], name: "index_bookmarks_on_content_type"
+    t.index ["lesson_id", "content_type"], name: "index_bookmarks_on_lesson_id_and_content_type"
     t.index ["lesson_id", "timestamp"], name: "index_bookmarks_on_lesson_id_and_timestamp"
     t.index ["lesson_id"], name: "index_bookmarks_on_lesson_id"
+    t.index ["privacy_level"], name: "index_bookmarks_on_privacy_level"
+    t.index ["shared_with"], name: "index_bookmarks_on_shared_with", using: :gin
     t.index ["tenant_id"], name: "index_bookmarks_on_tenant_id"
     t.index ["user_id", "lesson_id", "timestamp"], name: "index_bookmarks_on_user_lesson_timestamp_unique", unique: true
     t.index ["user_id", "lesson_id"], name: "index_bookmarks_on_user_id_and_lesson_id"
+    t.index ["user_id", "privacy_level"], name: "index_bookmarks_on_user_id_and_privacy_level"
     t.index ["user_id"], name: "index_bookmarks_on_user_id"
   end
 
