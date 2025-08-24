@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_24_015245) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_24_151613) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -45,6 +45,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_24_015245) do
     t.string "privacy_level", default: "private"
     t.jsonb "shared_with", default: []
     t.string "group_id"
+    t.bigint "chapter_id"
+    t.index ["chapter_id"], name: "index_bookmarks_on_chapter_id"
     t.index ["content_type"], name: "index_bookmarks_on_content_type"
     t.index ["lesson_id", "content_type"], name: "index_bookmarks_on_lesson_id_and_content_type"
     t.index ["lesson_id", "timestamp"], name: "index_bookmarks_on_lesson_id_and_timestamp"
@@ -281,6 +283,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_24_015245) do
   end
 
   add_foreign_key "billing_tiers", "tenants"
+  add_foreign_key "bookmarks", "chapters"
   add_foreign_key "bookmarks", "lessons"
   add_foreign_key "bookmarks", "tenants"
   add_foreign_key "bookmarks", "users"
