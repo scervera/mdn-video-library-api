@@ -24,6 +24,7 @@ module Api
       def create
         bookmark = current_user.bookmarks.build(bookmark_params)
         bookmark.lesson = @lesson
+        bookmark.chapter = @lesson.chapter
         bookmark.tenant = Current.tenant
 
         if bookmark.save
