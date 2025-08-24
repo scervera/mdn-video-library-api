@@ -188,7 +188,7 @@ chapter_lessons = {
       description: "Core principles of strategic planning and execution",
       content_type: "video",
       content: "This lesson covers the fundamental principles of strategic planning in corporate environments.",
-      cloudflare_stream_id: "73cb888469576ace114104f131e8c6c2",
+      cloudflare_stream_id: "4dc9ad8c6c71c2d375ebe3c5af8411ee",
       order_index: 1
     },
     {
@@ -196,7 +196,7 @@ chapter_lessons = {
       description: "Analyzing competitors and market positioning",
       content_type: "video",
       content: "Learn how to conduct thorough competitive analysis and position your company effectively.",
-      cloudflare_stream_id: "73cb888469576ace114104f131e8c6c2",
+      cloudflare_stream_id: "4dc9ad8c6c71c2d375ebe3c5af8411ee",
       order_index: 2
     }
   ],
@@ -206,7 +206,7 @@ chapter_lessons = {
       description: "Creating and managing corporate budgets",
       content_type: "video",
       content: "Essential techniques for budget planning and financial control in business.",
-      cloudflare_stream_id: "73cb888469576ace114104f131e8c6c2",
+      cloudflare_stream_id: "4dc9ad8c6c71c2d375ebe3c5af8411ee",
       order_index: 1
     },
     {
@@ -214,7 +214,7 @@ chapter_lessons = {
       description: "Making sound financial decisions for business growth",
       content_type: "video",
       content: "Strategic approaches to financial decision-making and investment analysis.",
-      cloudflare_stream_id: "73cb888469576ace114104f131e8c6c2",
+      cloudflare_stream_id: "4dc9ad8c6c71c2d375ebe3c5af8411ee",
       order_index: 2
     }
   ],
@@ -224,7 +224,7 @@ chapter_lessons = {
       description: "Understanding user needs through empathy and research",
       content_type: "video",
       content: "Learn how to conduct user research and develop empathy for your users.",
-      cloudflare_stream_id: "73cb888469576ace114104f131e8c6c2",
+      cloudflare_stream_id: "4dc9ad8c6c71c2d375ebe3c5af8411ee",
       order_index: 1
     },
     {
@@ -232,7 +232,7 @@ chapter_lessons = {
       description: "Generating ideas and creating prototypes",
       content_type: "video",
       content: "Techniques for brainstorming and rapid prototyping of innovative solutions.",
-      cloudflare_stream_id: "73cb888469576ace114104f131e8c6c2",
+      cloudflare_stream_id: "4dc9ad8c6c71c2d375ebe3c5af8411ee",
       order_index: 2
     }
   ],
@@ -242,7 +242,7 @@ chapter_lessons = {
       description: "Building a culture that fosters innovation",
       content_type: "video",
       content: "Creating an organizational culture that encourages and supports innovation.",
-      cloudflare_stream_id: "73cb888469576ace114104f131e8c6c2",
+      cloudflare_stream_id: "4dc9ad8c6c71c2d375ebe3c5af8411ee",
       order_index: 1
     },
     {
@@ -250,7 +250,7 @@ chapter_lessons = {
       description: "Structured approaches to managing innovation",
       content_type: "video",
       content: "Systematic processes for managing innovation projects and initiatives.",
-      cloudflare_stream_id: "73cb888469576ace114104f131e8c6c2",
+      cloudflare_stream_id: "4dc9ad8c6c71c2d375ebe3c5af8411ee",
       order_index: 2
     }
   ],
@@ -260,7 +260,7 @@ chapter_lessons = {
       description: "Modern JavaScript syntax and features",
       content_type: "video",
       content: "Explore the latest JavaScript features including arrow functions, destructuring, and modules.",
-      cloudflare_stream_id: "73cb888469576ace114104f131e8c6c2",
+      cloudflare_stream_id: "4dc9ad8c6c71c2d375ebe3c5af8411ee",
       order_index: 1
     },
     {
@@ -268,7 +268,7 @@ chapter_lessons = {
       description: "Promises, async/await, and asynchronous programming",
       content_type: "video",
       content: "Master asynchronous programming patterns in modern JavaScript.",
-      cloudflare_stream_id: "73cb888469576ace114104f131e8c6c2",
+      cloudflare_stream_id: "4dc9ad8c6c71c2d375ebe3c5af8411ee",
       order_index: 2
     }
   ],
@@ -278,7 +278,7 @@ chapter_lessons = {
       description: "Building reusable React components",
       content_type: "video",
       content: "Learn to create and manage React components effectively.",
-      cloudflare_stream_id: "73cb888469576ace114104f131e8c6c2",
+      cloudflare_stream_id: "4dc9ad8c6c71c2d375ebe3c5af8411ee",
       order_index: 1
     },
     {
@@ -286,7 +286,7 @@ chapter_lessons = {
       description: "Managing state in React applications",
       content_type: "video",
       content: "Understanding state management patterns and best practices in React.",
-      cloudflare_stream_id: "73cb888469576ace114104f131e8c6c2",
+      cloudflare_stream_id: "4dc9ad8c6c71c2d375ebe3c5af8411ee",
       order_index: 2
     }
   ],
@@ -296,7 +296,7 @@ chapter_lessons = {
       description: "Defining clear product vision and goals",
       content_type: "video",
       content: "How to define and communicate a compelling product vision.",
-      cloudflare_stream_id: "73cb888469576ace114104f131e8c6c2",
+      cloudflare_stream_id: "4dc9ad8c6c71c2d375ebe3c5af8411ee",
       order_index: 1
     },
     {
@@ -304,7 +304,7 @@ chapter_lessons = {
       description: "Creating and managing product roadmaps",
       content_type: "video",
       content: "Effective techniques for product roadmapping and feature prioritization.",
-      cloudflare_stream_id: "73cb888469576ace114104f131e8c6c2",
+      cloudflare_stream_id: "4dc9ad8c6c71c2d375ebe3c5af8411ee",
       order_index: 2
     }
   ],
@@ -314,7 +314,7 @@ chapter_lessons = {
       description: "Conducting effective user research",
       content_type: "video",
       content: "Various methods for understanding user needs and behaviors.",
-      cloudflare_stream_id: "73cb888469576ace114104f131e8c6c2",
+      cloudflare_stream_id: "4dc9ad8c6c71c2d375ebe3c5af8411ee",
       order_index: 1
     },
     {
@@ -322,7 +322,7 @@ chapter_lessons = {
       description: "Creating wireframes and interactive prototypes",
       content_type: "video",
       content: "Tools and techniques for creating effective wireframes and prototypes.",
-      cloudflare_stream_id: "73cb888469576ace114104f131e8c6c2",
+      cloudflare_stream_id: "4dc9ad8c6c71c2d375ebe3c5af8411ee",
       order_index: 2
     }
   ],
@@ -332,7 +332,7 @@ chapter_lessons = {
       description: "Different approaches to entering global markets",
       content_type: "video",
       content: "Various strategies for entering international markets successfully.",
-      cloudflare_stream_id: "73cb888469576ace114104f131e8c6c2",
+      cloudflare_stream_id: "4dc9ad8c6c71c2d375ebe3c5af8411ee",
       order_index: 1
     },
     {
@@ -340,7 +340,7 @@ chapter_lessons = {
       description: "Conducting international market research",
       content_type: "video",
       content: "Methods for researching and understanding international markets.",
-      cloudflare_stream_id: "73cb888469576ace114104f131e8c6c2",
+      cloudflare_stream_id: "4dc9ad8c6c71c2d375ebe3c5af8411ee",
       order_index: 2
     }
   ],
@@ -350,7 +350,7 @@ chapter_lessons = {
       description: "Understanding international trade regulations",
       content_type: "video",
       content: "Key regulations and compliance requirements for international trade.",
-      cloudflare_stream_id: "73cb888469576ace114104f131e8c6c2",
+      cloudflare_stream_id: "4dc9ad8c6c71c2d375ebe3c5af8411ee",
       order_index: 1
     },
     {
@@ -358,7 +358,7 @@ chapter_lessons = {
       description: "Navigating international trade agreements",
       content_type: "video",
       content: "Understanding and leveraging international trade agreements.",
-      cloudflare_stream_id: "73cb888469576ace114104f131e8c6c2",
+      cloudflare_stream_id: "4dc9ad8c6c71c2d375ebe3c5af8411ee",
       order_index: 2
     }
   ],
@@ -368,7 +368,7 @@ chapter_lessons = {
       description: "Developing cultural awareness and sensitivity",
       content_type: "video",
       content: "Building awareness of different cultural norms and practices.",
-      cloudflare_stream_id: "73cb888469576ace114104f131e8c6c2",
+      cloudflare_stream_id: "4dc9ad8c6c71c2d375ebe3c5af8411ee",
       order_index: 1
     },
     {
@@ -376,7 +376,7 @@ chapter_lessons = {
       description: "Adapting communication for different cultures",
       content_type: "video",
       content: "Understanding and adapting to different communication styles across cultures.",
-      cloudflare_stream_id: "73cb888469576ace114104f131e8c6c2",
+      cloudflare_stream_id: "4dc9ad8c6c71c2d375ebe3c5af8411ee",
       order_index: 2
     }
   ],
@@ -386,7 +386,7 @@ chapter_lessons = {
       description: "Managing teams across different time zones",
       content_type: "video",
       content: "Effective strategies for managing virtual and distributed teams.",
-      cloudflare_stream_id: "73cb888469576ace114104f131e8c6c2",
+      cloudflare_stream_id: "4dc9ad8c6c71c2d375ebe3c5af8411ee",
       order_index: 1
     },
     {
@@ -394,7 +394,7 @@ chapter_lessons = {
       description: "Leading teams with diverse cultural backgrounds",
       content_type: "video",
       content: "Leadership approaches that work across different cultural contexts.",
-      cloudflare_stream_id: "73cb888469576ace114104f131e8c6c2",
+      cloudflare_stream_id: "4dc9ad8c6c71c2d375ebe3c5af8411ee",
       order_index: 2
     }
   ]
