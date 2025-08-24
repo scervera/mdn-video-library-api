@@ -50,6 +50,7 @@ class Bookmark < ApplicationRecord
   end
 
   def formatted_timestamp
+    return nil unless timestamp
     # Convert decimal timestamp to MM:SS format
     minutes = (timestamp / 60).floor
     seconds = (timestamp % 60).floor
@@ -57,6 +58,7 @@ class Bookmark < ApplicationRecord
   end
 
   def formatted_timestamp_with_hours
+    return nil unless timestamp
     # Convert decimal timestamp to HH:MM:SS format
     hours = (timestamp / 3600).floor
     minutes = ((timestamp % 3600) / 60).floor
