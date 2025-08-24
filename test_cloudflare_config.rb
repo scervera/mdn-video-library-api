@@ -9,22 +9,20 @@ begin
   puts "\n1. Testing configuration loading..."
   config = Rails.application.config_for(:cloudflare)
   puts "  ✅ Configuration loaded successfully"
-  puts "  Domain: #{config[:domain]}"
-  puts "  API Token: #{config[:api_token] ? '✅ Set' : '❌ Not set'}"
-  puts "  Zone ID: #{config[:zone_id] ? '✅ Set' : '❌ Not set'}"
+  puts "  Subdomain: #{config[:subdomain]}"
+  puts "  Stream API Token: #{config[:stream_api_token] ? '✅ Set' : '❌ Not set'}"
+  puts "  Stream Account ID: #{config[:stream_account_id] ? '✅ Set' : '❌ Not set'}"
 
   # Test DNS service initialization
   puts "\n2. Testing DNS service initialization..."
   dns_service = CloudflareDnsService.new
   puts "  ✅ DNS service initialized successfully"
-  puts "  API Token: #{dns_service.instance_variable_get(:@api_token) ? '✅ Available' : '❌ Missing'}"
-  puts "  Zone ID: #{dns_service.instance_variable_get(:@zone_id) ? '✅ Available' : '❌ Missing'}"
-  puts "  Domain: #{dns_service.instance_variable_get(:@domain)}"
+  puts "  Subdomain: #{dns_service.instance_variable_get(:@subdomain)}"
 
   # Test subdomain validation
   puts "\n3. Testing subdomain validation..."
   test_subdomain = "test-#{Time.current.to_i}"
-  available = dns_service.subdomain_available?(test_subdomain)
+  available = dns_service.slug_available?(test_subdomain)
   puts "  Subdomain '#{test_subdomain}': #{available ? '✅ Available' : '❌ Not available'}"
 
   # Test API endpoint
@@ -59,11 +57,10 @@ end
 
 puts "\n=== Configuration Test Complete ==="
 puts ""
-puts "If you see ❌ for API Token or Zone ID, run:"
+puts "If you see ❌ for Stream API Token or Stream Account ID, run:"
 puts "  ./setup_cloudflare_env.sh"
 puts ""
 puts "For production deployment:"
-puts "  kamal secrets set CLOUDFLARE_DNS_API_TOKEN=your_dns_token"
-puts "  kamal secrets set CLOUDFLARE_ZONE_ID=your_zone_id"
+puts "  kamal secrets set CLOUDFLARE_SUBDOMAIN=your_subdomain"
 puts "  kamal secrets set CLOUDFLARE_STREAM_API_TOKEN=your_stream_token"
 puts "  kamal secrets set CLOUDFLARE_STREAM_ACCOUNT_ID=your_stream_account_id"
