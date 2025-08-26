@@ -38,9 +38,9 @@ class TextModule < LessonModule
     
     # Extract headings from Tiptap content
     headings = []
-    content.scan(/<h[1-6][^>]*>(.*?)<\/h[1-6]>/).each_with_index do |match, index|
-      level = match[0].match(/<h([1-6])/)[1].to_i
-      text = match[0].gsub(/<[^>]*>/, '').strip
+    content.scan(/<h([1-6])[^>]*>(.*?)<\/h[1-6]>/).each_with_index do |match, index|
+      level = match[0].to_i
+      text = match[1].gsub(/<[^>]*>/, '').strip
       headings << {
         id: "heading-#{index + 1}",
         level: level,
