@@ -26,12 +26,12 @@ Current.tenant = tenant
 # Create admin user
 puts "Creating admin user..."
 admin = User.create!(
-  username: "admin",
-  email: "admin@demo-academy.com",
-  password: "password123",
-  password_confirmation: "password123",
-  first_name: "Admin",
-  last_name: "User",
+  username: "demo",
+  email: "demo@example.com",
+  password: "password",
+  password_confirmation: "password",
+  first_name: "Demo",
+  last_name: "Admin",
   role: "admin",
   active: true
 )
@@ -39,12 +39,12 @@ admin = User.create!(
 # Create regular user
 puts "Creating regular user..."
 user = User.create!(
-  username: "student",
-  email: "student@demo-academy.com",
-  password: "password123",
-  password_confirmation: "password123",
-  first_name: "John",
-  last_name: "Student",
+  username: "testuser",
+  email: "test@example.com",
+  password: "password",
+  password_confirmation: "password",
+  first_name: "Test",
+  last_name: "User",
   role: "user",
   active: true
 )
@@ -54,7 +54,7 @@ puts "Creating curriculum..."
 curriculum = Curriculum.create!(
   title: "Web Development Fundamentals",
   description: "Learn the basics of web development with HTML, CSS, and JavaScript",
-  published: true
+  published: true, order_index: 1
 )
 
 # Create chapters
@@ -266,9 +266,9 @@ puts "  - 2 Chapters (HTML, CSS)"
 puts "  - 3 Lessons with various module types"
 puts ""
 puts "Admin credentials:"
-puts "  Email: admin@demo-academy.com"
-puts "  Password: password123"
+puts "  Email: demo@example.com"
+puts "  Password: password"
 puts ""
-puts "Student credentials:"
-puts "  Email: student@demo-academy.com"
-puts "  Password: password123"
+puts "Test user credentials:"
+puts "  Email: test@example.com"
+puts "  Password: password"
