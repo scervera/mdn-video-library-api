@@ -1,96 +1,90 @@
 module Api
   module V1
-    class LessonsController < BaseController
-      before_action :set_lesson, only: [:show, :update, :destroy, :complete, :uncomplete]
-      before_action :ensure_admin!, except: [:index, :show, :complete, :uncomplete]
+    class LessonModulesController < BaseController
+      before_action :set_lesson, only: [:index, :create, :reorder]
+      before_action :set_lesson_module, only: [:show, :update, :destroy]
+      before_action :ensure_admin!, except: [:index, :show]
 
       def index
-        chapter = ::Chapter.find(params[:chapter_id])
-        lessons = chapter.lessons.published.ordered
-        render json: lessons.map { |lesson| lesson_with_progress(lesson) }
+        lesson_modules = @lesson.lesson_modules.ordered
+        render json: lesson_modules.map { |module_item| lesson_module_response(module_item) }
       end
 
       def show
-        render json: lesson_with_progress(@lesson)
+        render json: lesson_module_response(@lesson_module)
       end
 
       def create
-        chapter = Current.tenant.chapters.find(params[:chapter_id])
-        lesson = chapter.lessons.build(lesson_params)
+        lesson_module = @lesson.lesson_modules.build(lesson_module_params)
         
-        if lesson.save
-          render json: lesson_with_progress(lesson), status: :created
+        if lesson_module.save
+          render json: lesson_module_response(lesson_module), status: :created
         else
-          render json: { errors: lesson.errors.full_messages }, status: :unprocessable_entity
+          render json: { errors: lesson_module.errors.full_messages }, status: :unprocessable_entity
         end
       end
 
       def update
-        if @lesson.update(lesson_params)
-          render json: lesson_with_progress(@lesson)
+        if @lesson_module.update(lesson_module_params)
+          render json: lesson_module_response(@lesson_module)
         else
-          render json: { errors: @lesson.errors.full_messages }, status: :unprocessable_entity
+          render json: { errors: @lesson_module.errors.full_messages }, status: :unprocessable_entity
         end
       end
 
       def destroy
-        if @lesson.destroy
-          render json: { message: 'Lesson deleted successfully' }
+        if @lesson_module.destroy
+          render json: { message: 'Module deleted successfully' }
         else
-          render json: { errors: @lesson.errors.full_messages }, status: :unprocessable_entity
+          render json: { errors: @lesson_module.errors.full_messages }, status: :unprocessable_entity
         end
       end
 
-      def complete
-        progress = current_user.lesson_progress.find_or_create_by(lesson: @lesson)
-        progress.update(completed: true, completed_at: Time.current)
-        render json: { message: 'Lesson completed' }
-      end
-
-      def uncomplete
-        progress = current_user.lesson_progress.find_by(lesson: @lesson)
+      def reorder
+        module_ids = params[:module_ids]
         
-        if progress&.completed?
-          progress.update(completed: false, completed_at: nil)
-          render json: { success: true, message: 'Lesson marked as incomplete' }
-        else
-          render json: { success: false, error: 'Lesson was not previously completed' }, status: :unprocessable_entity
+        unless module_ids.is_a?(Array) && module_ids.length == @lesson.lesson_modules.count
+          return render json: { error: 'Invalid module_ids array' }, status: :unprocessable_entity
+        end
+
+        begin
+          @lesson.reorder_modules(module_ids)
+          render json: { message: 'Modules reordered successfully' }
+        rescue => e
+          render json: { error: e.message }, status: :unprocessable_entity
         end
       end
 
       private
 
       def set_lesson
-        @lesson = Current.tenant.lessons.find(params[:id])
+        @lesson = Current.tenant.lessons.find(params[:lesson_id])
       end
 
-      def lesson_params
-        params.require(:lesson).permit(:title, :description, :order_index, :published)
+      def set_lesson_module
+        @lesson_module = Current.tenant.lessons.find(params[:lesson_id]).lesson_modules.find(params[:id])
       end
 
-      def lesson_with_progress(lesson)
-        progress = current_user.lesson_progress.find_by(lesson: lesson)
-        {
-          id: lesson.id,
-          title: lesson.title,
-          description: lesson.description,
-          order_index: lesson.order_index,
-          published: lesson.published,
-          chapter_id: lesson.chapter_id,
-          completed: progress&.completed || false,
-          completed_at: progress&.completed_at,
-          # Module information
-          module_count: lesson.module_count,
-          has_video_modules: lesson.has_video_modules?,
-          has_text_modules: lesson.has_text_modules?,
-          has_assessment_modules: lesson.has_assessment_modules?,
-          # Include modules if requested
-          modules: include_modules? ? lesson.lesson_modules.map { |module_item| lesson_module_response(module_item) } : nil
-        }
+      def lesson_module_params
+        permitted_params = params.require(:lesson_module).permit(
+          :type, :title, :description, :position, :published_at,
+          :cloudflare_stream_id, :cloudflare_stream_thumbnail, 
+          :cloudflare_stream_duration, :cloudflare_stream_status, :content,
+          settings: {}
+        )
+        
+        # Handle settings as JSON if it comes as a string
+        if permitted_params[:settings].is_a?(String)
+          permitted_params[:settings] = JSON.parse(permitted_params[:settings])
+        end
+        
+        permitted_params
       end
 
-      def include_modules?
-        params[:include_modules] == 'true'
+      def ensure_admin!
+        unless current_user.role == 'admin'
+          render_forbidden_error('Admin access required')
+        end
       end
 
       def lesson_module_response(module_item)

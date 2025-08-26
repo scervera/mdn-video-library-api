@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_24_151613) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_26_173750) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -83,6 +83,30 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_24_151613) do
     t.datetime "updated_at", null: false
     t.bigint "tenant_id", null: false
     t.index ["tenant_id"], name: "index_curriculums_on_tenant_id"
+  end
+
+  create_table "lesson_modules", force: :cascade do |t|
+    t.bigint "lesson_id", null: false
+    t.string "type", null: false
+    t.string "title", null: false
+    t.text "description"
+    t.integer "position", null: false
+    t.jsonb "settings", default: {}
+    t.datetime "published_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "cloudflare_stream_id"
+    t.string "cloudflare_stream_thumbnail"
+    t.integer "cloudflare_stream_duration"
+    t.string "cloudflare_stream_status", default: "ready"
+    t.text "content"
+    t.index ["cloudflare_stream_id"], name: "index_lesson_modules_on_cloudflare_stream_id"
+    t.index ["cloudflare_stream_status"], name: "index_lesson_modules_on_cloudflare_stream_status"
+    t.index ["lesson_id", "position"], name: "index_lesson_modules_on_lesson_id_and_position", unique: true
+    t.index ["lesson_id", "type"], name: "index_lesson_modules_on_lesson_id_and_type"
+    t.index ["lesson_id"], name: "index_lesson_modules_on_lesson_id"
+    t.index ["published_at"], name: "index_lesson_modules_on_published_at"
+    t.index ["type"], name: "index_lesson_modules_on_type"
   end
 
   create_table "lesson_progresses", force: :cascade do |t|
@@ -290,6 +314,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_24_151613) do
   add_foreign_key "chapters", "curriculums"
   add_foreign_key "chapters", "tenants"
   add_foreign_key "curriculums", "tenants"
+  add_foreign_key "lesson_modules", "lessons", on_delete: :cascade
   add_foreign_key "lesson_progresses", "lessons"
   add_foreign_key "lesson_progresses", "tenants"
   add_foreign_key "lesson_progresses", "users"

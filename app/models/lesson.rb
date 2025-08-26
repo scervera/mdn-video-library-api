@@ -3,105 +3,65 @@ class Lesson < ApplicationRecord
   belongs_to :tenant
   has_many :lesson_progress, dependent: :destroy
   has_many :bookmarks, dependent: :destroy
+  has_many :lesson_modules, -> { order(:position) }, dependent: :destroy
 
   # Validations
   validates :title, presence: true
-  validates :content_type, presence: true, inclusion: { in: %w[video text image pdf] }
   validates :order_index, presence: true, uniqueness: { scope: :chapter_id }
-  validates :cloudflare_stream_id, format: { with: /\A[a-f0-9]{32}\z/, allow_blank: true }
 
   # Scopes
   scope :published, -> { where(published: true) }
   scope :ordered, -> { order(:order_index) }
-  scope :with_cloudflare_videos, -> { where.not(cloudflare_stream_id: nil) }
 
   # Instance methods
-  def media_url
-    # This would be implemented based on your file storage solution
-    # For now, returning the stored media_url
-    read_attribute(:media_url)
+  def module_count
+    lesson_modules.count
   end
-
-  # Cloudflare Stream methods
-  def cloudflare_video?
-    cloudflare_stream_id.present?
+  
+  def has_video_modules?
+    lesson_modules.by_type('VideoModule').exists?
   end
-
-  def cloudflare_player_url(options = {})
-    return nil unless cloudflare_video?
-    CloudflareStreamService.player_url(cloudflare_stream_id, options)
+  
+  def has_text_modules?
+    lesson_modules.by_type('TextModule').exists?
   end
-
-  def cloudflare_player_iframe(options = {})
-    return nil unless cloudflare_video?
-    CloudflareStreamService.player_iframe(cloudflare_stream_id, options)
+  
+  def has_assessment_modules?
+    lesson_modules.by_type('AssessmentModule').exists?
   end
-
-  def cloudflare_thumbnail_url(options = {})
-    return nil unless cloudflare_video?
-    CloudflareStreamService.thumbnail_url(cloudflare_stream_id, options)
+  
+  def video_modules
+    lesson_modules.by_type('VideoModule')
   end
-
-  def cloudflare_preview_url
-    return nil unless cloudflare_video?
-    CloudflareStreamService.preview_url(cloudflare_stream_id)
+  
+  def text_modules
+    lesson_modules.by_type('TextModule')
   end
-
-  def cloudflare_download_url(quality = '720p')
-    return nil unless cloudflare_video?
-    CloudflareStreamService.download_url(cloudflare_stream_id, quality)
+  
+  def assessment_modules
+    lesson_modules.by_type('AssessmentModule')
   end
-
-  def cloudflare_video_ready?
-    return false unless cloudflare_video?
-    CloudflareStreamService.video_ready?(cloudflare_stream_id)
+  
+  def resources_modules
+    lesson_modules.by_type('ResourcesModule')
   end
-
-  def cloudflare_video_metadata
-    return nil unless cloudflare_video?
-    CloudflareStreamService.get_video_metadata(cloudflare_stream_id)
+  
+  def image_modules
+    lesson_modules.by_type('ImageModule')
   end
-
-  def update_cloudflare_metadata
-    return false unless cloudflare_video?
-    CloudflareStreamService.update_lesson_with_stream_data(self, cloudflare_stream_id)
+  
+  def add_module(module_type, attributes = {})
+    next_position = lesson_modules.maximum(:position) || 0
+    lesson_modules.create!(
+      type: module_type,
+      position: next_position + 1,
+      **attributes
+    )
   end
-
-  # Video duration in human-readable format
-  def formatted_duration
-    return nil unless cloudflare_stream_duration
-    
-    total_seconds = cloudflare_stream_duration
-    hours = total_seconds / 3600
-    minutes = (total_seconds % 3600) / 60
-    seconds = total_seconds % 60
-    
-    if hours > 0
-      sprintf("%d:%02d:%02d", hours, minutes, seconds)
-    else
-      sprintf("%d:%02d", minutes, seconds)
+  
+  def reorder_modules(module_ids)
+    module_ids.each_with_index do |module_id, index|
+      lesson_modules.find(module_id).update!(position: index + 1)
     end
-  end
-
-  # Check if video is ready for playback
-  def video_ready_for_playback?
-    cloudflare_video? && cloudflare_stream_status == 'ready'
-  end
-
-  # Get video player data for API responses
-  def video_player_data
-    return nil unless cloudflare_video?
-    
-    {
-      cloudflare_stream_id: cloudflare_stream_id,
-      player_url: cloudflare_player_url,
-      thumbnail_url: cloudflare_thumbnail_url,
-      duration: cloudflare_stream_duration,
-      formatted_duration: formatted_duration,
-      status: cloudflare_stream_status,
-      ready: video_ready_for_playback?,
-      preview_url: cloudflare_preview_url,
-      download_url: cloudflare_download_url
-    }
   end
 end

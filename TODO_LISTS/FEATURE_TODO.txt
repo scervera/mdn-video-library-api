@@ -1,0 +1,6 @@
+Features To Do:
+
+• Make Stripe Connect accounts work so tenant can collect funds
+• Make a subscription flow so paying users can subscribe to a tenant
+[] Make Lesson Modules
+[] Integrate Lesson Modules with Tiptap

@@ -20,6 +20,7 @@ Rails.application.routes.draw do
   # API Routes - Version 1 (new versioned endpoints)
   namespace :api do
     namespace :v1 do
+
       # Authentication
       post 'auth/login'
       post 'auth/logout'
@@ -95,6 +96,11 @@ Rails.application.routes.draw do
         resources :bookmarks, only: [:index, :create, :update, :destroy] do
           member do
             put :share
+          end
+        end
+        resources :lesson_modules, only: [:index, :show, :create, :update, :destroy] do
+          collection do
+            patch :reorder
           end
         end
       end

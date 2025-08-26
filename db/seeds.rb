@@ -1,642 +1,274 @@
 # Clear existing data
 puts "Clearing existing data..."
 User.destroy_all
+Tenant.destroy_all
 Curriculum.destroy_all
 Chapter.destroy_all
 Lesson.destroy_all
-Bookmark.destroy_all
-UserProgress.destroy_all
-LessonProgress.destroy_all
-UserNote.destroy_all
-UserHighlight.destroy_all
-TenantSubscription.destroy_all
-BillingTier.destroy_all
-Tenant.destroy_all
+LessonModule.destroy_all
 
-# Create demo tenants
-puts "Creating demo tenants..."
-
-tenants = [
-  {
-    name: "ACME Corporation",
-    slug: "acme1",
-    domain: "curriculum.cerveras.com",
-    branding_settings: {
-      'primary_color' => '#3B82F6',
-      'secondary_color' => '#1F2937',
-      'accent_color' => '#F59E0B',
-      'company_name' => 'ACME Corporation'
-    }
-  },
-  {
-    name: "TechStart Inc",
-    slug: "acme2",
-    domain: "curriculum.cerveras.com",
-    branding_settings: {
-      'primary_color' => '#10B981',
-      'secondary_color' => '#374151',
-      'accent_color' => '#8B5CF6',
-      'company_name' => 'TechStart Inc'
-    }
-  },
-  {
-    name: "Global Solutions",
-    slug: "acme3",
-    domain: "curriculum.cerveras.com",
-    branding_settings: {
-      'primary_color' => '#EF4444',
-      'secondary_color' => '#111827',
-      'accent_color' => '#06B6D4',
-      'company_name' => 'Global Solutions'
-    }
+# Create a tenant
+puts "Creating tenant..."
+tenant = Tenant.create!(
+  name: "Demo Academy",
+  slug: "demo-academy",
+  domain: "demo-academy.cerveras.com",
+  branding_settings: {
+    primary_color: "#3B82F6",
+    secondary_color: "#1E40AF",
+    logo_url: "https://example.com/logo.png"
   }
-]
+)
 
-# Define unique curricula for each tenant
-tenant_curricula = {
-  "acme1" => [
-    {
-      title: "ACME Business Fundamentals",
-      description: "Essential business practices and corporate leadership for ACME Corporation employees.",
-      order_index: 1
-    },
-    {
-      title: "ACME Innovation Workshop",
-      description: "Creative problem-solving and innovation techniques specific to ACME's industry.",
-      order_index: 2
-    }
-  ],
-  "acme2" => [
-    {
-      title: "TechStart Programming Bootcamp",
-      description: "Modern programming languages and development practices for tech startups.",
-      order_index: 1
-    },
-    {
-      title: "TechStart Product Management",
-      description: "Product development and management strategies for technology companies.",
-      order_index: 2
-    }
-  ],
-  "acme3" => [
-    {
-      title: "Global Solutions International Business",
-      description: "International business practices and global market strategies.",
-      order_index: 1
-    },
-    {
-      title: "Global Solutions Cultural Intelligence",
-      description: "Cross-cultural communication and international team management.",
-      order_index: 2
-    }
-  ]
-}
+# Set the current tenant
+Current.tenant = tenant
 
-# Define unique chapters for each curriculum type
-curriculum_chapters = {
-  "business" => [
-    {
-      title: "Corporate Strategy",
-      description: "Strategic planning and corporate governance principles.",
-      duration: "2 hours",
-      order_index: 1
-    },
-    {
-      title: "Financial Management",
-      description: "Budgeting, forecasting, and financial decision-making.",
-      duration: "2.5 hours",
-      order_index: 2
-    }
-  ],
-  "innovation" => [
-    {
-      title: "Design Thinking",
-      description: "Human-centered design and creative problem-solving.",
-      duration: "2 hours",
-      order_index: 1
-    },
-    {
-      title: "Innovation Management",
-      description: "Managing innovation processes and fostering creativity.",
-      duration: "1.5 hours",
-      order_index: 2
-    }
-  ],
-  "programming" => [
-    {
-      title: "Modern JavaScript",
-      description: "ES6+ features and modern JavaScript development practices.",
-      duration: "3 hours",
-      order_index: 1
-    },
-    {
-      title: "React Development",
-      description: "Building user interfaces with React and modern frontend tools.",
-      duration: "3.5 hours",
-      order_index: 2
-    }
-  ],
-  "product" => [
-    {
-      title: "Product Strategy",
-      description: "Defining product vision and strategic planning.",
-      duration: "2 hours",
-      order_index: 1
-    },
-    {
-      title: "User Experience Design",
-      description: "UX principles and user-centered design methodologies.",
-      duration: "2.5 hours",
-      order_index: 2
-    }
-  ],
-  "international" => [
-    {
-      title: "Global Market Entry",
-      description: "Strategies for entering international markets.",
-      duration: "2.5 hours",
-      order_index: 1
-    },
-    {
-      title: "International Trade",
-      description: "Trade regulations and international business law.",
-      duration: "2 hours",
-      order_index: 2
-    }
-  ],
-  "cultural" => [
-    {
-      title: "Cross-Cultural Communication",
-      description: "Effective communication across different cultures.",
-      duration: "2 hours",
-      order_index: 1
-    },
-    {
-      title: "Global Team Leadership",
-      description: "Leading diverse teams across different time zones and cultures.",
-      duration: "2.5 hours",
-      order_index: 2
-    }
-  ]
-}
+# Create admin user
+puts "Creating admin user..."
+admin = User.create!(
+  username: "admin",
+  email: "admin@demo-academy.com",
+  password: "password123",
+  password_confirmation: "password123",
+  first_name: "Admin",
+  last_name: "User",
+  role: "admin",
+  active: true
+)
 
-# Define unique lessons for each chapter type
-chapter_lessons = {
-  "corporate_strategy" => [
-    {
-      title: "Strategic Planning Fundamentals",
-      description: "Core principles of strategic planning and execution",
-      content_type: "video",
-      content: "This lesson covers the fundamental principles of strategic planning in corporate environments.",
-      cloudflare_stream_id: "4dc9ad8c6c71c2d375ebe3c5af8411ee",
-      order_index: 1
-    },
-    {
-      title: "Competitive Analysis",
-      description: "Analyzing competitors and market positioning",
-      content_type: "video",
-      content: "Learn how to conduct thorough competitive analysis and position your company effectively.",
-      cloudflare_stream_id: "4dc9ad8c6c71c2d375ebe3c5af8411ee",
-      order_index: 2
-    }
-  ],
-  "financial_management" => [
-    {
-      title: "Budget Planning and Control",
-      description: "Creating and managing corporate budgets",
-      content_type: "video",
-      content: "Essential techniques for budget planning and financial control in business.",
-      cloudflare_stream_id: "4dc9ad8c6c71c2d375ebe3c5af8411ee",
-      order_index: 1
-    },
-    {
-      title: "Financial Decision Making",
-      description: "Making sound financial decisions for business growth",
-      content_type: "video",
-      content: "Strategic approaches to financial decision-making and investment analysis.",
-      cloudflare_stream_id: "4dc9ad8c6c71c2d375ebe3c5af8411ee",
-      order_index: 2
-    }
-  ],
-  "design_thinking" => [
-    {
-      title: "Empathy and User Research",
-      description: "Understanding user needs through empathy and research",
-      content_type: "video",
-      content: "Learn how to conduct user research and develop empathy for your users.",
-      cloudflare_stream_id: "4dc9ad8c6c71c2d375ebe3c5af8411ee",
-      order_index: 1
-    },
-    {
-      title: "Ideation and Prototyping",
-      description: "Generating ideas and creating prototypes",
-      content_type: "video",
-      content: "Techniques for brainstorming and rapid prototyping of innovative solutions.",
-      cloudflare_stream_id: "4dc9ad8c6c71c2d375ebe3c5af8411ee",
-      order_index: 2
-    }
-  ],
-  "innovation_management" => [
-    {
-      title: "Innovation Culture",
-      description: "Building a culture that fosters innovation",
-      content_type: "video",
-      content: "Creating an organizational culture that encourages and supports innovation.",
-      cloudflare_stream_id: "4dc9ad8c6c71c2d375ebe3c5af8411ee",
-      order_index: 1
-    },
-    {
-      title: "Innovation Processes",
-      description: "Structured approaches to managing innovation",
-      content_type: "video",
-      content: "Systematic processes for managing innovation projects and initiatives.",
-      cloudflare_stream_id: "4dc9ad8c6c71c2d375ebe3c5af8411ee",
-      order_index: 2
-    }
-  ],
-  "modern_javascript" => [
-    {
-      title: "ES6+ Features",
-      description: "Modern JavaScript syntax and features",
-      content_type: "video",
-      content: "Explore the latest JavaScript features including arrow functions, destructuring, and modules.",
-      cloudflare_stream_id: "4dc9ad8c6c71c2d375ebe3c5af8411ee",
-      order_index: 1
-    },
-    {
-      title: "Async Programming",
-      description: "Promises, async/await, and asynchronous programming",
-      content_type: "video",
-      content: "Master asynchronous programming patterns in modern JavaScript.",
-      cloudflare_stream_id: "4dc9ad8c6c71c2d375ebe3c5af8411ee",
-      order_index: 2
-    }
-  ],
-  "react_development" => [
-    {
-      title: "React Components",
-      description: "Building reusable React components",
-      content_type: "video",
-      content: "Learn to create and manage React components effectively.",
-      cloudflare_stream_id: "4dc9ad8c6c71c2d375ebe3c5af8411ee",
-      order_index: 1
-    },
-    {
-      title: "State Management",
-      description: "Managing state in React applications",
-      content_type: "video",
-      content: "Understanding state management patterns and best practices in React.",
-      cloudflare_stream_id: "4dc9ad8c6c71c2d375ebe3c5af8411ee",
-      order_index: 2
-    }
-  ],
-  "product_strategy" => [
-    {
-      title: "Product Vision",
-      description: "Defining clear product vision and goals",
-      content_type: "video",
-      content: "How to define and communicate a compelling product vision.",
-      cloudflare_stream_id: "4dc9ad8c6c71c2d375ebe3c5af8411ee",
-      order_index: 1
-    },
-    {
-      title: "Product Roadmapping",
-      description: "Creating and managing product roadmaps",
-      content_type: "video",
-      content: "Effective techniques for product roadmapping and feature prioritization.",
-      cloudflare_stream_id: "4dc9ad8c6c71c2d375ebe3c5af8411ee",
-      order_index: 2
-    }
-  ],
-  "ux_design" => [
-    {
-      title: "User Research Methods",
-      description: "Conducting effective user research",
-      content_type: "video",
-      content: "Various methods for understanding user needs and behaviors.",
-      cloudflare_stream_id: "4dc9ad8c6c71c2d375ebe3c5af8411ee",
-      order_index: 1
-    },
-    {
-      title: "Wireframing and Prototyping",
-      description: "Creating wireframes and interactive prototypes",
-      content_type: "video",
-      content: "Tools and techniques for creating effective wireframes and prototypes.",
-      cloudflare_stream_id: "4dc9ad8c6c71c2d375ebe3c5af8411ee",
-      order_index: 2
-    }
-  ],
-  "global_market" => [
-    {
-      title: "Market Entry Strategies",
-      description: "Different approaches to entering global markets",
-      content_type: "video",
-      content: "Various strategies for entering international markets successfully.",
-      cloudflare_stream_id: "4dc9ad8c6c71c2d375ebe3c5af8411ee",
-      order_index: 1
-    },
-    {
-      title: "Market Research",
-      description: "Conducting international market research",
-      content_type: "video",
-      content: "Methods for researching and understanding international markets.",
-      cloudflare_stream_id: "4dc9ad8c6c71c2d375ebe3c5af8411ee",
-      order_index: 2
-    }
-  ],
-  "international_trade" => [
-    {
-      title: "Trade Regulations",
-      description: "Understanding international trade regulations",
-      content_type: "video",
-      content: "Key regulations and compliance requirements for international trade.",
-      cloudflare_stream_id: "4dc9ad8c6c71c2d375ebe3c5af8411ee",
-      order_index: 1
-    },
-    {
-      title: "Trade Agreements",
-      description: "Navigating international trade agreements",
-      content_type: "video",
-      content: "Understanding and leveraging international trade agreements.",
-      cloudflare_stream_id: "4dc9ad8c6c71c2d375ebe3c5af8411ee",
-      order_index: 2
-    }
-  ],
-  "cross_cultural" => [
-    {
-      title: "Cultural Awareness",
-      description: "Developing cultural awareness and sensitivity",
-      content_type: "video",
-      content: "Building awareness of different cultural norms and practices.",
-      cloudflare_stream_id: "4dc9ad8c6c71c2d375ebe3c5af8411ee",
-      order_index: 1
-    },
-    {
-      title: "Communication Styles",
-      description: "Adapting communication for different cultures",
-      content_type: "video",
-      content: "Understanding and adapting to different communication styles across cultures.",
-      cloudflare_stream_id: "4dc9ad8c6c71c2d375ebe3c5af8411ee",
-      order_index: 2
-    }
-  ],
-  "global_leadership" => [
-    {
-      title: "Virtual Team Management",
-      description: "Managing teams across different time zones",
-      content_type: "video",
-      content: "Effective strategies for managing virtual and distributed teams.",
-      cloudflare_stream_id: "4dc9ad8c6c71c2d375ebe3c5af8411ee",
-      order_index: 1
-    },
-    {
-      title: "Cultural Leadership",
-      description: "Leading teams with diverse cultural backgrounds",
-      content_type: "video",
-      content: "Leadership approaches that work across different cultural contexts.",
-      cloudflare_stream_id: "4dc9ad8c6c71c2d375ebe3c5af8411ee",
-      order_index: 2
-    }
-  ]
-}
+# Create regular user
+puts "Creating regular user..."
+user = User.create!(
+  username: "student",
+  email: "student@demo-academy.com",
+  password: "password123",
+  password_confirmation: "password123",
+  first_name: "John",
+  last_name: "Student",
+  role: "user",
+  active: true
+)
 
-tenants.each do |tenant_data|
-  # Temporarily disable default scope for tenant creation
-  tenant = Tenant.unscoped.create!(tenant_data)
-  puts "  - Created tenant: #{tenant.name} (#{tenant.slug})"
+# Create curriculum
+puts "Creating curriculum..."
+curriculum = Curriculum.create!(
+  title: "Web Development Fundamentals",
+  description: "Learn the basics of web development with HTML, CSS, and JavaScript",
+  published: true
+)
 
-  # Create billing tiers for this tenant (Stripe price IDs will be created when needed)
-  puts "    - Creating billing tiers..."
-  config = BillingConfiguration.current
-  
-  config.tiers.each do |tier_key, tier_data|
-    # Create billing tier for this tenant (Stripe price IDs will be created when subscriptions are created)
-    billing_tier = tenant.billing_tiers.create!(
-      name: tier_data['name'],
-      monthly_price: tier_data['monthly_price'],
-      per_user_price: tier_data['per_user_price'],
-      user_limit: tier_data['user_limit'],
-      features: tier_data['features']
-    )
-    puts "      - Created billing tier: #{billing_tier.name}"
-  end
+# Create chapters
+puts "Creating chapters..."
+chapter1 = curriculum.chapters.create!(
+  title: "Introduction to HTML",
+  description: "Learn the fundamentals of HTML markup",
+  order_index: 1,
+  published: true
+)
 
-  # Create trial subscription for this tenant
-  trial_tier = tenant.billing_tiers.find_by(name: 'Trial')
-  if trial_tier
-    subscription = tenant.tenant_subscriptions.create!(
-      billing_tier: trial_tier,
-      status: 'trial',
-      trial_ends_at: 30.days.from_now
-    )
-    puts "      - Created trial subscription (expires: #{subscription.trial_ends_at.strftime('%Y-%m-%d')})"
-  end
+chapter2 = curriculum.chapters.create!(
+  title: "CSS Styling",
+  description: "Style your HTML with CSS",
+  order_index: 2,
+  published: true
+)
 
-  # Create admin user for each tenant
-  admin_user = tenant.users.create!(
-    username: "admin_#{tenant.slug}",
-    email: "admin@#{tenant.slug}.com",
-    password: "password",
-    password_confirmation: "password",
-    first_name: "Admin",
-    last_name: tenant.name.split.first,
-    role: 'admin',
-    active: true
-  )
-  puts "    - Created admin user: #{admin_user.username}"
+# Create lessons with modules
+puts "Creating lessons with modules..."
 
-  # Create demo user for each tenant
-  demo_user = tenant.users.create!(
-    username: "demo_#{tenant.slug}",
-    email: "demo@#{tenant.slug}.com",
-    password: "password",
-    password_confirmation: "password",
-    first_name: "Demo",
-    last_name: "User",
-    role: 'user',
-    active: true
-  )
-  puts "    - Created demo user: #{demo_user.username}"
+# Lesson 1: HTML Basics
+lesson1 = chapter1.lessons.create!(
+  title: "HTML Structure and Elements",
+  description: "Learn about HTML document structure and basic elements",
+  order_index: 1,
+  published: true
+)
 
-  # Create unique curricula for each tenant
-  puts "    - Creating unique curricula for #{tenant.name}..."
+# Add text module to lesson 1
+lesson1.add_module('TextModule', {
+  title: "Introduction to HTML",
+  description: "Learn what HTML is and why it's important",
+  content: "<h1>What is HTML?</h1><p>HTML (HyperText Markup Language) is the standard markup language for creating web pages. It describes the structure of a web page semantically and originally included cues for the appearance of the document.</p><h2>Key Concepts</h2><ul><li>HTML uses markup to describe web page structure</li><li>Elements are the building blocks of HTML pages</li><li>Tags tell the browser how to display the content</li></ul>"
+})
 
-      curricula_data = tenant_curricula[tenant.slug]
-  curricula_data.each_with_index do |curriculum_data, index|
-    curriculum = tenant.curriculums.create!(
-      title: curriculum_data[:title],
-      description: curriculum_data[:description],
-      published: true,
-      order_index: curriculum_data[:order_index]
-    )
+# Add video module to lesson 1
+lesson1.add_module('VideoModule', {
+  title: "HTML Basics Video",
+  description: "Watch this video to understand HTML fundamentals",
+  cloudflare_stream_id: "12345678901234567890123456789012"
+})
 
-    puts "      - Created curriculum: #{curriculum.title}"
+# Add assessment module to lesson 1
+lesson1.add_module('AssessmentModule', {
+  title: "HTML Knowledge Check",
+  description: "Test your understanding of HTML basics",
+  settings: {
+    questions: [
+      {
+        text: "What does HTML stand for?",
+        type: "single_choice",
+        options: ["HyperText Markup Language", "High Tech Modern Language", "Home Tool Markup Language"],
+        correct_answer: 0,
+        points: 1
+      },
+      {
+        text: "Which tag is used for the main heading?",
+        type: "single_choice",
+        options: ["<p>", "<h1>", "<div>"],
+        correct_answer: 1,
+        points: 1
+      }
+    ],
+    passing_score: 70
+  }
+})
 
-    # Determine which chapters to create based on curriculum type
-    chapter_type = case tenant.slug
-    when "acme1"
-      index == 0 ? "business" : "innovation"
-    when "acme2"
-      index == 0 ? "programming" : "product"
-    when "acme3"
-      index == 0 ? "international" : "cultural"
-    end
+# Lesson 2: CSS Introduction
+lesson2 = chapter1.lessons.create!(
+  title: "Introduction to CSS",
+  description: "Learn how to style HTML elements with CSS",
+  order_index: 2,
+  published: true
+)
 
-    chapters_data = curriculum_chapters[chapter_type]
-    chapters_data.each do |chapter_data|
-      chapter = curriculum.chapters.create!(
-        title: chapter_data[:title],
-        description: chapter_data[:description],
-        duration: chapter_data[:duration],
-        order_index: chapter_data[:order_index],
-        published: true,
-        tenant_id: tenant.id
-      )
+# Add text module to lesson 2
+lesson2.add_module('TextModule', {
+  title: "CSS Fundamentals",
+  description: "Understanding CSS selectors and properties",
+  content: "<h1>CSS Basics</h1><p>CSS (Cascading Style Sheets) is a style sheet language used for describing the presentation of a document written in HTML.</p><h2>CSS Selectors</h2><p>CSS selectors are patterns used to select and style HTML elements:</p><ul><li><strong>Element selectors:</strong> p, h1, div</li><li><strong>Class selectors:</strong> .classname</li><li><strong>ID selectors:</strong> #idname</li></ul>"
+})
 
-      puts "        - Created chapter: #{chapter.title}"
+# Add resources module to lesson 2
+lesson2.add_module('ResourcesModule', {
+  title: "CSS Resources",
+  description: "Download helpful CSS resources and links",
+  settings: {
+    resources: [
+      {
+        title: "CSS Cheat Sheet",
+        type: "file",
+        url: "https://example.com/css-cheat-sheet.pdf",
+        file_size: 512000
+      },
+      {
+        title: "MDN CSS Documentation",
+        type: "link",
+        url: "https://developer.mozilla.org/en-US/docs/Web/CSS"
+      },
+      {
+        title: "CSS Tutorial Video",
+        type: "video",
+        url: "https://example.com/css-tutorial.mp4"
+      }
+    ]
+  }
+})
 
-      # Determine which lessons to create based on chapter type
-      lesson_type = case chapter_data[:title]
-      when "Corporate Strategy"
-        "corporate_strategy"
-      when "Financial Management"
-        "financial_management"
-      when "Design Thinking"
-        "design_thinking"
-      when "Innovation Management"
-        "innovation_management"
-      when "Modern JavaScript"
-        "modern_javascript"
-      when "React Development"
-        "react_development"
-      when "Product Strategy"
-        "product_strategy"
-      when "User Experience Design"
-        "ux_design"
-      when "Global Market Entry"
-        "global_market"
-      when "International Trade"
-        "international_trade"
-      when "Cross-Cultural Communication"
-        "cross_cultural"
-      when "Global Team Leadership"
-        "global_leadership"
-      end
+# Add image module to lesson 2
+lesson2.add_module('ImageModule', {
+  title: "CSS Box Model Diagram",
+  description: "Visual representation of the CSS box model",
+  settings: {
+    images: [
+      {
+        title: "CSS Box Model",
+        url: "https://example.com/box-model.png",
+        alt_text: "Diagram showing CSS box model with margin, border, padding, and content",
+        thumbnail_url: "https://example.com/box-model-thumb.png"
+      }
+    ],
+    layout: "single"
+  }
+})
 
-      lessons_data = chapter_lessons[lesson_type]
-      lessons_data.each do |lesson_data|
-        lesson = chapter.lessons.create!(
-          title: lesson_data[:title],
-          description: lesson_data[:description],
-          content_type: lesson_data[:content_type],
-          content: lesson_data[:content],
-          cloudflare_stream_id: lesson_data[:cloudflare_stream_id],
-          order_index: lesson_data[:order_index],
-          published: true,
-          tenant_id: tenant.id
-        )
-        puts "          - Created lesson: #{lesson.title}"
-      end
-    end
-  end
+# Lesson 3: JavaScript Basics
+lesson3 = chapter2.lessons.create!(
+  title: "JavaScript Fundamentals",
+  description: "Learn the basics of JavaScript programming",
+  order_index: 1,
+  published: true
+)
 
-  # Create some user progress for demo user
-  puts "    - Creating user progress..."
+# Add text module to lesson 3
+lesson3.add_module('TextModule', {
+  title: "What is JavaScript?",
+  description: "Introduction to JavaScript programming language",
+  content: "<h1>JavaScript Overview</h1><p>JavaScript is a high-level, interpreted programming language that is one of the core technologies of the World Wide Web.</p><h2>Key Features</h2><ul><li><strong>Dynamic typing:</strong> Variables can hold different types of data</li><li><strong>Object-oriented:</strong> Supports object-oriented programming</li><li><strong>Event-driven:</strong> Responds to user interactions</li></ul>"
+})
 
-  # Enroll demo user in first curriculum
-  first_curriculum = tenant.curriculums.first
-  first_chapter = first_curriculum.chapters.first
-  user_progress = demo_user.user_progress.create!(
-    curriculum: first_curriculum,
-    chapter: first_chapter,
-    completed: false,
-    tenant_id: tenant.id
-  )
+# Add video module to lesson 3
+lesson3.add_module('VideoModule', {
+  title: "JavaScript Tutorial",
+  description: "Comprehensive JavaScript tutorial for beginners",
+  cloudflare_stream_id: "abcdef1234567890abcdef1234567890"
+})
 
-  # Mark first lesson as completed
-  first_lesson = first_chapter.lessons.first
-  lesson_progress = demo_user.lesson_progress.create!(
-    lesson: first_lesson,
-    completed: true,
-    completed_at: Time.current,
-    tenant_id: tenant.id
-  )
+# Add assessment module to lesson 3
+lesson3.add_module('AssessmentModule', {
+  title: "JavaScript Quiz",
+  description: "Test your JavaScript knowledge",
+  settings: {
+    questions: [
+      {
+        text: "Which keyword is used to declare a variable in JavaScript?",
+        type: "single_choice",
+        options: ["var", "let", "const", "All of the above"],
+        correct_answer: 3,
+        points: 1
+      },
+      {
+        text: "What is the result of 2 + '2' in JavaScript?",
+        type: "single_choice",
+        options: ["4", "22", "Error", "NaN"],
+        correct_answer: 1,
+        points: 1
+      }
+    ],
+    passing_score: 80
+  }
+})
 
-  # Create some notes and highlights
-  puts "    - Creating notes and highlights..."
+# Add image gallery to lesson 3
+lesson3.add_module('ImageModule', {
+  title: "JavaScript Code Examples",
+  description: "Visual examples of JavaScript code",
+  settings: {
+    images: [
+      {
+        title: "Variables Example",
+        url: "https://example.com/variables.png",
+        alt_text: "JavaScript variable declaration examples",
+        thumbnail_url: "https://example.com/variables-thumb.png"
+      },
+      {
+        title: "Functions Example",
+        url: "https://example.com/functions.png",
+        alt_text: "JavaScript function examples",
+        thumbnail_url: "https://example.com/functions-thumb.png"
+      },
+      {
+        title: "Objects Example",
+        url: "https://example.com/objects.png",
+        alt_text: "JavaScript object examples",
+        thumbnail_url: "https://example.com/objects-thumb.png"
+      }
+    ],
+    layout: "gallery"
+  }
+})
 
-  # Create a note for the first chapter
-  note = demo_user.user_notes.create!(
-    chapter: first_chapter,
-    curriculum: first_curriculum,
-    content: "This is a great introduction to #{first_curriculum.title}. I learned a lot about the core concepts.",
-    tenant_id: tenant.id
-  )
-
-  # Create a highlight for the first chapter
-  highlight = demo_user.user_highlights.create!(
-    chapter: first_chapter,
-    curriculum: first_curriculum,
-    highlighted_text: "#{first_curriculum.title} provides essential knowledge for #{tenant.name} employees.",
-    tenant_id: tenant.id
-  )
-
-  # Create some bookmarks for the first lesson
-  puts "    - Creating bookmarks..."
-
-  bookmark1 = demo_user.bookmarks.create!(
-    lesson: first_lesson,
-    title: "Key Concept",
-    notes: "Important point about #{first_lesson.title}",
-    timestamp: 120.5,
-    tenant_id: tenant.id
-  )
-
-  bookmark2 = demo_user.bookmarks.create!(
-    lesson: first_lesson,
-    title: "Review Point",
-    notes: "Need to review this section later",
-    timestamp: 300.0,
-    tenant_id: tenant.id
-  )
-
-  puts "    - Tenant #{tenant.name} setup complete!"
-  puts "      API endpoints:"
-  tenant.curriculums.each do |curriculum|
-    puts "        - #{curriculum.title}: /api/v1/curricula/#{curriculum.id}"
-  end
-  puts "        - First lesson: /api/v1/lessons/#{first_lesson.id}"
-  puts "        - User progress: /api/v1/user/progress"
-  puts "        - Bookmarks: /api/v1/lessons/#{first_lesson.id}/bookmarks"
-  puts "        - Billing tiers: /api/v1/billing_tiers"
-  puts "        - Trial status: /api/v1/trial/status"
-  puts "      Login credentials:"
-  puts "        - Admin: #{admin_user.username} / password"
-  puts "        - Demo: #{demo_user.username} / password"
-        puts "      URL: #{tenant.slug}.curriculum.cerveras.com"
-  puts ""
-end
-
-puts "🎉 Multitenant setup complete with unique content and billing system!"
+puts "Seeding completed successfully!"
+puts "Created:"
+puts "  - 1 Tenant (Demo Academy)"
+puts "  - 2 Users (admin, student)"
+puts "  - 1 Curriculum (Web Development Fundamentals)"
+puts "  - 2 Chapters (HTML, CSS)"
+puts "  - 3 Lessons with various module types"
 puts ""
-puts "📋 Summary:"
-puts "  - Created 3 tenants: acme1, acme2, acme3"
-puts "  - Each tenant has unique curricula:"
-puts "    * ACME Corporation: Business Fundamentals & Innovation Workshop"
-puts "    * TechStart Inc: Programming Bootcamp & Product Management"
-puts "    * Global Solutions: International Business & Cultural Intelligence"
-puts "  - All video lessons use Cloudflare Stream test video"
-puts "  - Demo users have progress, notes, highlights, and bookmarks"
-puts "  - Each tenant has unique branding colors"
-puts "  - Billing tiers created for each tenant"
-puts "  - Trial subscriptions active for all tenants"
+puts "Admin credentials:"
+puts "  Email: admin@demo-academy.com"
+puts "  Password: password123"
 puts ""
-puts "🚀 Next steps:"
-puts "  1. Test tenant isolation by accessing different subdomains"
-puts "  2. Verify API endpoints work with tenant context"
-puts "  3. Test billing endpoints:"
-puts "     - GET /api/v1/billing_tiers"
-puts "     - GET /api/v1/trial/status"
-puts "     - GET /api/v1/subscriptions"
-puts "  4. Test branding customization"
-puts "  5. Deploy to production with proper DNS setup"
+puts "Student credentials:"
+puts "  Email: student@demo-academy.com"
+puts "  Password: password123"
