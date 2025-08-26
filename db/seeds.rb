@@ -7,54 +7,127 @@ Chapter.destroy_all
 Lesson.destroy_all
 LessonModule.destroy_all
 
-# Create a tenant
-puts "Creating tenant..."
-tenant = Tenant.create!(
-  name: "Demo Academy",
-  slug: "demo-academy",
-  domain: "demo-academy.cerveras.com",
+# Create tenants
+puts "Creating tenants..."
+tenant1 = Tenant.create!(
+  name: "Acme Corporation 1",
+  slug: "acme1",
+  domain: nil,
   branding_settings: {
     primary_color: "#3B82F6",
     secondary_color: "#1E40AF",
-    logo_url: "https://example.com/logo.png"
+    logo_url: "https://example.com/acme1-logo.png"
   }
 )
 
-# Set the current tenant
-Current.tenant = tenant
+tenant2 = Tenant.create!(
+  name: "Acme Corporation 2", 
+  slug: "acme2",
+  domain: nil,
+  branding_settings: {
+    primary_color: "#10B981",
+    secondary_color: "#059669",
+    logo_url: "https://example.com/acme2-logo.png"
+  }
+)
 
-# Create admin user
-puts "Creating admin user..."
-admin = User.create!(
-  username: "demo",
-  email: "demo@example.com",
+tenant3 = Tenant.create!(
+  name: "Acme Corporation 3",
+  slug: "acme3", 
+  domain: nil,
+  branding_settings: {
+    primary_color: "#F59E0B",
+    secondary_color: "#D97706",
+    logo_url: "https://example.com/acme3-logo.png"
+  }
+)
+
+# Create users for acme1
+puts "Creating users for acme1..."
+Current.tenant = tenant1
+
+demo_acme1 = User.create!(
+  username: "demo_acme1",
+  email: "demo@acme1.com",
   password: "password",
   password_confirmation: "password",
   first_name: "Demo",
-  last_name: "Admin",
-  role: "admin",
-  active: true
-)
-
-# Create regular user
-puts "Creating regular user..."
-user = User.create!(
-  username: "testuser",
-  email: "test@example.com",
-  password: "password",
-  password_confirmation: "password",
-  first_name: "Test",
-  last_name: "User",
+  last_name: "Acme1",
   role: "user",
   active: true
 )
 
-# Create curriculum
-puts "Creating curriculum..."
+admin_acme1 = User.create!(
+  username: "admin_acme1",
+  email: "admin@acme1.com",
+  password: "password",
+  password_confirmation: "password",
+  first_name: "Admin",
+  last_name: "Acme1",
+  role: "admin",
+  active: true
+)
+
+# Create users for acme2
+puts "Creating users for acme2..."
+Current.tenant = tenant2
+
+demo_acme2 = User.create!(
+  username: "demo_acme2",
+  email: "demo@acme2.com",
+  password: "password",
+  password_confirmation: "password",
+  first_name: "Demo",
+  last_name: "Acme2",
+  role: "user",
+  active: true
+)
+
+admin_acme2 = User.create!(
+  username: "admin_acme2",
+  email: "admin@acme2.com",
+  password: "password",
+  password_confirmation: "password",
+  first_name: "Admin",
+  last_name: "Acme2",
+  role: "admin",
+  active: true
+)
+
+# Create users for acme3
+puts "Creating users for acme3..."
+Current.tenant = tenant3
+
+demo_acme3 = User.create!(
+  username: "demo_acme3",
+  email: "demo@acme3.com",
+  password: "password",
+  password_confirmation: "password",
+  first_name: "Demo",
+  last_name: "Acme3",
+  role: "user",
+  active: true
+)
+
+admin_acme3 = User.create!(
+  username: "admin_acme3",
+  email: "admin@acme3.com",
+  password: "password",
+  password_confirmation: "password",
+  first_name: "Admin",
+  last_name: "Acme3",
+  role: "admin",
+  active: true
+)
+
+# Create curriculum for acme1
+puts "Creating curriculum for acme1..."
+Current.tenant = tenant1
 curriculum = Curriculum.create!(
   title: "Web Development Fundamentals",
   description: "Learn the basics of web development with HTML, CSS, and JavaScript",
-  published: true, order_index: 1
+  order_index: 1,
+  published: true
 )
 
 # Create chapters
@@ -259,16 +332,20 @@ lesson3.add_module('ImageModule', {
 
 puts "Seeding completed successfully!"
 puts "Created:"
-puts "  - 1 Tenant (Demo Academy)"
-puts "  - 2 Users (admin, student)"
-puts "  - 1 Curriculum (Web Development Fundamentals)"
+puts "  - 3 Tenants (acme1, acme2, acme3)"
+puts "  - 6 Users (demo and admin for each tenant)"
+puts "  - 1 Curriculum (Web Development Fundamentals) for acme1"
 puts "  - 2 Chapters (HTML, CSS)"
 puts "  - 3 Lessons with various module types"
 puts ""
-puts "Admin credentials:"
-puts "  Email: demo@example.com"
-puts "  Password: password"
+puts "Tenant 1 (acme1) credentials:"
+puts "  Demo user: demo@acme1.com / password"
+puts "  Admin user: admin@acme1.com / password"
 puts ""
-puts "Test user credentials:"
-puts "  Email: test@example.com"
-puts "  Password: password"
+puts "Tenant 2 (acme2) credentials:"
+puts "  Demo user: demo@acme2.com / password"
+puts "  Admin user: admin@acme2.com / password"
+puts ""
+puts "Tenant 3 (acme3) credentials:"
+puts "  Demo user: demo@acme3.com / password"
+puts "  Admin user: admin@acme3.com / password"
