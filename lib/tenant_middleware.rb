@@ -11,6 +11,11 @@ class TenantMiddleware
       return @app.call(env)
     end
     
+    # Allow configuration endpoint to pass through without tenant validation
+    if request.path == '/api/v1/config'
+      return @app.call(env)
+    end
+    
     # Allow webhook endpoints to pass through without tenant validation
     if webhook_endpoint?(request.path)
       return @app.call(env)
