@@ -26,6 +26,9 @@ Rails.application.routes.draw do
       post 'auth/register'
       get 'auth/me'
       
+      # Configuration (no authentication required)
+      get 'config', to: 'config#index'
+      
       # Slug validation (no authentication required)
       get 'slug_validation/check'
       
