@@ -18,8 +18,8 @@ Rails.application.routes.draw do
   get 'branding.css', to: 'branding#css'
 
   # API Routes - Version 1 (new versioned endpoints)
-  namespace :api do
-    namespace :v1 do
+  # Handle API versioning at the root level for frontend compatibility
+  scope '/api/v1', module: 'api/v1' do
 
       # Authentication
       post 'auth/login'
@@ -212,7 +212,6 @@ Rails.application.routes.draw do
       # Webhooks
       post 'webhooks/stripe', to: 'webhooks#stripe'
     end
-  end
 
   # Legacy API Routes (for backward compatibility)
   namespace :api do
