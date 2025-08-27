@@ -41,17 +41,54 @@ module Api
       end
 
       def reorder
-        module_ids = params[:module_ids]
+        modules_data = params[:modules] || params[:module_ids]
         
-        unless module_ids.is_a?(Array) && module_ids.length == @lesson.lesson_modules.count
-          return render json: { error: 'Invalid module_ids array' }, status: :unprocessable_entity
+        unless modules_data.is_a?(Array) && modules_data.length == @lesson.lesson_modules.count
+          return render json: { 
+            error: 'Invalid modules data', 
+            expected_count: @lesson.lesson_modules.count,
+            received_count: modules_data&.length || 0
+          }, status: :unprocessable_entity
         end
 
         begin
-          @lesson.reorder_modules(module_ids)
-          render json: { message: 'Modules reordered successfully' }
-        rescue => e
+          # Handle both formats:
+          # 1. Simple array of IDs: [1, 2, 3]
+          # 2. Array of objects with positions: [{id: 1, position: 1}, {id: 2, position: 2}]
+          
+          if modules_data.first.is_a?(Hash) || modules_data.first.is_a?(ActionController::Parameters)
+            # Format 2: Array of objects with explicit positions
+            ActiveRecord::Base.transaction do
+              modules_data.each do |module_data|
+                # Convert ActionController::Parameters to hash if needed
+                module_data = module_data.to_unsafe_h if module_data.is_a?(ActionController::Parameters)
+                
+                # Handle both string and symbol keys
+                module_id = module_data['id'] || module_data[:id]
+                position = module_data['position'] || module_data[:position]
+                
+                if module_id && position
+                  @lesson.lesson_modules.find(module_id.to_i).update!(position: position.to_i)
+                else
+                  raise ArgumentError, "Missing id or position in module data: #{module_data}"
+                end
+              end
+            end
+          else
+            # Format 1: Simple array of IDs - use existing method
+            @lesson.reorder_modules(modules_data)
+          end
+          
+          render json: { 
+            message: 'Modules reordered successfully',
+            modules_count: @lesson.lesson_modules.count
+          }
+        rescue ActiveRecord::RecordNotFound => e
+          render json: { error: "Module not found: #{e.message}" }, status: :not_found
+        rescue ArgumentError => e
           render json: { error: e.message }, status: :unprocessable_entity
+        rescue => e
+          render json: { error: "Reordering failed: #{e.message}" }, status: :unprocessable_entity
         end
       end
 
