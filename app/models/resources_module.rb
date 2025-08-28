@@ -1,4 +1,7 @@
 class ResourcesModule < LessonModule
+  # Active Storage associations
+  has_many_attached :files
+  
   # Resources-specific validations
   validates :resources, presence: true
   

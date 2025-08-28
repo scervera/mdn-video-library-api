@@ -59,7 +59,9 @@ module Api
           if modules_data.first.is_a?(Hash) || modules_data.first.is_a?(ActionController::Parameters)
             # Format 2: Array of objects with explicit positions
             ActiveRecord::Base.transaction do
-              modules_data.each do |module_data|
+              # First, temporarily set all positions to high values to avoid conflicts
+              temp_positions = {}
+              modules_data.each_with_index do |module_data, index|
                 # Convert ActionController::Parameters to hash if needed
                 module_data = module_data.to_unsafe_h if module_data.is_a?(ActionController::Parameters)
                 
@@ -68,10 +70,17 @@ module Api
                 position = module_data['position'] || module_data[:position]
                 
                 if module_id && position
-                  @lesson.lesson_modules.find(module_id.to_i).update!(position: position.to_i)
+                  temp_positions[module_id.to_i] = position.to_i
+                  # Set temporary position to avoid conflicts
+                  @lesson.lesson_modules.find(module_id.to_i).update!(position: 10000 + index)
                 else
                   raise ArgumentError, "Missing id or position in module data: #{module_data}"
                 end
+              end
+              
+              # Now set the final positions
+              temp_positions.each do |module_id, final_position|
+                @lesson.lesson_modules.find(module_id).update!(position: final_position)
               end
             end
           else

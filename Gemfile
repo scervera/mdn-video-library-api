@@ -76,3 +76,6 @@ group :test do
   # Use system testing [https://guides.rubyonrails.org/testing.html#system-testing]
   gem "capybara"
 end
+
+# S3-compatible storage
+gem 'aws-sdk-s3', '~> 1.198'

@@ -1,4 +1,7 @@
 class ImageModule < LessonModule
+  # Active Storage associations
+  has_many_attached :images
+  
   # Image-specific validations
   validates :images, presence: true
   
