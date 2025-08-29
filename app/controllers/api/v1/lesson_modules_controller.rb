@@ -25,6 +25,11 @@ module Api
       end
 
       def update
+        # Handle image data if present
+        if params[:lesson_module][:images].present?
+          process_image_data(params[:lesson_module][:images])
+        end
+        
         if @lesson_module.update(lesson_module_params)
           render json: lesson_module_response(@lesson_module)
         else
@@ -188,7 +193,7 @@ module Api
           :type, :title, :description, :position, :published_at,
           :cloudflare_stream_id, :cloudflare_stream_thumbnail, 
           :cloudflare_stream_duration, :cloudflare_stream_status, :content,
-          :layout, settings: {}, images: []
+          :layout, settings: {}
         )
         
         # Handle settings as JSON if it comes as a string
@@ -197,6 +202,19 @@ module Api
         end
         
         permitted_params
+      end
+
+      def process_image_data(images_data)
+        return unless images_data.is_a?(Array)
+        
+        images_data.each do |image_data|
+          # Skip if this is already an attached image (has attachment ID)
+          next if image_data['attachment']&.dig('id').present?
+          
+          # This is a new image that needs to be processed
+          # For now, we'll just log it since the frontend should use the upload endpoint
+          Rails.logger.info "Received image data in update: #{image_data['filename']}"
+        end
       end
 
       def ensure_admin!
