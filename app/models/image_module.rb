@@ -23,16 +23,16 @@ class ImageModule < LessonModule
   end
   
   # Instance methods
-  def images
+  def image_metadata
     settings['images'] || []
   end
-  
-  def images=(value)
+
+  def image_metadata=(value)
     settings['images'] = value
   end
-  
+
   def image_count
-    images.length
+    image_metadata.length
   end
   
   def single_image?
@@ -63,18 +63,18 @@ class ImageModule < LessonModule
     images.first
   end
   
-  def thumbnail_urls
-    images.map { |img| img['thumbnail_url'] || img['url'] }
+    def thumbnail_urls
+    image_metadata.map { |img| img['thumbnail_url'] || img['url'] }
   end
-  
+
   def full_size_urls
-    images.map { |img| img['url'] }
+    image_metadata.map { |img| img['url'] }
   end
   
   # Enhanced methods for Active Storage integration
   def attached_images_with_metadata
     images.map.with_index do |image, index|
-      metadata = self.images[index] || {}
+      metadata = self.image_metadata[index] || {}
       {
         attachment: image,
         metadata: metadata,
@@ -117,30 +117,30 @@ class ImageModule < LessonModule
     remove_image(index)
   end
   
-  def validate_images
-    return false if images.blank?
+    def validate_images
+    return false if image_metadata.blank?
     
-    images.all? do |image|
+    image_metadata.all? do |image|
       image['url'].present? &&
       image['alt_text'].present? &&
       image['title'].present?
     end
   end
-  
+
   def add_image(image_data)
-    new_images = images + [image_data]
+    new_images = image_metadata + [image_data]
     update(settings: settings.merge('images' => new_images))
   end
-  
+
   def remove_image(index)
-    new_images = images.reject.with_index { |_, i| i == index }
+    new_images = image_metadata.reject.with_index { |_, i| i == index }
     update(settings: settings.merge('images' => new_images))
   end
-  
+
   def reorder_images(new_order)
     return false unless new_order.is_a?(Array) && new_order.length == image_count
     
-    reordered_images = new_order.map { |index| images[index] }
+    reordered_images = new_order.map { |index| image_metadata[index] }
     update(settings: settings.merge('images' => reordered_images))
   end
   
