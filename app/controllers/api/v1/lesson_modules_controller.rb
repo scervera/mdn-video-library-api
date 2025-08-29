@@ -25,11 +25,6 @@ module Api
       end
 
       def update
-        # Handle image data if present
-        if params[:lesson_module][:images].present?
-          process_image_data(params[:lesson_module][:images])
-        end
-        
         if @lesson_module.update(lesson_module_params)
           render json: lesson_module_response(@lesson_module)
         else
@@ -193,7 +188,7 @@ module Api
           :type, :title, :description, :position, :published_at,
           :cloudflare_stream_id, :cloudflare_stream_thumbnail, 
           :cloudflare_stream_duration, :cloudflare_stream_status, :content,
-          :layout, settings: {}
+          settings: {}
         )
         
         # Handle settings as JSON if it comes as a string
@@ -207,14 +202,28 @@ module Api
       def process_image_data(images_data)
         return unless images_data.is_a?(Array)
         
-        images_data.each do |image_data|
-          # Skip if this is already an attached image (has attachment ID)
-          next if image_data['attachment']&.dig('id').present?
+        # For ImageModule, we need to update the image metadata in settings
+        if @lesson_module.is_a?(ImageModule)
+          # Convert the image data to the format expected by ImageModule
+          image_metadata = images_data.map do |image_data|
+            {
+              'title' => image_data['title'] || image_data['filename'],
+              'alt_text' => image_data['alt_text'] || image_data['filename'],
+              'description' => image_data['description'],
+              'url' => image_data['url'],
+              'thumbnail_url' => image_data['thumbnail_url'] || image_data['url'],
+              'file_size' => image_data['byte_size'],
+              'content_type' => image_data['content_type'],
+              'created_at' => Time.current.iso8601
+            }
+          end
           
-          # This is a new image that needs to be processed
-          # For now, we'll just log it since the frontend should use the upload endpoint
-          Rails.logger.info "Received image data in update: #{image_data['filename']}"
+          # Update the image metadata in settings directly
+          @lesson_module.settings['images'] = image_metadata
         end
+        
+        # For TextModule, we don't need to do anything special since images are attached via Active Storage
+        # The frontend should use the upload endpoint for new images
       end
 
       def ensure_admin!
