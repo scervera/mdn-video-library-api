@@ -10,9 +10,10 @@ You need to implement frontend integration for the new Active Storage file uploa
 
 1. **Active Storage Integration**
    - ResourcesModule: `has_many_attached :files`
-   - ImageModule: `has_many_attached :images`
+   - ImageModule: `has_many_attached :images` + `image_metadata` method
    - Automatic cleanup when modules are destroyed
    - Rich metadata support in module settings
+   - **Fixed**: Method name conflicts resolved (ImageModule uses `image_metadata` for settings)
 
 2. **Enhanced API Endpoints**
    - `POST /api/v1/lessons/:lesson_id/lesson_modules/:id/upload_file`
@@ -467,13 +468,14 @@ export interface ResourcesModule extends BaseModule {
 
 export interface ImageModule extends BaseModule {
   type: 'ImageModule';
-  images: FileData[];
+  images: FileData[];  // Active Storage attachments with metadata
   image_count: number;
   layout: 'single' | 'gallery' | 'carousel' | 'grid';
   single_image: boolean;
   gallery: boolean;
   carousel: boolean;
   grid: boolean;
+  // Note: Backend uses image_metadata method for settings data
 }
 ```
 
@@ -659,5 +661,6 @@ Create responsive styles for file upload components:
 - All file operations require admin privileges
 - The architecture supports rich metadata for each file
 - Files are stored in S3 and served via CDN for optimal performance
+- **Important**: ImageModule uses `image_metadata` method for settings data to avoid conflicts with Active Storage association
 
 Implement this integration following the existing codebase patterns and ensure proper error handling, loading states, and user feedback throughout the upload process.

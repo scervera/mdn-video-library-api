@@ -65,8 +65,9 @@ end
 class ImageModule < LessonModule
   has_many_attached :images
   
-  # Metadata stored in settings['images']
+  # Metadata stored in settings['images'] (accessed via image_metadata method)
   # Supports: single, gallery, carousel, grid layouts
+  # Note: image_metadata method avoids conflict with Active Storage association
 end
 ```
 
@@ -100,6 +101,10 @@ resources_module.attached_files_with_metadata
 # Get images with full metadata
 image_module.attached_images_with_metadata
 # Returns: [{ attachment:, metadata:, filename:, url:, title:, alt_text:, ... }]
+
+# Access metadata directly (for ImageModule)
+image_module.image_metadata  # Array of metadata from settings
+image_module.images          # Active Storage association
 ```
 
 ### Removing Files
@@ -140,8 +145,9 @@ after_destroy :cleanup_orphaned_metadata
 ### 3. **Type Safety**
 - Each module type has specific attachment types
 - ResourcesModule: `files`
-- ImageModule: `images`
+- ImageModule: `images` (Active Storage) + `image_metadata` (settings)
 - Clear separation of concerns
+- No method name conflicts between Active Storage and metadata
 
 ### 4. **Performance**
 - Lazy loading of attachments
@@ -285,6 +291,11 @@ end
    - Check if module is being destroyed properly
    - Verify Active Storage configuration
    - Check S3 permissions
+
+2. **Method name conflicts**
+   - ImageModule uses `image_metadata` for settings data
+   - ImageModule uses `images` for Active Storage association
+   - Ensure you're using the correct method for your needs
 
 2. **Metadata not syncing**
    - Use `add_file_with_metadata` method
