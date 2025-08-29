@@ -3,7 +3,10 @@ class ImageModule < LessonModule
   has_many_attached :images
   
   # Image-specific validations
-  validates :images, presence: true
+  validates :images, presence: true, unless: :new_record?
+  
+  # Callbacks to ensure consistency
+  after_destroy :cleanup_orphaned_metadata
   
   # Image-specific settings
   def self.default_settings
@@ -68,6 +71,52 @@ class ImageModule < LessonModule
     images.map { |img| img['url'] }
   end
   
+  # Enhanced methods for Active Storage integration
+  def attached_images_with_metadata
+    images.map.with_index do |image, index|
+      metadata = self.images[index] || {}
+      {
+        attachment: image,
+        metadata: metadata,
+        filename: image.filename.to_s,
+        content_type: image.content_type,
+        byte_size: image.byte_size,
+        url: image.url,
+        title: metadata['title'] || image.filename.to_s,
+        alt_text: metadata['alt_text'] || image.filename.to_s,
+        description: metadata['description'],
+        thumbnail_url: metadata['thumbnail_url'] || image.url
+      }
+    end
+  end
+  
+  def add_image_with_metadata(image, metadata = {})
+    # Attach the image
+    images.attach(image)
+    
+    # Add metadata to settings
+    image_metadata = {
+      'title' => metadata[:title] || image.filename.to_s,
+      'alt_text' => metadata[:alt_text] || image.filename.to_s,
+      'description' => metadata[:description],
+      'url' => image.url,
+      'thumbnail_url' => metadata[:thumbnail_url] || image.url,
+      'file_size' => image.byte_size,
+      'content_type' => image.content_type,
+      'created_at' => Time.current.iso8601
+    }
+    
+    add_image(image_metadata)
+  end
+  
+  def remove_image_with_metadata(index)
+    # Remove the attachment
+    images[index]&.purge
+    
+    # Remove metadata
+    remove_image(index)
+  end
+  
   def validate_images
     return false if images.blank?
     
@@ -93,6 +142,14 @@ class ImageModule < LessonModule
     
     reordered_images = new_order.map { |index| images[index] }
     update(settings: settings.merge('images' => reordered_images))
+  end
+  
+  # Cleanup orphaned metadata when module is destroyed
+  private
+  
+  def cleanup_orphaned_metadata
+    # Active Storage will automatically clean up attachments
+    # This method can be used for any additional cleanup if needed
   end
   
   # Class methods

@@ -2,7 +2,7 @@ module Api
   module V1
     class LessonModulesController < BaseController
       before_action :set_lesson, only: [:index, :create, :reorder]
-      before_action :set_lesson_module, only: [:show, :update, :destroy]
+      before_action :set_lesson_module, only: [:show, :update, :destroy, :upload_file, :remove_file]
       before_action :ensure_admin!, except: [:index, :show]
 
       def index
@@ -101,6 +101,65 @@ module Api
         end
       end
 
+      # File upload endpoints
+      def upload_file
+        unless file_upload_allowed?
+          render json: { error: 'File upload not allowed for this module type' }, status: :unprocessable_entity
+          return
+        end
+
+        file = params[:file]
+        metadata = params[:metadata] || {}
+
+        # Validate file
+        validation_result = validate_file(file)
+        unless validation_result[:valid]
+          render json: { error: validation_result[:error] }, status: :unprocessable_entity
+          return
+        end
+
+        begin
+          case @lesson_module.type
+          when 'ResourcesModule'
+            upload_to_resources_module(file, metadata)
+          when 'ImageModule'
+            upload_to_image_module(file, metadata)
+          else
+            render json: { error: 'Unsupported module type for file upload' }, status: :unprocessable_entity
+            return
+          end
+
+          render json: lesson_module_response(@lesson_module)
+        rescue => e
+          render json: { error: "File upload failed: #{e.message}" }, status: :unprocessable_entity
+        end
+      end
+
+      def remove_file
+        file_index = params[:file_index]&.to_i
+
+        if file_index.nil?
+          render json: { error: 'File index is required' }, status: :unprocessable_entity
+          return
+        end
+
+        begin
+          case @lesson_module.type
+          when 'ResourcesModule'
+            @lesson_module.remove_file_with_metadata(file_index)
+          when 'ImageModule'
+            @lesson_module.remove_image_with_metadata(file_index)
+          else
+            render json: { error: 'Unsupported module type for file removal' }, status: :unprocessable_entity
+            return
+          end
+
+          render json: lesson_module_response(@lesson_module)
+        rescue => e
+          render json: { error: "File removal failed: #{e.message}" }, status: :unprocessable_entity
+        end
+      end
+
       private
 
       def set_lesson
@@ -131,6 +190,101 @@ module Api
         unless current_user.role == 'admin'
           render_forbidden_error('Admin access required')
         end
+      end
+
+      # File upload validation and handling
+      def file_upload_allowed?
+        %w[ResourcesModule ImageModule].include?(@lesson_module.type)
+      end
+
+      def validate_file(file)
+        return { valid: false, error: 'No file provided' } if file.blank?
+
+        # Check file size
+        max_size = get_max_file_size
+        if file.size > max_size
+          return { valid: false, error: "File size exceeds maximum allowed size of #{format_file_size(max_size)}" }
+        end
+
+        # Check file type
+        allowed_types = get_allowed_file_types
+        unless allowed_types.include?(file.content_type)
+          return { valid: false, error: "File type not allowed. Allowed types: #{allowed_types.join(', ')}" }
+        end
+
+        { valid: true }
+      end
+
+      def get_max_file_size
+        case @lesson_module.type
+        when 'ResourcesModule'
+          50.megabytes
+        when 'ImageModule'
+          10.megabytes
+        else
+          1.megabyte
+        end
+      end
+
+      def get_allowed_file_types
+        case @lesson_module.type
+        when 'ResourcesModule'
+          [
+            'application/pdf',
+            'application/msword',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'application/vnd.ms-excel',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'application/vnd.ms-powerpoint',
+            'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+            'text/plain',
+            'text/csv',
+            'application/zip',
+            'application/x-zip-compressed'
+          ]
+        when 'ImageModule'
+          [
+            'image/jpeg',
+            'image/jpg',
+            'image/png',
+            'image/gif',
+            'image/webp',
+            'image/svg+xml'
+          ]
+        else
+          []
+        end
+      end
+
+      def format_file_size(bytes)
+        units = %w[B KB MB GB]
+        size = bytes.to_f
+        unit_index = 0
+        
+        while size >= 1024 && unit_index < units.length - 1
+          size /= 1024
+          unit_index += 1
+        end
+        
+        "#{size.round(1)} #{units[unit_index]}"
+      end
+
+      def upload_to_resources_module(file, metadata)
+        @lesson_module.add_file_with_metadata(
+          file,
+          title: metadata[:title],
+          description: metadata[:description],
+          alt_text: metadata[:alt_text]
+        )
+      end
+
+      def upload_to_image_module(file, metadata)
+        @lesson_module.add_image_with_metadata(
+          file,
+          title: metadata[:title],
+          alt_text: metadata[:alt_text],
+          description: metadata[:description]
+        )
       end
 
       def lesson_module_response(module_item)
@@ -177,7 +331,7 @@ module Api
           })
         when ResourcesModule
           base_response.merge!({
-            resources: module_item.resources,
+            resources: module_item.attached_files_with_metadata,
             resource_count: module_item.resource_count,
             file_resources: module_item.file_resources,
             link_resources: module_item.link_resources,
@@ -186,7 +340,7 @@ module Api
           })
         when ImageModule
           base_response.merge!({
-            images: module_item.images,
+            images: module_item.attached_images_with_metadata,
             image_count: module_item.image_count,
             layout: module_item.layout,
             single_image: module_item.single_image?,

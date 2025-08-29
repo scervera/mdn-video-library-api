@@ -102,6 +102,10 @@ Rails.application.routes.draw do
           collection do
             patch :reorder
           end
+          member do
+            post :upload_file
+            delete :remove_file
+          end
         end
       end
       
