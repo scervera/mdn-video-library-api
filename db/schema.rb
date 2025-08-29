@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_27_190543) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_29_194534) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -221,6 +221,17 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_27_190543) do
     t.index ["stripe_customer_id"], name: "index_tenants_on_stripe_customer_id"
   end
 
+  create_table "uploaded_images", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "lesson_id"
+    t.bigint "lesson_module_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["lesson_id"], name: "index_uploaded_images_on_lesson_id"
+    t.index ["lesson_module_id"], name: "index_uploaded_images_on_lesson_module_id"
+    t.index ["user_id"], name: "index_uploaded_images_on_user_id"
+  end
+
   create_table "user_highlights", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.bigint "chapter_id", null: false
@@ -353,6 +364,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_27_190543) do
   add_foreign_key "stripe_connect_accounts", "tenants"
   add_foreign_key "tenant_subscriptions", "billing_tiers"
   add_foreign_key "tenant_subscriptions", "tenants"
+  add_foreign_key "uploaded_images", "lesson_modules"
+  add_foreign_key "uploaded_images", "lessons"
+  add_foreign_key "uploaded_images", "users"
   add_foreign_key "user_highlights", "chapters"
   add_foreign_key "user_highlights", "curriculums"
   add_foreign_key "user_highlights", "tenants"

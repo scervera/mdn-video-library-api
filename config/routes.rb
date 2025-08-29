@@ -27,6 +27,9 @@ Rails.application.routes.draw do
       post 'auth/register'
       get 'auth/me'
       
+      # File uploads
+      post 'upload/image', to: 'upload#image'
+      
       # Configuration (no authentication required)
       get 'config', to: 'config#index'
       
