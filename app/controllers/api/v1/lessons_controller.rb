@@ -100,6 +100,7 @@ module Api
           title: module_item.title,
           description: module_item.description,
           position: module_item.position,
+          lesson_id: module_item.lesson_id,
           settings: module_item.settings,
           published: module_item.published?,
           published_at: module_item.published_at,
