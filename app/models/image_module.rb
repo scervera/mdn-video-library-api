@@ -73,6 +73,9 @@ class ImageModule < LessonModule
   
   # Enhanced methods for Active Storage integration
   def attached_images_with_metadata
+    # Set URL options for Active Storage
+    ActiveStorage::Current.url_options = { host: 'localhost', port: 3000 } if Rails.env.development?
+    
     images.map.with_index do |image, index|
       metadata = self.image_metadata[index] || {}
       {
@@ -94,15 +97,21 @@ class ImageModule < LessonModule
     # Attach the image
     images.attach(image)
     
+    # Get the attached file to access its properties
+    attached_file = images.last
+    
+    # Set URL options for Active Storage
+    ActiveStorage::Current.url_options = { host: 'localhost', port: 3000 } if Rails.env.development?
+    
     # Add metadata to settings
     image_metadata = {
-      'title' => metadata[:title] || image.filename.to_s,
-      'alt_text' => metadata[:alt_text] || image.filename.to_s,
+      'title' => metadata[:title] || attached_file.filename.to_s,
+      'alt_text' => metadata[:alt_text] || attached_file.filename.to_s,
       'description' => metadata[:description],
-      'url' => image.url,
-      'thumbnail_url' => metadata[:thumbnail_url] || image.url,
-      'file_size' => image.byte_size,
-      'content_type' => image.content_type,
+      'url' => attached_file.url,
+      'thumbnail_url' => metadata[:thumbnail_url] || attached_file.url,
+      'file_size' => attached_file.byte_size,
+      'content_type' => attached_file.content_type,
       'created_at' => Time.current.iso8601
     }
     

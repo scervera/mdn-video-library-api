@@ -111,6 +111,15 @@ module Api
         file = params[:file]
         metadata = params[:metadata] || {}
 
+        # Handle metadata if it comes as a JSON string
+        if metadata.is_a?(String)
+          begin
+            metadata = JSON.parse(metadata)
+          rescue JSON::ParserError
+            metadata = {}
+          end
+        end
+
         # Validate file
         validation_result = validate_file(file)
         unless validation_result[:valid]

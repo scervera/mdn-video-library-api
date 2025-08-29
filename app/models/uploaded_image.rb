@@ -10,7 +10,11 @@ class UploadedImage < ApplicationRecord
   validate :acceptable_file_size
   
   def url
-    Rails.application.routes.url_helpers.rails_blob_url(file) if file.attached?
+    if file.attached?
+      # Set URL options for Active Storage
+      ActiveStorage::Current.url_options = { host: 'localhost', port: 3000 } if Rails.env.development?
+      Rails.application.routes.url_helpers.rails_blob_url(file, host: 'localhost', port: 3000)
+    end
   end
   
   def filename
