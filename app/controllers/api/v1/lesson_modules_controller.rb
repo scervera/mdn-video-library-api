@@ -133,6 +133,8 @@ module Api
             upload_to_resources_module(file, metadata)
           when 'ImageModule'
             upload_to_image_module(file, metadata)
+          when 'TextModule'
+            upload_to_text_module(file, metadata)
           else
             render json: { error: 'Unsupported module type for file upload' }, status: :unprocessable_entity
             return
@@ -157,6 +159,8 @@ module Api
           when 'ResourcesModule'
             @lesson_module.remove_file_with_metadata(file_index)
           when 'ImageModule'
+            @lesson_module.remove_image_with_metadata(file_index)
+          when 'TextModule'
             @lesson_module.remove_image_with_metadata(file_index)
           else
             render json: { error: 'Unsupported module type for file removal' }, status: :unprocessable_entity
@@ -184,7 +188,7 @@ module Api
           :type, :title, :description, :position, :published_at,
           :cloudflare_stream_id, :cloudflare_stream_thumbnail, 
           :cloudflare_stream_duration, :cloudflare_stream_status, :content,
-          settings: {}
+          :layout, settings: {}, images: []
         )
         
         # Handle settings as JSON if it comes as a string
@@ -203,7 +207,7 @@ module Api
 
       # File upload validation and handling
       def file_upload_allowed?
-        %w[ResourcesModule ImageModule].include?(@lesson_module.type)
+        %w[ResourcesModule ImageModule TextModule].include?(@lesson_module.type)
       end
 
       def validate_file(file)
@@ -230,6 +234,8 @@ module Api
           50.megabytes
         when 'ImageModule'
           10.megabytes
+        when 'TextModule'
+          10.megabytes
         else
           1.megabyte
         end
@@ -251,7 +257,7 @@ module Api
             'application/zip',
             'application/x-zip-compressed'
           ]
-        when 'ImageModule'
+        when 'ImageModule', 'TextModule'
           [
             'image/jpeg',
             'image/jpg',
@@ -296,6 +302,15 @@ module Api
         )
       end
 
+      def upload_to_text_module(file, metadata)
+        @lesson_module.add_image_with_metadata(
+          file,
+          title: metadata[:title],
+          alt_text: metadata[:alt_text],
+          description: metadata[:description]
+        )
+      end
+
       def lesson_module_response(module_item)
         base_response = {
           id: module_item.id,
@@ -328,7 +343,8 @@ module Api
             word_count: module_item.word_count,
             reading_time: module_item.reading_time,
             table_of_contents: module_item.table_of_contents,
-            excerpt: module_item.excerpt
+            excerpt: module_item.excerpt,
+            images: module_item.attached_images_with_metadata
           })
         when AssessmentModule
           base_response.merge!({
