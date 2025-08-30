@@ -28,11 +28,12 @@ module MdnVideoLibraryApi
     # config.eager_load_paths << Rails.root.join("extras")
 
     # Add tenant middleware (using proper class reference)
-    # config.middleware.use TenantMiddleware
+    config.middleware.use TenantMiddleware
     
     # Configure Active Storage URL options
     config.after_initialize do
       ActiveStorage::Current.url_options = { host: 'localhost', port: 3000 }
+      Rails.logger.info "ActiveStorage::Current.url_options set to: #{ActiveStorage::Current.url_options}"
     end
   end
 end

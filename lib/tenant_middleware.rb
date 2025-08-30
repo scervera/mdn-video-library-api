@@ -5,6 +5,13 @@ class TenantMiddleware
 
   def call(env)
     request = Rack::Request.new(env)
+    
+    # Allow Active Storage endpoints to pass through without tenant validation (FIRST PRIORITY)
+    if active_storage_endpoint?(request.path)
+      Rails.logger.info "Active Storage endpoint detected: #{request.path} - bypassing tenant middleware"
+      return @app.call(env)
+    end
+    
     Rails.logger.info "TenantMiddleware: Processing path: #{request.path}"
     
     # Allow health checks to pass through without tenant validation
@@ -19,12 +26,6 @@ class TenantMiddleware
     
     # Allow webhook endpoints to pass through without tenant validation
     if webhook_endpoint?(request.path)
-      return @app.call(env)
-    end
-    
-    # Allow Active Storage endpoints to pass through without tenant validation
-    if active_storage_endpoint?(request.path)
-      Rails.logger.info "Active Storage endpoint detected: #{request.path}"
       return @app.call(env)
     end
     
@@ -82,6 +83,7 @@ class TenantMiddleware
 
   def active_storage_endpoint?(path)
     # Check if the path is an Active Storage endpoint
+    Rails.logger.info "Checking if path is Active Storage: #{path} -> #{path.start_with?('/rails/active_storage/')}"
     path.start_with?('/rails/active_storage/')
   end
 
