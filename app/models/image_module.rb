@@ -73,24 +73,36 @@ class ImageModule < LessonModule
   
   # Enhanced methods for Active Storage integration
   def attached_images_with_metadata
-    # Set URL options for Active Storage
-    ActiveStorage::Current.url_options = { host: 'localhost', port: 3000 } if Rails.env.development?
-    
     images.map.with_index do |image, index|
       metadata = self.image_metadata[index] || {}
+      
+      # Generate absolute URLs for development
+      base_url = Rails.env.development? ? 'http://localhost:3000' : ''
+      proxy_path = Rails.application.routes.url_helpers.rails_service_blob_proxy_path(image.signed_id, filename: image.filename)
+      
       {
-        attachment: image,
-        metadata: metadata,
+        url: "#{base_url}#{proxy_path}",
         filename: image.filename.to_s,
         content_type: image.content_type,
         byte_size: image.byte_size,
-        url: image.url,
         title: metadata['title'] || image.filename.to_s,
         alt_text: metadata['alt_text'] || image.filename.to_s,
         description: metadata['description'],
-        thumbnail_url: metadata['thumbnail_url'] || image.url
+        thumbnail_url: "#{base_url}#{proxy_path}",
+        file_size: metadata['file_size'] || image.byte_size,
+        created_at: image.created_at
       }
     end
+  end
+  
+  # Clean settings for API response (remove old signed URL data)
+  def clean_settings_for_api
+    return settings unless settings.is_a?(Hash)
+    
+    cleaned_settings = settings.dup
+    # Remove old image data from settings since we now have proper images field
+    cleaned_settings.delete('images')
+    cleaned_settings
   end
   
   def add_image_with_metadata(image, metadata = {})

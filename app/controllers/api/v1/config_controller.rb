@@ -1,7 +1,6 @@
-class Api::V1::ConfigController < ApplicationController
+class Api::V1::ConfigController < Api::BaseController
   # No authentication required for configuration endpoint
   skip_before_action :authenticate_user!
-  skip_before_action :set_tenant
 
   def index
     render json: {

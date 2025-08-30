@@ -119,7 +119,8 @@ module Api
 
       def lesson_with_progress(lesson)
         progress = current_user.lesson_progress.find_by(lesson: lesson)
-        {
+        
+        lesson_data = {
           id: lesson.id,
           title: lesson.title,
           description: lesson.description,
@@ -131,6 +132,49 @@ module Api
           completed: progress&.completed || false,
           completed_at: progress&.completed_at
         }
+        
+        # Include lesson modules if requested
+        if params[:include_modules] == 'true'
+          lesson_data[:lesson_modules] = lesson.lesson_modules.published.ordered.map { |module_obj| module_with_data(module_obj) }
+        end
+        
+        lesson_data
+      end
+      
+      def module_with_data(module_obj)
+        base_data = {
+          id: module_obj.id,
+          type: module_obj.type,
+          title: module_obj.title,
+          description: module_obj.description,
+          position: module_obj.position,
+          published: module_obj.published?,
+          published_at: module_obj.published_at,
+          settings: module_obj.respond_to?(:clean_settings_for_api) ? module_obj.clean_settings_for_api : (module_obj.settings || {})
+        }
+        
+        # Add type-specific data
+        case module_obj.type
+        when 'ImageModule'
+          base_data[:images] = module_obj.attached_images_with_metadata
+        when 'TextModule'
+          base_data[:content] = module_obj.content
+          base_data[:tiptap_content] = module_obj.tiptap_content
+          base_data[:word_count] = module_obj.word_count
+          base_data[:reading_time] = module_obj.reading_time
+          base_data[:table_of_contents] = module_obj.table_of_contents
+        when 'VideoModule'
+          base_data[:video_url] = module_obj.video_url
+          base_data[:video_provider] = module_obj.video_provider
+          base_data[:duration] = module_obj.duration
+        when 'AssessmentModule'
+          base_data[:questions] = module_obj.questions
+          base_data[:passing_score] = module_obj.passing_score
+        when 'ResourcesModule'
+          base_data[:resources] = module_obj.resources
+        end
+        
+        base_data
       end
     end
   end

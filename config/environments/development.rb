@@ -71,7 +71,7 @@ Rails.application.configure do
   config.action_mailer.default_url_options = { host: 'localhost', port: 3000 }
 
   # Active Storage configuration for development
-  config.active_storage.service = :local
+config.active_storage.service = :local  # Force local storage regardless of RAILS_STORAGE_SERVICE env var
   
   # Configure Active Storage disk service root path
   config.active_storage.service_configurations = {
@@ -89,4 +89,7 @@ Rails.application.configure do
   config.after_initialize do
     ActiveStorage::Current.url_options = { host: 'localhost', port: 3000 }
   end
+  
+  # Use permanent URLs for Active Storage (no expiration)
+  config.active_storage.resolve_model_to_route = :rails_storage_proxy
 end

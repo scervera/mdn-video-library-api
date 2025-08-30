@@ -2,6 +2,7 @@ module Api
   module V1
     class AuthController < BaseController
       before_action :authenticate_user!, only: [:me, :logout]
+      skip_before_action :set_tenant_context, only: [:login, :register]
 
       def login
         # Try to find user by username or email

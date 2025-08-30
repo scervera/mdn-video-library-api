@@ -1,7 +1,7 @@
 require_relative "boot"
 
 require "rails/all"
-# require_relative "../lib/tenant_middleware"
+require_relative "../lib/tenant_middleware"
 
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
@@ -11,8 +11,8 @@ module MdnVideoLibraryApi
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 8.0
-  # Configure Active Storage service
-  config.active_storage.service = ENV.fetch("RAILS_STORAGE_SERVICE", "local")
+  # Configure Active Storage service - let environment-specific configs handle this
+  # config.active_storage.service = ENV.fetch("RAILS_STORAGE_SERVICE", "local")
 
     # Please, add to the `ignore` list any other `lib` subdirectories that do
     # not contain `.rb` files, or that should not be reloaded or eager loaded.

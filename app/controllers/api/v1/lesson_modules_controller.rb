@@ -346,7 +346,7 @@ module Api
           description: module_item.description,
           position: module_item.position,
           lesson_id: module_item.lesson_id,
-          settings: module_item.settings,
+          settings: module_item.respond_to?(:clean_settings_for_api) ? module_item.clean_settings_for_api : module_item.settings,
           published: module_item.published?,
           published_at: module_item.published_at,
           created_at: module_item.created_at,

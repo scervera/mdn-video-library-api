@@ -4,15 +4,18 @@ class TenantMiddleware
   end
 
   def call(env)
+    Rails.logger.info "TenantMiddleware: CALLED for path: #{env['REQUEST_PATH']}"
     request = Rack::Request.new(env)
+    Rails.logger.info "TenantMiddleware: ENTRY - Processing path: #{request.path}"
     
     # Allow Active Storage endpoints to pass through without tenant validation (FIRST PRIORITY)
+    Rails.logger.info "TenantMiddleware: About to check active_storage_endpoint? for: #{request.path}"
     if active_storage_endpoint?(request.path)
       Rails.logger.info "Active Storage endpoint detected: #{request.path} - bypassing tenant middleware"
       return @app.call(env)
     end
     
-    Rails.logger.info "TenantMiddleware: Processing path: #{request.path}"
+    Rails.logger.info "TenantMiddleware: NOT Active Storage - Processing path: #{request.path}"
     
     # Allow health checks to pass through without tenant validation
     if request.path == '/up'
@@ -103,3 +106,4 @@ class TenantMiddleware
     slug.match?(/\A[a-z0-9-]+\z/)
   end
 end
+

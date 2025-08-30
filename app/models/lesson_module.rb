@@ -16,6 +16,9 @@ class LessonModule < ApplicationRecord
   scope :published, -> { where.not(published_at: nil) }
   scope :by_type, ->(type) { where(type: type) }
   
+  # Callbacks
+  before_create :set_published_at
+  
   # Instance methods
   def published?
     published_at.present?
@@ -27,6 +30,12 @@ class LessonModule < ApplicationRecord
   
   def unpublish!
     update!(published_at: nil)
+  end
+  
+  private
+  
+  def set_published_at
+    self.published_at = Time.current if published_at.nil?
   end
   
   # Class methods for module types
