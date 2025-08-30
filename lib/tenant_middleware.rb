@@ -5,6 +5,7 @@ class TenantMiddleware
 
   def call(env)
     request = Rack::Request.new(env)
+    Rails.logger.info "TenantMiddleware: Processing path: #{request.path}"
     
     # Allow health checks to pass through without tenant validation
     if request.path == '/up'
@@ -18,6 +19,12 @@ class TenantMiddleware
     
     # Allow webhook endpoints to pass through without tenant validation
     if webhook_endpoint?(request.path)
+      return @app.call(env)
+    end
+    
+    # Allow Active Storage endpoints to pass through without tenant validation
+    if active_storage_endpoint?(request.path)
+      Rails.logger.info "Active Storage endpoint detected: #{request.path}"
       return @app.call(env)
     end
     
@@ -71,6 +78,11 @@ class TenantMiddleware
   def webhook_endpoint?(path)
     # Check if the path is a webhook endpoint
     path.include?('/webhooks/')
+  end
+
+  def active_storage_endpoint?(path)
+    # Check if the path is an Active Storage endpoint
+    path.start_with?('/rails/active_storage/')
   end
 
   def extract_tenant_from_path(path)

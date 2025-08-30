@@ -73,7 +73,20 @@ Rails.application.configure do
   # Active Storage configuration for development
   config.active_storage.service = :local
   
+  # Configure Active Storage disk service root path
+  config.active_storage.service_configurations = {
+    local: {
+      service: 'Disk',
+      root: Rails.root.join('storage').to_s
+    }
+  }
+  
   # Configure URL options for Active Storage
   Rails.application.routes.default_url_options = { host: 'localhost', port: 3000 }
   config.active_storage.default_url_options = { host: 'localhost', port: 3000 }
+  
+  # Set Active Storage Current URL options
+  config.after_initialize do
+    ActiveStorage::Current.url_options = { host: 'localhost', port: 3000 }
+  end
 end
