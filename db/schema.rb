@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_29_194534) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_31_211555) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -364,7 +364,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_29_194534) do
   add_foreign_key "stripe_connect_accounts", "tenants"
   add_foreign_key "tenant_subscriptions", "billing_tiers"
   add_foreign_key "tenant_subscriptions", "tenants"
-  add_foreign_key "uploaded_images", "lesson_modules"
+  add_foreign_key "uploaded_images", "lesson_modules", on_delete: :cascade
   add_foreign_key "uploaded_images", "lessons"
   add_foreign_key "uploaded_images", "users"
   add_foreign_key "user_highlights", "chapters"
