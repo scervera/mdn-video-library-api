@@ -5,12 +5,13 @@ class Api::BaseController < ApplicationController
   private
 
   def set_tenant_context
-    tenant_slug = request.headers['X-Tenant']
+    # Extract tenant slug from URL path (e.g., /acme1/api/v1/lessons/1)
+    tenant_slug = request.path.split('/')[1]
     
     # Skip tenant validation for certain endpoints
     return if skip_tenant_validation?
     
-    return render json: { error: 'X-Tenant header required' }, status: :bad_request unless tenant_slug
+    return render json: { error: 'Tenant slug required in URL path' }, status: :bad_request unless tenant_slug
     
     tenant = Tenant.find_by(slug: tenant_slug)
     return render json: { error: 'Invalid tenant' }, status: :unauthorized unless tenant
@@ -35,17 +36,21 @@ class Api::BaseController < ApplicationController
     begin
       decoded = JWT.decode(token, Rails.application.credentials.secret_key_base)[0]
       
-      # If we have tenant context, scope the user lookup to that tenant
-      if Current.tenant
-        @current_user = Current.tenant.users.find(decoded['user_id'])
-      else
-        # Fallback to global user lookup for endpoints that don't require tenant context
-        @current_user = User.find(decoded['user_id'])
+      # Find user by ID
+      user = User.find(decoded['user_id'])
+      
+      # Verify user belongs to the tenant from the URL path
+      unless user.tenant_id == Current.tenant.id
+        render json: { error: 'Access denied to this tenant' }, status: :forbidden
+        return
       end
       
+      @current_user = user
       Current.user = @current_user
-    rescue JWT::DecodeError, ActiveRecord::RecordNotFound
+    rescue JWT::DecodeError
       render json: { error: 'Invalid token' }, status: :unauthorized
+    rescue ActiveRecord::RecordNotFound
+      render json: { error: 'User not found' }, status: :unauthorized
     end
   end
 

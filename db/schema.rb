@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_31_211555) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_02_141332) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -337,12 +337,13 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_31_211555) do
     t.string "role", default: "user"
     t.datetime "last_login_at"
     t.string "stripe_customer_id"
-    t.index ["email"], name: "index_users_on_email", unique: true
+    t.index ["email", "tenant_id"], name: "index_users_on_email_and_tenant_id", unique: true
     t.index ["last_login_at"], name: "index_users_on_last_login_at"
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
     t.index ["role"], name: "index_users_on_role"
     t.index ["stripe_customer_id"], name: "index_users_on_stripe_customer_id", unique: true
     t.index ["tenant_id"], name: "index_users_on_tenant_id"
+    t.index ["username", "tenant_id"], name: "index_users_on_username_and_tenant_id", unique: true
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"

@@ -2,11 +2,12 @@ module Api
   module V1
     class AuthController < BaseController
       before_action :authenticate_user!, only: [:me, :logout]
-      skip_before_action :set_tenant_context, only: [:login, :register]
+      before_action :set_tenant_context_for_auth, only: [:login, :register]
 
       def login
-        # Try to find user by username or email
-        user = ::User.find_by(username: params[:username]) || ::User.find_by(email: params[:email])
+        # Find user within the specific tenant from URL path
+        user = Current.tenant.users.find_by(username: params[:username]) || 
+               Current.tenant.users.find_by(email: params[:email])
         
         if user&.valid_password?(params[:password])
           user.update!(last_login_at: Time.current)
@@ -54,7 +55,7 @@ module Api
       end
 
       def register
-        user = ::User.new(user_params)
+        user = Current.tenant.users.new(user_params)
         
         if user.save
           token = JWT.encode({ user_id: user.id }, Rails.application.credentials.secret_key_base)
@@ -81,6 +82,17 @@ module Api
       end
 
       private
+
+      def set_tenant_context_for_auth
+        # Extract tenant slug from URL path for auth endpoints
+        tenant_slug = request.path.split('/')[1]
+        return render json: { error: 'Tenant slug required in URL path' }, status: :bad_request unless tenant_slug
+        
+        tenant = Tenant.find_by(slug: tenant_slug)
+        return render json: { error: 'Invalid tenant' }, status: :unauthorized unless tenant
+        
+        Current.tenant = tenant
+      end
 
       def user_params
         params.require(:user).permit(:username, :email, :password, :password_confirmation, :first_name, :last_name)

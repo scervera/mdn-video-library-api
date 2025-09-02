@@ -17,6 +17,7 @@ class User < ApplicationRecord
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable
 
+  # Use our own tenant-scoped validations
   validates :email, presence: true, uniqueness: { scope: :tenant_id }
   validates :username, presence: true, uniqueness: { scope: :tenant_id }
   validates :first_name, presence: true
@@ -54,5 +55,14 @@ class User < ApplicationRecord
 
   def has_active_subscription?
     current_subscription.present?
+  end
+
+  # Override Devise methods to disable default validations
+  def email_required?
+    false
+  end
+
+  def devise_will_save_change_to_email?
+    false
   end
 end

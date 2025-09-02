@@ -1,7 +1,6 @@
 Rails.application.routes.draw do
   devise_for :users
-  # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
-
+  
   # Active Storage routes for serving uploaded files
   # These routes are automatically included in Rails 6+
 
@@ -9,21 +8,23 @@ Rails.application.routes.draw do
   # Can be used by load balancers and uptime monitors to verify that the app is live.
   get "up" => "rails/health#show", as: :rails_health_check
 
-  # Tenant registration (no subdomain required)
+  # Tenant registration (no tenant required)
   get 'tenant/new', to: 'tenant_registration#new'
   post 'tenant', to: 'tenant_registration#create'
 
-  # Tenant settings (requires subdomain)
+  # Tenant settings (requires tenant)
   get 'tenant/settings', to: 'tenant_settings#edit'
   patch 'tenant/settings', to: 'tenant_settings#update'
 
   # Dynamic branding CSS
   get 'branding.css', to: 'branding#css'
 
-  # API Routes - Version 1 (new versioned endpoints)
-  # Handle API versioning at the root level for frontend compatibility
-  scope '/api/v1', module: 'api/v1' do
-
+  # Tenant-scoped API Routes
+  # All API endpoints are now scoped by tenant slug in the URL path
+  # Example: /acme1/api/v1/lessons/1
+  scope ':tenant_slug' do
+    # API Routes - Version 1
+    scope '/api/v1', module: 'api/v1' do
       # Authentication
       post 'auth/login'
       post 'auth/logout'
@@ -223,21 +224,32 @@ Rails.application.routes.draw do
       post 'webhooks/stripe', to: 'webhooks#stripe'
     end
 
-  # Legacy API Routes (for backward compatibility)
-  namespace :api do
-    # Authentication
-    post 'auth/login'
-    post 'auth/logout'
-    post 'auth/register'
-    get 'auth/me'
-    
-    # Curricula
-    resources :curricula, only: [:index, :show] do
-      member do
-        post :enroll
-        get :enrollment_status
+    # Legacy API Routes (for backward compatibility)
+    namespace :api do
+      # Authentication
+      post 'auth/login'
+      post 'auth/logout'
+      post 'auth/register'
+      get 'auth/me'
+      
+      # Curricula
+      resources :curricula, only: [:index, :show] do
+        member do
+          post :enroll
+          get :enrollment_status
+        end
+        
+        resources :chapters, only: [:index, :show] do
+          member do
+            post :complete
+          end
+          resources :lessons, only: [:index]
+        end
+        
+        get 'user/progress', to: 'curricula/user#progress'
       end
       
+      # Chapters (for backward compatibility)
       resources :chapters, only: [:index, :show] do
         member do
           post :complete
@@ -245,37 +257,27 @@ Rails.application.routes.draw do
         resources :lessons, only: [:index]
       end
       
-      get 'user/progress', to: 'curricula/user#progress'
-    end
-    
-    # Chapters (for backward compatibility)
-    resources :chapters, only: [:index, :show] do
-      member do
-        post :complete
+      # Lessons
+      resources :lessons, only: [:index, :show] do
+        member do
+          post :complete
+          delete :complete, action: :uncomplete
+        end
+        resources :bookmarks, only: [:index, :create, :update, :destroy]
       end
-      resources :lessons, only: [:index]
-    end
-    
-    # Lessons
-    resources :lessons, only: [:index, :show] do
-      member do
-        post :complete
-        delete :complete, action: :uncomplete
+      
+      # User progress
+      namespace :user do
+        get 'progress', to: 'progress#index'
+        get 'progress/:curriculum_id', to: 'progress#curriculum_progress'
+        resources :notes, only: [:index, :create, :update, :destroy]
+        resources :highlights, only: [:index, :create, :update, :destroy]
       end
-      resources :bookmarks, only: [:index, :create, :update, :destroy]
+      
+      # Shared content endpoints
+      get '/bookmarks/shared', to: 'bookmarks#shared'
+      get '/bookmarks/public', to: 'bookmarks#public'
     end
-    
-    # User progress
-    namespace :user do
-      get 'progress', to: 'progress#index'
-      get 'progress/:curriculum_id', to: 'progress#curriculum_progress'
-      resources :notes, only: [:index, :create, :update, :destroy]
-      resources :highlights, only: [:index, :create, :update, :destroy]
-    end
-    
-    # Shared content endpoints
-    get '/bookmarks/shared', to: 'bookmarks#shared'
-    get '/bookmarks/public', to: 'bookmarks#public'
   end
 
   # Defines the root path route ("/")

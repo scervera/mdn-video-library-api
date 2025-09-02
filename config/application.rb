@@ -1,7 +1,6 @@
 require_relative "boot"
 
 require "rails/all"
-require_relative "../lib/tenant_middleware"
 
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
@@ -27,9 +26,6 @@ module MdnVideoLibraryApi
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
 
-    # Add tenant middleware (using proper class reference)
-    config.middleware.use TenantMiddleware
-    
     # Configure Active Storage URL options
     config.after_initialize do
       ActiveStorage::Current.url_options = { host: 'localhost', port: 3000 }
